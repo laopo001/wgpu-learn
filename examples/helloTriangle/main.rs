@@ -3,7 +3,7 @@ use wgpu_learn;
 
 fn main() {
     use winit::{
-        event::{Event, WindowEvent},
+        event,
         event_loop::{ControlFlow, EventLoop},
         window::WindowBuilder,
     };
@@ -21,7 +21,7 @@ fn main() {
         },
         wgpu::BackendBit::PRIMARY,
     )
-    .unwrap();
+        .unwrap();
     let (device, queue) = adapter.request_device(&wgpu::DeviceDescriptor {
         extensions: wgpu::Extensions {
             anisotropic_filtering: false,
@@ -29,11 +29,11 @@ fn main() {
         limits: wgpu::Limits::default(),
     });
     let vs_bytes = wgpu_learn::load_glsl(
-        include_str!("./shaders/helloTriangle.vert"),
+        include_str!("./shader.vert"),
         wgpu_learn::ShaderStage::Vertex,
     );
     let fs_bytes = wgpu_learn::load_glsl(
-        include_str!("./shaders/helloTriangle.frag"),
+        include_str!("./shader.frag"),
         wgpu_learn::ShaderStage::Fragment,
     );
     let vs_module = device.create_shader_module(&vs_bytes);
@@ -108,7 +108,7 @@ fn main() {
                             resolve_target: None,
                             load_op: wgpu::LoadOp::Clear,
                             store_op: wgpu::StoreOp::Store,
-                            clear_color: wgpu::Color::GREEN,
+                            clear_color: wgpu::Color::BLACK,
                         }],
                         depth_stencil_attachment: None,
                     });
