@@ -5,7 +5,6 @@ fn main() {
     use winit::{
         event,
         event_loop::{ControlFlow, EventLoop},
-        window::WindowBuilder,
     };
     let event_loop = EventLoop::new();
     let (window, size, surface) = {
@@ -15,6 +14,7 @@ fn main() {
         let surface = wgpu::Surface::create(&window);
         (window, size, surface)
     };
+
     let adapter = wgpu::Adapter::request(
         &wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::Default,
@@ -126,5 +126,4 @@ fn main() {
             _ => {}
         }
     });
-    println!("Hello, world!");
 }
