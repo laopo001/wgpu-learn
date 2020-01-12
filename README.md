@@ -2,4 +2,6 @@
 cargo run --example helloTriangle
 
 cargo run --example helloTriangleMSAA
+
+cargo run --example rectangle_texture
 ```

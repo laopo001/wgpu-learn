@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 #![allow(unused)]
 use wgpu_learn;
 
@@ -21,7 +22,7 @@ fn main() {
         },
         wgpu::BackendBit::PRIMARY,
     )
-        .unwrap();
+    .unwrap();
     let (device, queue) = adapter.request_device(&wgpu::DeviceDescriptor {
         extensions: wgpu::Extensions {
             anisotropic_filtering: false,
@@ -114,7 +115,7 @@ fn main() {
                     });
                     rpass.set_pipeline(&render_pipeline);
                     rpass.set_bind_group(0, &bind_group, &[]);
-                    rpass.draw(0 .. 3, 0 .. 1);
+                    rpass.draw(0..3, 0..1);
                 }
 
                 queue.submit(&[encoder.finish()]);

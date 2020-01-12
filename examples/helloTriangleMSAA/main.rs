@@ -1,3 +1,4 @@
+#![allow(non_snake_case)]
 #![allow(unused)]
 
 use wgpu_learn;
@@ -23,7 +24,7 @@ fn main() {
         },
         wgpu::BackendBit::PRIMARY,
     )
-        .unwrap();
+    .unwrap();
     let (device, queue) = adapter.request_device(&wgpu::DeviceDescriptor {
         extensions: wgpu::Extensions {
             anisotropic_filtering: false,
@@ -93,27 +94,27 @@ fn main() {
         },
     );
 
+    let create_multisampled_framebuffer =
+        move |device: &wgpu::Device, sample_count: u32| -> wgpu::TextureView {
+            let multisampled_texture_extent = wgpu::Extent3d {
+                width: size.width.round() as u32,
+                height: size.height.round() as u32,
+                depth: 1,
+            };
+            let multisampled_frame_descriptor = &wgpu::TextureDescriptor {
+                size: multisampled_texture_extent,
+                array_layer_count: 1,
+                mip_level_count: 1,
+                sample_count,
+                dimension: wgpu::TextureDimension::D2,
+                format: wgpu::TextureFormat::Bgra8UnormSrgb,
+                usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
+            };
 
-    let create_multisampled_framebuffer = move |device: &wgpu::Device, sample_count: u32| -> wgpu::TextureView {
-        let multisampled_texture_extent = wgpu::Extent3d {
-            width: size.width.round() as u32,
-            height: size.height.round() as u32,
-            depth: 1,
+            device
+                .create_texture(multisampled_frame_descriptor)
+                .create_default_view()
         };
-        let multisampled_frame_descriptor = &wgpu::TextureDescriptor {
-            size: multisampled_texture_extent,
-            array_layer_count: 1,
-            mip_level_count: 1,
-            sample_count,
-            dimension: wgpu::TextureDimension::D2,
-            format: wgpu::TextureFormat::Bgra8UnormSrgb,
-            usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
-        };
-
-        device
-            .create_texture(multisampled_frame_descriptor)
-            .create_default_view()
-    };
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Poll;
