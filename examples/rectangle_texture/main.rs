@@ -66,7 +66,7 @@ fn main() {
             tex_coord: Vector2::new(1.0, 0.0),
         },
     ];
-    let index_data: Vec<u16> = vec![0, 1, 2, 2, 3, 0];
+    let index_data: Vec<u16> = vec![0, 1, 2, 2, 1, 3];
     let mx_projection = cgmath::perspective(
         cgmath::Deg(45f32),
         window_size.width as f32 / window_size.height as f32,
@@ -74,7 +74,7 @@ fn main() {
         10.0,
     );
     let mx_view = cgmath::Matrix4::look_at(
-        cgmath::Point3::new(0.0f32, 0.0, 3.0),
+        cgmath::Point3::new(0f32, 0.0, 3.0),
         cgmath::Point3::new(0f32, 0.0, 0.0),
         cgmath::Vector3::unit_z(),
     );
@@ -114,15 +114,17 @@ fn main() {
                     x.position.x,
                     x.position.y,
                     x.position.z,
+                    1.0,
                     x.tex_coord.x,
                     x.tex_coord.y,
                 ];
             })
-            .collect::<Vec<[f32; 5]>>()
+            .collect::<Vec<[f32; 6]>>()
             .concat()
             .as_bytes(),
         wgpu::BufferUsage::VERTEX,
     );
+
     let index_buf = device.create_buffer_with_data(index_data.as_bytes(), wgpu::BufferUsage::INDEX);
     let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
     let uniform_buf = device.create_buffer_with_data(
@@ -251,7 +253,7 @@ fn main() {
         depth_stencil_state: None,
         index_format: wgpu::IndexFormat::Uint16,
         vertex_buffers: &[wgpu::VertexBufferDescriptor {
-            stride: std::mem::size_of::<Vertex>() as wgpu::BufferAddress,
+            stride: 6 * 4 as wgpu::BufferAddress,
             step_mode: wgpu::InputStepMode::Vertex,
             attributes: &[
                 wgpu::VertexAttributeDescriptor {
