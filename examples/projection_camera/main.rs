@@ -74,15 +74,17 @@ fn main() {
         10.0,
     );
     let mx_view = cgmath::Matrix4::look_at(
-        cgmath::Point3::new(0f32, 0.0, 3.0),
-        cgmath::Point3::new(0f32, 0.0, 0.0),
+        cgmath::Point3::new(0.0, 0.0, 2.0),
+        cgmath::Point3::new(0.0001, 0.0, 0.0),
         cgmath::Vector3::unit_z(),
     );
 
     let mx_model: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
         1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
     );
+    dbg!(mx_view);
     let model_view_projection_matrix = mx_model * mx_projection * mx_view;
+    dbg!(model_view_projection_matrix);
     let adapter = wgpu::Adapter::request(
         &wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::Default,

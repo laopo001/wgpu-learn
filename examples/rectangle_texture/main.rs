@@ -67,22 +67,6 @@ fn main() {
         },
     ];
     let index_data: Vec<u16> = vec![0, 1, 2, 2, 1, 3];
-    let mx_projection = cgmath::perspective(
-        cgmath::Deg(45f32),
-        window_size.width as f32 / window_size.height as f32,
-        1.0,
-        10.0,
-    );
-    let mx_view = cgmath::Matrix4::look_at(
-        cgmath::Point3::new(0f32, 0.0, 3.0),
-        cgmath::Point3::new(0f32, 0.0, 0.0),
-        cgmath::Vector3::unit_z(),
-    );
-
-    let mx_model: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
-        1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
-    );
-    let model_view_projection_matrix = mx_model * mx_projection * mx_view;
     let adapter = wgpu::Adapter::request(
         &wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::Default,
@@ -126,11 +110,7 @@ fn main() {
     );
 
     let index_buf = device.create_buffer_with_data(index_data.as_bytes(), wgpu::BufferUsage::INDEX);
-    let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
-    let uniform_buf = device.create_buffer_with_data(
-        mx_ref.as_bytes(),
-        wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
-    );
+
     // Create the texture
     let size = 256u32;
     let texels = create_texels(size as usize);
@@ -184,11 +164,6 @@ fn main() {
         bindings: &[
             wgpu::BindGroupLayoutBinding {
                 binding: 0,
-                visibility: wgpu::ShaderStage::VERTEX,
-                ty: wgpu::BindingType::UniformBuffer { dynamic: false },
-            },
-            wgpu::BindGroupLayoutBinding {
-                binding: 1,
                 visibility: wgpu::ShaderStage::FRAGMENT,
                 ty: wgpu::BindingType::SampledTexture {
                     multisampled: false,
@@ -196,7 +171,7 @@ fn main() {
                 },
             },
             wgpu::BindGroupLayoutBinding {
-                binding: 2,
+                binding: 1,
                 visibility: wgpu::ShaderStage::FRAGMENT,
                 ty: wgpu::BindingType::Sampler,
             },
@@ -207,17 +182,10 @@ fn main() {
         bindings: &[
             wgpu::Binding {
                 binding: 0,
-                resource: wgpu::BindingResource::Buffer {
-                    buffer: &uniform_buf,
-                    range: 0..64,
-                },
-            },
-            wgpu::Binding {
-                binding: 1,
                 resource: wgpu::BindingResource::TextureView(&texture_view),
             },
             wgpu::Binding {
-                binding: 2,
+                binding: 1,
                 resource: wgpu::BindingResource::Sampler(&sampler),
             },
         ],
