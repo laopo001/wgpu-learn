@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 pub enum ShaderStage {
     Vertex,
     Fragment,
@@ -12,4 +14,13 @@ pub fn load_glsl(code: &str, stage: ShaderStage) -> Vec<u32> {
     };
 
     wgpu::read_spirv(glsl_to_spirv::compile(&code, ty).unwrap()).unwrap()
+}
+
+pub fn Texture2TextureCopyView<'a>(t: &'a wgpu::Texture) -> wgpu::TextureCopyView<'a> {
+    wgpu::TextureCopyView {
+        texture: t,
+        mip_level: 0,
+        array_layer: 0,
+        origin: wgpu::Origin3d { x: 0, y: 0, z: 0 },
+    }
 }

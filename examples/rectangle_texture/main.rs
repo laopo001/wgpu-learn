@@ -167,7 +167,7 @@ fn main() {
         },
         texture_extent,
     );
-
+    queue.submit(&[init_encoder.finish()]);
     // Create other resources
     let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
         address_mode_u: wgpu::AddressMode::ClampToEdge,
@@ -312,7 +312,6 @@ fn main() {
                     // rpass.draw(0..3, 0..1);
                     rpass.draw_indexed(0..6 as u32, 0, 0..1);
                 }
-
                 queue.submit(&[encoder.finish()]);
             }
             event::Event::WindowEvent {
