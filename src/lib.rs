@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-
+#![allow(unused)]
 pub enum ShaderStage {
     Vertex,
     Fragment,
@@ -24,3 +24,15 @@ pub fn Texture2TextureCopyView<'a>(t: &'a wgpu::Texture) -> wgpu::TextureCopyVie
         origin: wgpu::Origin3d { x: 0, y: 0, z: 0 },
     }
 }
+#[macro_export]
+macro_rules! console_log {
+( $( $x:expr ),* ) => {
+    {
+        $(
+            println!("{:?}",$x);
+        )*
+    }
+};
+}
+
+pub fn abc() {}
