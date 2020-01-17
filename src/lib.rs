@@ -27,13 +27,13 @@ pub fn Texture2TextureCopyView<'a>(t: &'a wgpu::Texture) -> wgpu::TextureCopyVie
 }
 #[macro_export]
 macro_rules! console_log {
-( $( $x:expr ),* ) => {
-    {
-        $(
-            println!("{:?}",$x);
-        )*
-    }
-};
+    ( $( $x:expr ),* ) => {
+        {
+            $(
+                println!("{:?}",$x);
+            )*
+        }
+    };
 }
 
 pub mod time {
@@ -47,3 +47,7 @@ pub mod time {
 
 pub mod app;
 pub mod config;
+
+use cgmath::Matrix4;
+
+pub type Matrix4F32 = Matrix4<f32>;

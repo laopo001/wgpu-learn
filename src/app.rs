@@ -18,7 +18,7 @@ type Task = Box<dyn FnBox + 'static>;
 pub struct App {
     pub window: winit::window::Window,
     pub size: winit::dpi::PhysicalSize,
-    pub event_loop: winit::event_loop::EventLoop<()>,
+    event_loop: winit::event_loop::EventLoop<()>,
     pub adapter: wgpu::Adapter,
     pub surface: wgpu::Surface,
     pub device: wgpu::Device,
