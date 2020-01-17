@@ -1,3 +1,4 @@
+#![feature(fn_traits)]
 #![allow(non_snake_case)]
 #![allow(unused)]
 pub enum ShaderStage {

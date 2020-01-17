@@ -10,7 +10,7 @@ impl<F: FnOnce()> FnBox for F {
         (*self)()
     }
 }
-type BoxFnOnce = Box<dyn FnOnce()>;
+type BoxFnOnce = Box<dyn Fn() + 'static>;
 
 type Task = Box<dyn FnBox + Send + 'static>;
 
@@ -98,6 +98,13 @@ impl App {
             mut swap_chain,
             event,
         } = self;
+        event
+            .get(&Event::Start)
+            .get_or_insert(&vec![])
+            .iter()
+            .for_each(|e| unsafe {
+                e.call_once(());
+            });
         event_loop.run(move |event, _, control_flow| {
             *control_flow = winit::event_loop::ControlFlow::Poll;
             match event {
@@ -117,6 +124,11 @@ impl App {
         });
     }
     pub fn on(&mut self, e: Event, task: BoxFnOnce) {
-        self.event.get_mut(&e).get_or_insert(&mut vec![]).push(task);
+        // match self.event.get_mut(&e) {
+        //     Some(v) => v.push(task),
+        //     None =>
+        // }
+        // self.event.get_mut(&e).get_or_insert(&mut vec![]).push(task);
+        dbg!(self.event.get_mut(&e).unwrap().len());
     }
 }
