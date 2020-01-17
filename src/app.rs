@@ -2,17 +2,18 @@ use crate::config::{Config, Event};
 use std::collections::HashMap;
 
 pub trait FnBox {
-    fn call_box(self: Box<Self>);
+    fn call_box(&mut self, v: &mut App);
 }
 
-impl<F: FnOnce()> FnBox for F {
-    fn call_box(self: Box<F>) {
-        (*self)()
+impl<F: FnMut(&mut App)> FnBox for F {
+    fn call_box(&mut self, v: &mut App) {
+        (*self)(v)
     }
 }
-type BoxFnOnce = Box<dyn Fn() + 'static>;
 
-type Task = Box<dyn FnBox + Send + 'static>;
+type Task = Box<dyn FnBox + 'static>;
+
+// type BoxFnOnce = Box<dyn FnOnce() + 'static>;
 
 pub struct App {
     pub window: winit::window::Window,
@@ -23,7 +24,8 @@ pub struct App {
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub swap_chain: wgpu::SwapChain,
-    pub event: HashMap<Event, Vec<BoxFnOnce>>,
+    pub event: HashMap<Event, Vec<Task>>,
+    pub array: Vec<i32>,
 }
 
 impl Into<wgpu::PowerPreference> for Config {
@@ -81,54 +83,78 @@ impl App {
             queue,
             swap_chain,
             event: HashMap::new(),
+            array: vec![],
         };
     }
     pub fn get_info_adapter(&self) -> wgpu::AdapterInfo {
         return self.adapter.get_info();
     }
-    pub fn start(self) {
-        let App {
-            event_loop,
-            window,
-            size,
-            adapter,
-            surface,
-            device,
-            queue,
-            mut swap_chain,
-            event,
-        } = self;
-        event
-            .get(&Event::Start)
-            .get_or_insert(&vec![])
-            .iter()
-            .for_each(|e| unsafe {
-                e.call_once(());
+    pub fn start(mut self) {
+        unsafe {
+            let p_app = &mut self as *mut App;
+            let event_loop = self.event_loop;
+            // let App {
+            //     event_loop,
+            //     window,
+            //     size,
+            //     adapter,
+            //     surface,
+            //     device,
+            //     queue,
+            //     mut swap_chain,
+            //     event: mut event_map,
+            //     array,
+            // } = self;
+            (*p_app)
+                .event
+                .get_mut(&Event::Start)
+                .get_or_insert(&mut vec![])
+                .iter_mut()
+                .for_each(|e| unsafe {
+                    (e).call_box(std::mem::transmute::<*mut App, &mut App>(p_app));
+                });
+            event_loop.run(move |event, _, control_flow| {
+                *control_flow = winit::event_loop::ControlFlow::Poll;
+                match event {
+                    winit::event::Event::MainEventsCleared => (*p_app).window.request_redraw(),
+                    winit::event::Event::RedrawRequested(_) => {
+                        (*p_app)
+                            .event
+                            .get_mut(&Event::Update)
+                            .get_or_insert(&mut vec![])
+                            .iter_mut()
+                            .for_each(|e| unsafe {
+                                (e).call_box(std::mem::transmute::<*mut App, &mut App>(p_app));
+                            });
+                        // !todo
+                    }
+                    winit::event::Event::WindowEvent {
+                        event: winit::event::WindowEvent::CloseRequested,
+                        ..
+                    } => {
+                        (*p_app)
+                            .event
+                            .get_mut(&Event::End)
+                            .get_or_insert(&mut vec![])
+                            .iter_mut()
+                            .for_each(|e| unsafe {
+                                (e).call_box(std::mem::transmute::<*mut App, &mut App>(p_app));
+                            });
+                        *control_flow = winit::event_loop::ControlFlow::Exit
+                    }
+                    _ => {}
+                }
             });
-        event_loop.run(move |event, _, control_flow| {
-            *control_flow = winit::event_loop::ControlFlow::Poll;
-            match event {
-                winit::event::Event::MainEventsCleared => window.request_redraw(),
-                winit::event::Event::RedrawRequested(_) => {
-                    // !todo
-                }
-                winit::event::Event::WindowEvent {
-                    event: winit::event::WindowEvent::CloseRequested,
-                    ..
-                } => {
-                    dbg!("exit");
-                    *control_flow = winit::event_loop::ControlFlow::Exit
-                }
-                _ => {}
-            }
-        });
+        }
     }
-    pub fn on(&mut self, e: Event, task: BoxFnOnce) {
-        // match self.event.get_mut(&e) {
-        //     Some(v) => v.push(task),
-        //     None =>
-        // }
-        // self.event.get_mut(&e).get_or_insert(&mut vec![]).push(task);
-        dbg!(self.event.get_mut(&e).unwrap().len());
+    pub fn on<F>(&mut self, e: Event, task: F)
+    where
+        F: FnMut(&mut App) + 'static,
+    {
+        if let Some(v) = self.event.get_mut(&e) {
+            v.push(Box::new(task));
+        } else {
+            self.event.insert(e, vec![Box::new(task)]);
+        }
     }
 }

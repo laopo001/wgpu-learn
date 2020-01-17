@@ -1707,6 +1707,7 @@ dependencies = [
  "env_logger",
  "futures",
  "glsl-to-spirv",
+ "lazy_static",
  "log",
  "png",
  "rand 0.7.2",
