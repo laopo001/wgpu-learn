@@ -35,4 +35,14 @@ macro_rules! console_log {
 };
 }
 
-pub fn abc() {}
+pub mod time {
+    pub fn now() -> u128 {
+        return std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_millis();
+    }
+}
+
+pub mod app;
+pub mod config;
