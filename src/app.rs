@@ -49,7 +49,7 @@ impl App {
             },
             wgpu::BackendBit::PRIMARY,
         )
-        .expect("获取adapter");
+        .expect("获取adapter失败");
         let event_loop = winit::event_loop::EventLoop::new();
         let (window, size, surface) = {
             let window = winit::window::Window::new(&event_loop).unwrap();
