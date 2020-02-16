@@ -1,4 +1,7 @@
-use crate::config::{Config, Event};
+use crate::{
+    config::{Config, Event},
+    Color,
+};
 use std::collections::HashMap;
 
 pub trait FnBox {
@@ -89,22 +92,11 @@ impl App {
     pub fn get_info_adapter(&self) -> wgpu::AdapterInfo {
         return self.adapter.get_info();
     }
+    pub fn set_clear_color(color: Color) {}
     pub fn start(mut self) {
         unsafe {
             let p_app = &mut self as *mut App;
             let event_loop = self.event_loop;
-            // let App {
-            //     event_loop,
-            //     window,
-            //     size,
-            //     adapter,
-            //     surface,
-            //     device,
-            //     queue,
-            //     mut swap_chain,
-            //     event: mut event_map,
-            //     array,
-            // } = self;
             (*p_app)
                 .event
                 .get_mut(&Event::Start)

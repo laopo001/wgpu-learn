@@ -6,16 +6,16 @@ use std::sync::Mutex;
 use wgpu_learn::{
     app,
     config::{Config, Event},
-    console_log, load_glsl, time, Matrix4F32,
+    console_log, time, Matrix4F32,
 };
 
 fn main() {
     let mut app = app::App::new("123", Config::PowerHighPerformance);
-    let vs_bytes = wgpu_learn::load_glsl(
+    let vs_bytes = wgpu_learn::util::load_glsl(
         include_str!("./main2.vert"),
         wgpu_learn::ShaderStage::Vertex,
     );
-    let fs_bytes = wgpu_learn::load_glsl(
+    let fs_bytes = wgpu_learn::util::load_glsl(
         include_str!("./main2.frag"),
         wgpu_learn::ShaderStage::Fragment,
     );

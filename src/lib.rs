@@ -1,21 +1,11 @@
 #![feature(fn_traits)]
 #![allow(non_snake_case)]
 #![allow(unused)]
-pub enum ShaderStage {
-    Vertex,
-    Fragment,
-    Compute,
-}
-
-pub fn load_glsl(code: &str, stage: ShaderStage) -> Vec<u32> {
-    let ty = match stage {
-        ShaderStage::Vertex => glsl_to_spirv::ShaderType::Vertex,
-        ShaderStage::Fragment => glsl_to_spirv::ShaderType::Fragment,
-        ShaderStage::Compute => glsl_to_spirv::ShaderType::Compute,
-    };
-
-    wgpu::read_spirv(glsl_to_spirv::compile(&code, ty).unwrap()).unwrap()
-}
+// pub enum ShaderStage {
+//     Vertex,
+//     Fragment,
+//     Compute,
+// }
 
 pub fn Texture2TextureCopyView<'a>(t: &'a wgpu::Texture) -> wgpu::TextureCopyView<'a> {
     wgpu::TextureCopyView {
@@ -47,7 +37,12 @@ pub mod time {
 
 pub mod app;
 pub mod config;
+pub mod core;
+pub mod util;
 
 use cgmath::Matrix4;
 
 pub type Matrix4F32 = Matrix4<f32>;
+pub type Color = wgpu::Color;
+pub type VertexFormat = wgpu::VertexFormat;
+pub type ShaderStage = glsl_to_spirv::ShaderType;

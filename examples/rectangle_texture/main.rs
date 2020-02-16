@@ -80,11 +80,11 @@ fn main() {
         },
         limits: wgpu::Limits::default(),
     });
-    let vs_bytes = wgpu_learn::load_glsl(
+    let vs_bytes = wgpu_learn::util::load_glsl(
         include_str!("./shader.vert"),
         wgpu_learn::ShaderStage::Vertex,
     );
-    let fs_bytes = wgpu_learn::load_glsl(
+    let fs_bytes = wgpu_learn::util::load_glsl(
         include_str!("./shader.frag"),
         wgpu_learn::ShaderStage::Fragment,
     );
