@@ -29,6 +29,7 @@ pub struct App {
     pub swap_chain: wgpu::SwapChain,
     pub event: HashMap<Event, Vec<Task>>,
     pub array: Vec<i32>,
+    _clear_color: Color,
 }
 
 impl Into<wgpu::PowerPreference> for Config {
@@ -87,12 +88,15 @@ impl App {
             swap_chain,
             event: HashMap::new(),
             array: vec![],
+            _clear_color: Color::BLACK,
         };
     }
     pub fn get_info_adapter(&self) -> wgpu::AdapterInfo {
         return self.adapter.get_info();
     }
-    pub fn set_clear_color(color: Color) {}
+    pub fn set_clear_color(&mut self, color: Color) {
+        self._clear_color = color;
+    }
     pub fn start(mut self) {
         unsafe {
             let p_app = &mut self as *mut App;
