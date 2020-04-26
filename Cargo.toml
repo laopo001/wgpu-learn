@@ -31,3 +31,9 @@ package = "wgpu"
 version = "0.4.0"
 git = "https://github.com/gfx-rs/wgpu-rs.git"
 rev = "4a0da16fe6764c4e1dc918a31cbd7467d404df51"
+
+[patch.crates-io]
+wasm-bindgen = { git = "https://github.com/rustwasm/wasm-bindgen" }
+wasm-bindgen-futures = { git = "https://github.com/rustwasm/wasm-bindgen" }
+web-sys = { git = "https://github.com/rustwasm/wasm-bindgen" }
+js-sys = { git = "https://github.com/rustwasm/wasm-bindgen" }
