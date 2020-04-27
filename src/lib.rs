@@ -26,6 +26,25 @@ macro_rules! console_log {
     };
 }
 
+#[macro_export]
+macro_rules! extends {
+    ($a:expr,$b:expr) => {
+        pub struct Temp {
+            pub __parent: $b,
+            pub offset: u32,
+            pub stride: u32,
+            pub length: u32,
+        }
+
+        impl Deref for Temp {
+            type Target = $b;
+            fn deref<'a>(&'a self) -> &'a $b {
+                &self.__parent
+            }
+        }
+    };
+}
+
 pub mod time {
     pub fn now() -> u128 {
         return std::time::SystemTime::now()
