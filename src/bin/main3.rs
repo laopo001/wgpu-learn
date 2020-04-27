@@ -3,11 +3,11 @@
 extern crate lazy_static;
 use wgpu_learn::{
     app,
-    config::{Config, Event},
+    config::{Config, Event, SEMANTIC},
     console_log,
     core::shader::Shader,
     core::vertex_buffer::VertexBuffer,
-    core::vertex_format::VertexFormat,
+    core::vertex_format::{VertexFormat, VertexType},
     time, Matrix4, Vector2, Vector3,
 };
 use zerocopy::{AsBytes, FromBytes};
@@ -35,7 +35,21 @@ async fn run() {
         },
     ];
     let index_data: Vec<u16> = vec![0, 1, 2, 2, 1, 3];
-    let gvf = VertexFormat::new(8);
+    let gvf = VertexFormat::new(vec![
+        VertexType {
+            semantic: SEMANTIC::POSITION,
+            size: 4,
+            normalize: true,
+            isF64: false,
+        },
+        VertexType {
+            semantic: SEMANTIC::TEXCOORD0,
+            size: 2,
+            normalize: true,
+            isF64: false,
+        },
+    ]);
+    // dbg!(gvf.elements[0].size);
     let gvb = VertexBuffer::new(
         vertex_data
             .iter()
@@ -59,8 +73,8 @@ async fn run() {
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
     let shader = Shader::new(
         &app,
-        include_str!("./projection_camera.vert"),
-        include_str!("./projection_camera.frag"),
+        include_str!("./main2.vert"),
+        include_str!("./main2.frag"),
     );
     app.on(Event::Update, move |app| unsafe {
         let frame = app
