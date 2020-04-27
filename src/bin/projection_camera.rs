@@ -38,15 +38,20 @@ fn create_texels(size: usize) -> Vec<u8> {
         .collect()
 }
 
-fn main() {
-    let event_loop = EventLoop::new();
-    let (window, window_size, surface) = {
-        let window = winit::window::Window::new(&event_loop).unwrap();
-        let size = window.inner_size().to_physical(window.hidpi_factor());
-
-        let surface = wgpu::Surface::create(&window);
-        (window, size, surface)
-    };
+async fn run() {
+    let event_loop = winit::event_loop::EventLoop::new();
+    let window = winit::window::Window::new(&event_loop).unwrap();
+    let window_size = window.inner_size();
+    let surface = wgpu::Surface::create(&window);
+    let adapter = wgpu::Adapter::request(
+        &wgpu::RequestAdapterOptions {
+            power_preference: wgpu::PowerPreference::Default,
+            compatible_surface: Some(&surface),
+        },
+        wgpu::BackendBit::PRIMARY,
+    )
+    .await
+    .unwrap();
     // data
     let vertex_data = [
         Vertex {
@@ -85,19 +90,14 @@ fn main() {
     dbg!(mx_view);
     let model_view_projection_matrix = mx_model * mx_projection * mx_view;
     dbg!(model_view_projection_matrix);
-    let adapter = wgpu::Adapter::request(
-        &wgpu::RequestAdapterOptions {
-            power_preference: wgpu::PowerPreference::Default,
-        },
-        wgpu::BackendBit::PRIMARY,
-    )
-    .unwrap();
-    let (device, queue) = adapter.request_device(&wgpu::DeviceDescriptor {
-        extensions: wgpu::Extensions {
-            anisotropic_filtering: false,
-        },
-        limits: wgpu::Limits::default(),
-    });
+    let (device, queue) = adapter
+        .request_device(&wgpu::DeviceDescriptor {
+            extensions: wgpu::Extensions {
+                anisotropic_filtering: false,
+            },
+            limits: wgpu::Limits::default(),
+        })
+        .await;
     let vs_bytes = wgpu_learn::util::load_glsl(
         include_str!("./projection_camera.vert"),
         wgpu_learn::ShaderStage::Vertex,
@@ -149,17 +149,18 @@ fn main() {
         dimension: wgpu::TextureDimension::D2,
         format: wgpu::TextureFormat::Rgba8UnormSrgb,
         usage: wgpu::TextureUsage::SAMPLED | wgpu::TextureUsage::COPY_DST,
+        label: None,
     });
     let texture_view = texture.create_default_view();
     let temp_buf = device.create_buffer_with_data(texels.as_slice(), wgpu::BufferUsage::COPY_SRC);
     let mut init_encoder =
-        device.create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
+        device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
     init_encoder.copy_buffer_to_texture(
         wgpu::BufferCopyView {
             buffer: &temp_buf,
             offset: 0,
-            row_pitch: 4 * size,
-            image_height: size,
+            bytes_per_row: 4 * size,
+            rows_per_image: size,
         },
         wgpu::TextureCopyView {
             texture: &texture,
@@ -180,29 +181,31 @@ fn main() {
         mipmap_filter: wgpu::FilterMode::Nearest,
         lod_min_clamp: -100.0,
         lod_max_clamp: 100.0,
-        compare_function: wgpu::CompareFunction::Always,
+        compare: wgpu::CompareFunction::Always,
     });
     let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
         bindings: &[
-            wgpu::BindGroupLayoutBinding {
+            wgpu::BindGroupLayoutEntry {
                 binding: 0,
                 visibility: wgpu::ShaderStage::VERTEX,
                 ty: wgpu::BindingType::UniformBuffer { dynamic: false },
             },
-            wgpu::BindGroupLayoutBinding {
+            wgpu::BindGroupLayoutEntry {
                 binding: 1,
                 visibility: wgpu::ShaderStage::FRAGMENT,
                 ty: wgpu::BindingType::SampledTexture {
                     multisampled: false,
+                    component_type: wgpu::TextureComponentType::Float,
                     dimension: wgpu::TextureViewDimension::D2,
                 },
             },
-            wgpu::BindGroupLayoutBinding {
+            wgpu::BindGroupLayoutEntry {
                 binding: 2,
                 visibility: wgpu::ShaderStage::FRAGMENT,
-                ty: wgpu::BindingType::Sampler,
+                ty: wgpu::BindingType::Sampler { comparison: false },
             },
         ],
+        label: None,
     });
     let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
         layout: &bind_group_layout,
@@ -223,6 +226,7 @@ fn main() {
                 resource: wgpu::BindingResource::Sampler(&sampler),
             },
         ],
+        label: None,
     });
     let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         bind_group_layouts: &[&bind_group_layout],
@@ -253,23 +257,26 @@ fn main() {
             write_mask: wgpu::ColorWrite::ALL,
         }],
         depth_stencil_state: None,
-        index_format: wgpu::IndexFormat::Uint16,
-        vertex_buffers: &[wgpu::VertexBufferDescriptor {
-            stride: 6 * 4 as wgpu::BufferAddress,
-            step_mode: wgpu::InputStepMode::Vertex,
-            attributes: &[
-                wgpu::VertexAttributeDescriptor {
-                    format: wgpu::VertexFormat::Float4,
-                    offset: 0,
-                    shader_location: 0,
-                },
-                wgpu::VertexAttributeDescriptor {
-                    format: wgpu::VertexFormat::Float2,
-                    offset: 4 * 4,
-                    shader_location: 1,
-                },
-            ],
-        }],
+
+        vertex_state: wgpu::VertexStateDescriptor {
+            index_format: wgpu::IndexFormat::Uint16,
+            vertex_buffers: &[wgpu::VertexBufferDescriptor {
+                stride: 6 * 4 as wgpu::BufferAddress,
+                step_mode: wgpu::InputStepMode::Vertex,
+                attributes: &[
+                    wgpu::VertexAttributeDescriptor {
+                        format: wgpu::VertexFormat::Float4,
+                        offset: 0,
+                        shader_location: 0,
+                    },
+                    wgpu::VertexAttributeDescriptor {
+                        format: wgpu::VertexFormat::Float2,
+                        offset: 4 * 4,
+                        shader_location: 1,
+                    },
+                ],
+            }],
+        },
         sample_count: 1,
         sample_mask: !0,
         alpha_to_coverage_enabled: false,
@@ -280,9 +287,9 @@ fn main() {
         &wgpu::SwapChainDescriptor {
             usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
             format: wgpu::TextureFormat::Bgra8UnormSrgb,
-            width: window_size.width.round() as u32,
-            height: window_size.height.round() as u32,
-            present_mode: wgpu::PresentMode::Vsync,
+            width: window_size.width as u32,
+            height: window_size.height as u32,
+            present_mode: wgpu::PresentMode::Mailbox,
         },
     );
 
@@ -295,7 +302,7 @@ fn main() {
                     .get_next_texture()
                     .expect("Timeout when acquiring next swap chain texture");
                 let mut encoder =
-                    device.create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
+                    device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
                 {
                     let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                         color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
@@ -309,8 +316,8 @@ fn main() {
                     });
                     rpass.set_pipeline(&render_pipeline);
                     rpass.set_bind_group(0, &bind_group, &[]);
-                    rpass.set_index_buffer(&index_buf, 0);
-                    rpass.set_vertex_buffers(0, &[(&vertex_buf, 0)]);
+                    rpass.set_index_buffer(&index_buf, 0, 0);
+                    rpass.set_vertex_buffer(0, &vertex_buf, 0, 0);
                     // rpass.draw(0..3, 0..1);
                     rpass.draw_indexed(0..6 as u32, 0, 0..1);
                 }
@@ -323,4 +330,8 @@ fn main() {
             _ => {}
         }
     });
+}
+
+fn main() {
+    async_std::task::block_on(run());
 }
