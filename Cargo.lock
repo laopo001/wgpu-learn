@@ -2109,3 +2109,23 @@ dependencies = [
  "syn 0.15.44",
  "synstructure 0.10.2",
 ]
+
+[[patch.unused]]
+name = "js-sys"
+version = "0.3.37"
+source = "git+https://github.com/rustwasm/wasm-bindgen#a479241c469a39ae5a95a7a08f33ea4cadde3f26"
+
+[[patch.unused]]
+name = "wasm-bindgen"
+version = "0.2.60"
+source = "git+https://github.com/rustwasm/wasm-bindgen#a479241c469a39ae5a95a7a08f33ea4cadde3f26"
+
+[[patch.unused]]
+name = "wasm-bindgen-futures"
+version = "0.4.10"
+source = "git+https://github.com/rustwasm/wasm-bindgen#a479241c469a39ae5a95a7a08f33ea4cadde3f26"
+
+[[patch.unused]]
+name = "web-sys"
+version = "0.3.37"
+source = "git+https://github.com/rustwasm/wasm-bindgen#a479241c469a39ae5a95a7a08f33ea4cadde3f26"

@@ -9,10 +9,10 @@ use wgpu_learn::{
     console_log, time, Matrix4F32,
 };
 
-lazy_static! {
-    /// This is an example for using doc comment attributes
-    static ref ARR: Mutex<Vec<i32>> = Mutex::new(vec![]);
-}
+// lazy_static! {
+//     /// This is an example for using doc comment attributes
+//     static ref ARR: Mutex<Vec<i32>> = Mutex::new(vec![]);
+// }
 
 async fn run() {
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
@@ -24,12 +24,12 @@ async fn run() {
         dbg!(ARR.lock().unwrap());
     });
 
-    app.on(Event::Start, |app| {
-        app.array.push(1);
-    });
-    app.on(Event::End, |app| {
-        dbg!(app.array.len());
-    });
+    // app.on(Event::Start, |app| {
+    //     app.array.push(1);
+    // });
+    // app.on(Event::End, |app| {
+    //     dbg!(app.array.len());
+    // });
     app.start();
 }
 
