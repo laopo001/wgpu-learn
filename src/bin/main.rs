@@ -6,7 +6,7 @@ use std::sync::Mutex;
 use wgpu_learn::{
     app,
     config::{Config, Event},
-    console_log, time, Matrix4F32,
+    console_log, time,
 };
 
 lazy_static! {

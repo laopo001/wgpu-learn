@@ -40,9 +40,9 @@ pub mod config;
 pub mod core;
 pub mod util;
 
-use cgmath::Matrix4;
-
-pub type Matrix4F32 = Matrix4<f32>;
+pub type Matrix4 = cgmath::Matrix4<f32>;
+pub type Vector3 = cgmath::Vector3<f32>;
+pub type Vector2 = cgmath::Vector2<f32>;
 pub type Color = wgpu::Color;
 pub type VertexFormat = wgpu::VertexFormat;
 pub type ShaderStage = glsl_to_spirv::ShaderType;
