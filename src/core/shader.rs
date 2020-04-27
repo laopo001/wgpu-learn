@@ -10,12 +10,16 @@ impl Shader {
         let fs_bytes = load_glsl(fs_code, ShaderStage::Fragment);
         let vs_module = app.device.create_shader_module(&vs_bytes);
         let fs_module = app.device.create_shader_module(&fs_bytes);
-        let bind_group_layout = app
-            .device
-            .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor { bindings: &[] });
+        let bind_group_layout =
+            app.device
+                .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                    bindings: &[],
+                    label: None,
+                });
         let bind_group = app.device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &bind_group_layout,
             bindings: &[],
+            label: None,
         });
         let pipeline_layout = app
             .device
@@ -49,9 +53,13 @@ impl Shader {
                     alpha_blend: wgpu::BlendDescriptor::REPLACE,
                     write_mask: wgpu::ColorWrite::ALL,
                 }],
+                vertex_state: wgpu::VertexStateDescriptor {
+                    index_format: wgpu::IndexFormat::Uint16,
+                    vertex_buffers: &[],
+                },
                 depth_stencil_state: None,
-                index_format: wgpu::IndexFormat::Uint16,
-                vertex_buffers: &[],
+                // index_format: wgpu::IndexFormat::Uint16,
+                // vertex_buffers: &[],
                 sample_count: 1,
                 sample_mask: !0,
                 alpha_to_coverage_enabled: false,

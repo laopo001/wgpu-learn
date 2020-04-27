@@ -11,8 +11,8 @@ use wgpu_learn::{
     time, Matrix4F32,
 };
 
-fn main() {
-    let mut app = app::App::new("123", Config::PowerHighPerformance);
+async fn run() {
+    let mut app = app::App::new("123", Config::PowerHighPerformance).await;
     let shader = Shader::new(
         &app,
         include_str!("./main2.vert"),
@@ -25,7 +25,7 @@ fn main() {
             .expect("Timeout when acquiring next swap chain texture");
         let mut encoder = app
             .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
         {
             let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
                 color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
@@ -46,4 +46,8 @@ fn main() {
     });
 
     app.start();
+}
+
+fn main() {
+    async_std::task::block_on(run());
 }

@@ -20,7 +20,7 @@ type Task = Box<dyn FnBox + 'static>;
 
 pub struct App {
     pub window: winit::window::Window,
-    pub size: winit::dpi::PhysicalSize,
+    pub size: winit::dpi::PhysicalSize<u32>,
     event_loop: winit::event_loop::EventLoop<()>,
     pub adapter: wgpu::Adapter,
     pub surface: wgpu::Surface,
@@ -44,37 +44,44 @@ impl Into<wgpu::PowerPreference> for Config {
 }
 
 // use wgpu::PowerPreference as AppPower;
+use winit::{
+    event::WindowEvent,
+    event_loop::{ControlFlow, EventLoop},
+    window::Window,
+};
 
 impl App {
-    pub fn new(title: &str, power: Config) -> Self {
+    pub async fn new(title: &str, power: Config) -> Self {
+        let event_loop = EventLoop::new();
+        let window = winit::window::Window::new(&event_loop).unwrap();
+        let size = window.inner_size();
+        let surface = wgpu::Surface::create(&window);
         let adapter = wgpu::Adapter::request(
             &wgpu::RequestAdapterOptions {
-                power_preference: power.into(),
+                power_preference: wgpu::PowerPreference::Default,
+                compatible_surface: Some(&surface),
             },
             wgpu::BackendBit::PRIMARY,
         )
-        .expect("获取adapter失败");
-        let event_loop = winit::event_loop::EventLoop::new();
-        let (window, size, surface) = {
-            let window = winit::window::Window::new(&event_loop).unwrap();
-            let size = window.inner_size().to_physical(window.hidpi_factor());
-            let surface = wgpu::Surface::create(&window);
-            (window, size, surface)
-        };
-        let (device, queue) = adapter.request_device(&wgpu::DeviceDescriptor {
-            extensions: wgpu::Extensions {
-                anisotropic_filtering: false,
-            },
-            limits: wgpu::Limits::default(),
-        });
+        .await
+        .unwrap();
+
+        let (device, queue) = adapter
+            .request_device(&wgpu::DeviceDescriptor {
+                extensions: wgpu::Extensions {
+                    anisotropic_filtering: false,
+                },
+                limits: wgpu::Limits::default(),
+            })
+            .await;
         let mut swap_chain = device.create_swap_chain(
             &surface,
             &wgpu::SwapChainDescriptor {
                 usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
                 format: wgpu::TextureFormat::Bgra8UnormSrgb,
-                width: size.width.round() as u32,
-                height: size.height.round() as u32,
-                present_mode: wgpu::PresentMode::Vsync,
+                width: size.width as u32,
+                height: size.height as u32,
+                present_mode: wgpu::PresentMode::Mailbox,
             },
         );
         return App {

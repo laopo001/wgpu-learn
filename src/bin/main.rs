@@ -1,7 +1,7 @@
 #![allow(unused)]
 #[macro_use]
 extern crate lazy_static;
-
+use async_std::task;
 use std::sync::Mutex;
 use wgpu_learn::{
     app,
@@ -14,13 +14,9 @@ lazy_static! {
     static ref ARR: Mutex<Vec<i32>> = Mutex::new(vec![]);
 }
 
-fn main() {
-    let mut app = app::App::new("123", Config::PowerHighPerformance);
-    // dbg!(app.get_info_adapter());
-    let m = Matrix4F32::new(
-        1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
-    );
-    dbg!(m);
+async fn run() {
+    let mut app = app::App::new("123", Config::PowerHighPerformance).await;
+
     app.on(Event::Start, |app| {
         ARR.lock().unwrap().push(1);
     });
@@ -35,4 +31,8 @@ fn main() {
         dbg!(app.array.len());
     });
     app.start();
+}
+
+fn main() {
+    task::block_on(run());
 }
