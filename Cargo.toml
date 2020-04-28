@@ -9,25 +9,20 @@ edition = "2018"
 
 [dependencies]
 cgmath = "0.17"
-env_logger = "0.7"
-glsl-to-spirv = "0.1"
 log = "0.4"
 png = "0.15"
 zerocopy = "0.2"
 futures = "0.3"
 lazy_static = "1.4.0"
-# wgpu = "0.5.0"
 winit = { version = "0.22.1", features = ["web-sys"] }
 rand = { version = "0.7.3", features = ["wasm-bindgen"] }
+console_error_panic_hook = "0.1.6"
+console_log = "0.1.2"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 async-std = "1.5.0"
-
-
-[dependencies.wgpu]
-package = "wgpu"
-git = "https://github.com/gfx-rs/wgpu-rs.git"
-rev = "49640d2497ffac1936feb1cebb0ef64a39c31dce"
-
-
+glsl-to-spirv = "0.1"
+env_logger = "0.7"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen = "0.2.60"
@@ -120,3 +115,8 @@ web-sys = { version = "0.3.37", features = [
 ]}
 js-sys = "0.3.37"
 wasm-bindgen-futures = "0.4.10"
+
+[dependencies.wgpu]
+package = "wgpu"
+git = "https://github.com/gfx-rs/wgpu-rs.git"
+rev = "49640d2497ffac1936feb1cebb0ef64a39c31dce"

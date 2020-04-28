@@ -1,5 +1,3 @@
-use async_std::task;
-
 async fn run() {
     // HighPerformance 如果是笔记本则是独立显卡，默认是集显
     let event_loop = winit::event_loop::EventLoop::new();
@@ -22,5 +20,15 @@ async fn run() {
 }
 
 fn main() {
-    task::block_on(run());
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        env_logger::init();
+        async_std::task::block_on(run());
+    }
+    #[cfg(target_arch = "wasm32")]
+    {
+        std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+        console_log::init().expect("could not initialize logger");
+        wasm_bindgen_futures::spawn_local(run());
+    }
 }
