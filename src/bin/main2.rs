@@ -2,7 +2,6 @@
 #[macro_use]
 extern crate lazy_static;
 
-use std::sync::Mutex;
 use wgpu_learn::{
     app,
     config::{Config, Event},
@@ -41,8 +40,7 @@ async fn run() {
             rpass.set_bind_group(0, &shader.bind_group, &[]);
             rpass.draw(0..3, 0..1);
         }
-
-        app.queue.submit(&[encoder.finish()]);
+        app.queue.submit(Some(encoder.finish()));
     });
 
     app.start();

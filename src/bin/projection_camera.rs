@@ -42,16 +42,27 @@ async fn run() {
     let event_loop = winit::event_loop::EventLoop::new();
     let window = winit::window::Window::new(&event_loop).unwrap();
     let window_size = window.inner_size();
-    let surface = wgpu::Surface::create(&window);
-    let adapter = wgpu::Adapter::request(
-        &wgpu::RequestAdapterOptions {
-            power_preference: wgpu::PowerPreference::Default,
-            compatible_surface: Some(&surface),
-        },
-        wgpu::BackendBit::PRIMARY,
-    )
-    .await
-    .unwrap();
+    let instance = wgpu::Instance::new();
+    let surface = unsafe { instance.create_surface(&window) };
+    let adapter = instance
+        .request_adapter(
+            &wgpu::RequestAdapterOptions {
+                power_preference: wgpu::PowerPreference::Default,
+                compatible_surface: Some(&surface),
+            },
+            wgpu::BackendBit::PRIMARY,
+        )
+        .await
+        .unwrap();
+    let (device, queue) = adapter
+        .request_device(&wgpu::DeviceDescriptor {
+            extensions: wgpu::Extensions {
+                anisotropic_filtering: false,
+            },
+            limits: wgpu::Limits::default(),
+        })
+        .await
+        .unwrap();
     // data
     let vertex_data = [
         Vertex {
@@ -90,14 +101,7 @@ async fn run() {
     dbg!(mx_view);
     let model_view_projection_matrix = mx_model * mx_projection * mx_view;
     dbg!(model_view_projection_matrix);
-    let (device, queue) = adapter
-        .request_device(&wgpu::DeviceDescriptor {
-            extensions: wgpu::Extensions {
-                anisotropic_filtering: false,
-            },
-            limits: wgpu::Limits::default(),
-        })
-        .await;
+
     let vs_bytes = wgpu_learn::util::load_glsl(
         include_str!("./projection_camera.vert"),
         wgpu_learn::ShaderStage::Vertex,
@@ -143,7 +147,7 @@ async fn run() {
     };
     let texture = device.create_texture(&wgpu::TextureDescriptor {
         size: texture_extent,
-        array_layer_count: 1,
+        // array_layer_count: 1,
         mip_level_count: 1,
         sample_count: 1,
         dimension: wgpu::TextureDimension::D2,
@@ -170,7 +174,7 @@ async fn run() {
         },
         texture_extent,
     );
-    queue.submit(&[init_encoder.finish()]);
+    queue.submit(Some(init_encoder.finish()));
     // Create other resources
     let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
         address_mode_u: wgpu::AddressMode::ClampToEdge,
@@ -321,7 +325,7 @@ async fn run() {
                     // rpass.draw(0..3, 0..1);
                     rpass.draw_indexed(0..6 as u32, 0, 0..1);
                 }
-                queue.submit(&[encoder.finish()]);
+                queue.submit(Some(encoder.finish()));
             }
             event::Event::WindowEvent {
                 event: event::WindowEvent::CloseRequested,

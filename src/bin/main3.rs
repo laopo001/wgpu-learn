@@ -100,7 +100,7 @@ async fn run() {
             rpass.draw(0..3, 0..1);
         }
 
-        app.queue.submit(&[encoder.finish()]);
+        app.queue.submit(Some(encoder.finish()));
     });
 
     app.start();

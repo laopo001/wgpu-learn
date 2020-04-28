@@ -55,17 +55,18 @@ impl App {
         let event_loop = EventLoop::new();
         let window = winit::window::Window::new(&event_loop).unwrap();
         let size = window.inner_size();
-        let surface = wgpu::Surface::create(&window);
-        let adapter = wgpu::Adapter::request(
-            &wgpu::RequestAdapterOptions {
-                power_preference: wgpu::PowerPreference::Default,
-                compatible_surface: Some(&surface),
-            },
-            wgpu::BackendBit::PRIMARY,
-        )
-        .await
-        .unwrap();
-
+        let instance = wgpu::Instance::new();
+        let surface = unsafe { instance.create_surface(&window) };
+        let adapter = instance
+            .request_adapter(
+                &wgpu::RequestAdapterOptions {
+                    power_preference: wgpu::PowerPreference::Default,
+                    compatible_surface: Some(&surface),
+                },
+                wgpu::BackendBit::PRIMARY,
+            )
+            .await
+            .unwrap();
         let (device, queue) = adapter
             .request_device(&wgpu::DeviceDescriptor {
                 extensions: wgpu::Extensions {
@@ -73,7 +74,8 @@ impl App {
                 },
                 limits: wgpu::Limits::default(),
             })
-            .await;
+            .await
+            .unwrap();
         let mut swap_chain = device.create_swap_chain(
             &surface,
             &wgpu::SwapChainDescriptor {
@@ -107,22 +109,34 @@ impl App {
     pub fn start(mut self) {
         unsafe {
             let p_app = &mut self as *mut App;
-            let event_loop = self.event_loop;
-            (*p_app)
-                .event
+            // let event_loop = self.event_loop;
+            let App {
+                event_loop,
+                window,
+                size,
+                adapter,
+                surface,
+                device,
+                queue,
+                swap_chain,
+                mut event,
+                array,
+                _clear_color,
+            } = self;
+            event
                 .get_mut(&Event::Start)
                 .get_or_insert(&mut vec![])
                 .iter_mut()
                 .for_each(|e| unsafe {
                     (e).call_box(std::mem::transmute::<*mut App, &mut App>(p_app));
                 });
-            event_loop.run(move |event, _, control_flow| {
+            event_loop.run(move |e, _, control_flow| {
                 *control_flow = winit::event_loop::ControlFlow::Poll;
-                match event {
-                    winit::event::Event::MainEventsCleared => (*p_app).window.request_redraw(),
+                match e {
+                    winit::event::Event::MainEventsCleared => window.request_redraw(),
+                    // 更新
                     winit::event::Event::RedrawRequested(_) => {
-                        (*p_app)
-                            .event
+                        event
                             .get_mut(&Event::Update)
                             .get_or_insert(&mut vec![])
                             .iter_mut()
@@ -131,12 +145,12 @@ impl App {
                             });
                         // !todo
                     }
+                    // 关闭
                     winit::event::Event::WindowEvent {
                         event: winit::event::WindowEvent::CloseRequested,
                         ..
                     } => {
-                        (*p_app)
-                            .event
+                        event
                             .get_mut(&Event::End)
                             .get_or_insert(&mut vec![])
                             .iter_mut()
