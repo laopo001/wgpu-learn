@@ -100,6 +100,7 @@ impl App {
             _clear_color: Color::BLACK,
         };
     }
+    #[cfg(not(target_arch = "wasm32"))]
     pub fn get_info_adapter(&self) -> wgpu::AdapterInfo {
         return self.adapter.get_info();
     }
