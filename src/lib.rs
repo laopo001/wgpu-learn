@@ -28,15 +28,15 @@ macro_rules! console_log {
 
 #[macro_export]
 macro_rules! extends {
-    ($a:expr,$b:expr) => {
-        pub struct Temp {
+    ($a:ident,$b:ty, $( {$k:ident: $v:ty} ),* ) => {
+        pub struct $a {
             pub __parent: $b,
-            pub offset: u32,
-            pub stride: u32,
-            pub length: u32,
+            $(
+                pub $k: $v,
+            )*
         }
-
-        impl Deref for Temp {
+        use core::ops::Deref;
+        impl Deref for $a {
             type Target = $b;
             fn deref<'a>(&'a self) -> &'a $b {
                 &self.__parent
