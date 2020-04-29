@@ -72,8 +72,8 @@ async fn run() {
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
     let mut shader = Shader::new(
         &app,
-        include_str!("./main2.vert"),
-        include_str!("./main2.frag"),
+        include_str!("./projection_camera.vert"),
+        include_str!("./projection_camera.frag"),
     );
     shader.set_vertex_buffer(gvb);
     let mx_projection = cgmath::perspective(
@@ -142,6 +142,29 @@ async fn run() {
         },
     );
     dbg!(shader.get_shader_head());
+    shader.get_bind_group();
+    let vertex_buf = app.device.create_buffer_with_data(
+        vertex_data
+            .iter()
+            .map(|x| {
+                return [
+                    x.position.x,
+                    x.position.y,
+                    x.position.z,
+                    1.0,
+                    x.tex_coord.x,
+                    x.tex_coord.y,
+                ];
+            })
+            .collect::<Vec<[f32; 6]>>()
+            .concat()
+            .as_bytes(),
+        wgpu::BufferUsage::VERTEX,
+    );
+
+    let index_buf = app
+        .device
+        .create_buffer_with_data(index_data.as_bytes(), wgpu::BufferUsage::INDEX);
 
     app.on(Event::Update, move |app| unsafe {
         let frame = app
@@ -162,15 +185,18 @@ async fn run() {
                 }],
                 depth_stencil_attachment: None,
             });
-            rpass.set_pipeline(&shader.render_pipeline);
-            rpass.set_bind_group(0, &shader.bind_group, &[]);
-            rpass.draw(0..3, 0..1);
+            rpass.set_pipeline(&shader.render_pipeline.as_ref().expect("error1"));
+            rpass.set_bind_group(0, &shader.bind_group.as_ref().expect("error2"), &[]);
+            rpass.set_index_buffer(&index_buf, 0, 0);
+            rpass.set_vertex_buffer(0, &vertex_buf, 0, 0);
+            // rpass.draw(0..3, 0..1);
+            rpass.draw_indexed(0..6 as u32, 0, 0..1);
         }
 
         app.queue.submit(Some(encoder.finish()));
     });
 
-    // app.start();
+    app.start();
 }
 
 fn main() {

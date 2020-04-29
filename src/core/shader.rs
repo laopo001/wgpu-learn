@@ -1,5 +1,5 @@
 use crate::config::{Uniform, ATTRIBNAMES, UNIFORMNAMES};
-use crate::core::shader_var::{UniformVar, UniformVars};
+use crate::core::shader_var::{UniformBindingResource, UniformVar, UniformVars};
 use crate::core::vertex_buffer::VertexBuffer;
 use crate::core::vertex_format::VertexFormat;
 use crate::{app::App, util::load_glsl};
@@ -28,11 +28,13 @@ fn create_texels(size: usize) -> Vec<u8> {
         .collect()
 }
 pub struct Shader {
-    pub render_pipeline: wgpu::RenderPipeline,
-    pub bind_group: wgpu::BindGroup,
+    pub render_pipeline: Option<wgpu::RenderPipeline>,
+    pub bind_group: Option<wgpu::BindGroup>,
     pub uniform_vars: UniformVars,
     pub vertex_buffer: Option<VertexBuffer>,
     pub app: *const App,
+    pub vs_module: wgpu::ShaderModule,
+    pub fs_module: wgpu::ShaderModule,
 }
 impl Shader {
     pub fn new(app: &App, vs_code: &str, fs_code: &str) -> Self {
@@ -40,67 +42,15 @@ impl Shader {
         let fs_bytes = load_glsl(fs_code, ShaderType::Fragment);
         let vs_module = app.device.create_shader_module(&vs_bytes);
         let fs_module = app.device.create_shader_module(&fs_bytes);
-        let bind_group_layout =
-            app.device
-                .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                    bindings: &[],
-                    label: None,
-                });
-        let bind_group = app.device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout: &bind_group_layout,
-            bindings: &[],
-            label: None,
-        });
-        let pipeline_layout = app
-            .device
-            .create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                bind_group_layouts: &[&bind_group_layout],
-            });
-
-        let render_pipeline = app
-            .device
-            .create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-                layout: &pipeline_layout,
-                vertex_stage: wgpu::ProgrammableStageDescriptor {
-                    module: &vs_module,
-                    entry_point: "main",
-                },
-                fragment_stage: Some(wgpu::ProgrammableStageDescriptor {
-                    module: &fs_module,
-                    entry_point: "main",
-                }),
-                rasterization_state: Some(wgpu::RasterizationStateDescriptor {
-                    front_face: wgpu::FrontFace::Ccw,
-                    cull_mode: wgpu::CullMode::None,
-                    depth_bias: 0,
-                    depth_bias_slope_scale: 0.0,
-                    depth_bias_clamp: 0.0,
-                }),
-                primitive_topology: wgpu::PrimitiveTopology::TriangleList,
-                color_states: &[wgpu::ColorStateDescriptor {
-                    format: wgpu::TextureFormat::Bgra8UnormSrgb,
-                    color_blend: wgpu::BlendDescriptor::REPLACE,
-                    alpha_blend: wgpu::BlendDescriptor::REPLACE,
-                    write_mask: wgpu::ColorWrite::ALL,
-                }],
-                vertex_state: wgpu::VertexStateDescriptor {
-                    index_format: wgpu::IndexFormat::Uint16,
-                    vertex_buffers: &[],
-                },
-                depth_stencil_state: None,
-                // index_format: wgpu::IndexFormat::Uint16,
-                // vertex_buffers: &[],
-                sample_count: 1,
-                sample_mask: !0,
-                alpha_to_coverage_enabled: false,
-            });
         let uniform_vars = UniformVars::new();
         Shader {
-            render_pipeline,
-            bind_group,
+            render_pipeline: None,
+            bind_group: None,
             uniform_vars,
             vertex_buffer: None,
             app: app as *const App,
+            vs_module,
+            fs_module,
         }
     }
     pub fn set_uniform_vars(&mut self, t: Uniform, var: UniformVar) {
@@ -212,36 +162,132 @@ impl Shader {
             texture_view
         }
     }
-    pub unsafe fn get_bind_group(&self) -> wgpu::BindGroupLayout {
+    pub fn get_bind_group(&mut self) {
         unsafe {
+            let mut layouts = vec![];
+            let mut bindings = vec![];
+            for (i, o_var) in self.uniform_vars.vars.iter().enumerate() {
+                if let Some(var) = o_var {
+                    layouts.push(wgpu::BindGroupLayoutEntry {
+                        binding: i as u32,
+                        visibility: var.visibility,
+                        ty: var.ty,
+                    });
+                    match &var.resource {
+                        UniformBindingResource::Buffer { buffer, range } => {
+                            bindings.push(wgpu::Binding {
+                                binding: i as u32,
+                                resource: wgpu::BindingResource::Buffer {
+                                    buffer: &buffer,
+                                    range: 0..64,
+                                },
+                            });
+                        }
+                        UniformBindingResource::TextureView(texture_view) => {
+                            bindings.push(wgpu::Binding {
+                                binding: i as u32,
+                                resource: wgpu::BindingResource::TextureView(&texture_view),
+                            });
+                        }
+                        UniformBindingResource::Sampler(sampler) => {
+                            bindings.push(wgpu::Binding {
+                                binding: i as u32,
+                                resource: wgpu::BindingResource::Sampler(&sampler),
+                            });
+                        }
+                    }
+                }
+            }
             let bind_group_layout =
                 (*self.app)
                     .device
                     .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                        bindings: &[
-                            wgpu::BindGroupLayoutEntry {
-                                binding: 0,
-                                visibility: wgpu::ShaderStage::VERTEX,
-                                ty: wgpu::BindingType::UniformBuffer { dynamic: false },
-                            },
-                            wgpu::BindGroupLayoutEntry {
-                                binding: 1,
-                                visibility: wgpu::ShaderStage::FRAGMENT,
-                                ty: wgpu::BindingType::SampledTexture {
-                                    multisampled: false,
-                                    component_type: wgpu::TextureComponentType::Float,
-                                    dimension: wgpu::TextureViewDimension::D2,
-                                },
-                            },
-                            wgpu::BindGroupLayoutEntry {
-                                binding: 2,
-                                visibility: wgpu::ShaderStage::FRAGMENT,
-                                ty: wgpu::BindingType::Sampler { comparison: false },
-                            },
-                        ],
+                        bindings: layouts.as_slice(),
                         label: None,
                     });
-            bind_group_layout
+            let bind_group = (*self.app)
+                .device
+                .create_bind_group(&wgpu::BindGroupDescriptor {
+                    layout: &bind_group_layout,
+                    bindings: bindings.as_slice(),
+                    label: None,
+                });
+            let pipeline_layout =
+                (*self.app)
+                    .device
+                    .create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                        bind_group_layouts: &[&bind_group_layout],
+                    });
+            let mut attributes = vec![];
+            let mut vertex_desc = vec![];
+            if self.vertex_buffer.is_some() {
+                for (i, o_var) in self
+                    .vertex_buffer
+                    .as_ref()
+                    .expect("can not get vertex_buffer")
+                    .format
+                    .vertex_vars
+                    .vars
+                    .iter()
+                    .enumerate()
+                {
+                    if let Some(var) = o_var {
+                        attributes.push(wgpu::VertexAttributeDescriptor {
+                            format: var.format,
+                            offset: var.offset as u64,
+                            shader_location: i as u32,
+                        });
+                    }
+                }
+                vertex_desc.push(wgpu::VertexBufferDescriptor {
+                    stride: self
+                        .vertex_buffer
+                        .as_ref()
+                        .expect("can not get vertex_buffer")
+                        .format
+                        .stride as wgpu::BufferAddress,
+                    step_mode: wgpu::InputStepMode::Vertex,
+                    attributes: attributes.as_slice(),
+                });
+            }
+            let render_pipeline =
+                (*self.app)
+                    .device
+                    .create_render_pipeline(&wgpu::RenderPipelineDescriptor {
+                        layout: &pipeline_layout,
+                        vertex_stage: wgpu::ProgrammableStageDescriptor {
+                            module: &self.vs_module,
+                            entry_point: "main",
+                        },
+                        fragment_stage: Some(wgpu::ProgrammableStageDescriptor {
+                            module: &self.fs_module,
+                            entry_point: "main",
+                        }),
+                        rasterization_state: Some(wgpu::RasterizationStateDescriptor {
+                            front_face: wgpu::FrontFace::Ccw,
+                            cull_mode: wgpu::CullMode::None,
+                            depth_bias: 0,
+                            depth_bias_slope_scale: 0.0,
+                            depth_bias_clamp: 0.0,
+                        }),
+                        primitive_topology: wgpu::PrimitiveTopology::TriangleList,
+                        color_states: &[wgpu::ColorStateDescriptor {
+                            format: wgpu::TextureFormat::Bgra8UnormSrgb,
+                            color_blend: wgpu::BlendDescriptor::REPLACE,
+                            alpha_blend: wgpu::BlendDescriptor::REPLACE,
+                            write_mask: wgpu::ColorWrite::ALL,
+                        }],
+                        depth_stencil_state: None,
+                        vertex_state: wgpu::VertexStateDescriptor {
+                            index_format: wgpu::IndexFormat::Uint16,
+                            vertex_buffers: vertex_desc.as_slice(),
+                        },
+                        sample_count: 1,
+                        sample_mask: !0,
+                        alpha_to_coverage_enabled: false,
+                    });
+            self.bind_group = Some(bind_group);
+            self.render_pipeline = Some(render_pipeline);
         }
     }
 }

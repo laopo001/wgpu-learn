@@ -20,6 +20,6 @@ void main() {
     if (gl_VertexIndex == 2){
         fragColor = colors[gl_VertexIndex];
     }
-    // fragColor = colors[gl_VertexIndex & 1];
+    // fragColor = colors[gl_VertexIndex];
     // fragColor = vec3(position, 1.0); 
 }

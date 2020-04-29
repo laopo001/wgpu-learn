@@ -12,11 +12,12 @@ use wgpu_learn::{
 
 async fn run() {
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
-    let shader = Shader::new(
+    let mut shader = Shader::new(
         &app,
         include_str!("./main2.vert"),
         include_str!("./main2.frag"),
     );
+    shader.get_bind_group();
     app.on(Event::Update, move |app| unsafe {
         let frame = app
             .swap_chain
@@ -36,8 +37,8 @@ async fn run() {
                 }],
                 depth_stencil_attachment: None,
             });
-            rpass.set_pipeline(&shader.render_pipeline);
-            rpass.set_bind_group(0, &shader.bind_group, &[]);
+            rpass.set_pipeline(&shader.render_pipeline.as_ref().expect("error1"));
+            rpass.set_bind_group(0, &shader.bind_group.as_ref().expect("error2"), &[]);
             rpass.draw(0..3, 0..1);
         }
         app.queue.submit(Some(encoder.finish()));

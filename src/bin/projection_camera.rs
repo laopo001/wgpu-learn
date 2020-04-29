@@ -276,7 +276,7 @@ async fn run() {
                     wgpu::VertexAttributeDescriptor {
                         format: wgpu::VertexFormat::Float2,
                         offset: 4 * 4,
-                        shader_location: 1,
+                        shader_location: 3,
                     },
                 ],
             }],
