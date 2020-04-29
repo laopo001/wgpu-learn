@@ -98,9 +98,10 @@ async fn run() {
     let mx_model: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
         1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
     );
-    dbg!(mx_view);
-    let model_view_projection_matrix = mx_model * mx_projection * mx_view;
-    dbg!(model_view_projection_matrix);
+    // dbg!(mx_view);
+    // let model_view_projection_matrix = mx_model * mx_projection * mx_view;
+    // // dbg!(model_view_projection_matrix);
+    // let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
 
     let vs_bytes = wgpu_learn::util::load_glsl(
         include_str!("./projection_camera.vert"),
@@ -132,11 +133,7 @@ async fn run() {
     );
 
     let index_buf = device.create_buffer_with_data(index_data.as_bytes(), wgpu::BufferUsage::INDEX);
-    let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
-    let uniform_buf = device.create_buffer_with_data(
-        mx_ref.as_bytes(),
-        wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
-    );
+
     // Create the texture
     let size = 256u32;
     let texels = create_texels(size as usize);
@@ -211,27 +208,38 @@ async fn run() {
         ],
         label: None,
     });
-    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-        layout: &bind_group_layout,
-        bindings: &[
-            wgpu::Binding {
-                binding: 0,
-                resource: wgpu::BindingResource::Buffer {
-                    buffer: &uniform_buf,
-                    range: 0..64,
+    let bind_group = {
+        let model_view_projection_matrix = mx_model * mx_projection * mx_view;
+        // dbg!(model_view_projection_matrix);
+        let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
+        let uniform_buf = device.create_buffer_with_data(
+            mx_ref.as_bytes(),
+            wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
+        );
+        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &bind_group_layout,
+            bindings: &[
+                wgpu::Binding {
+                    binding: 0,
+                    resource: wgpu::BindingResource::Buffer {
+                        buffer: &uniform_buf,
+                        range: 0..64,
+                    },
                 },
-            },
-            wgpu::Binding {
-                binding: 1,
-                resource: wgpu::BindingResource::TextureView(&texture_view),
-            },
-            wgpu::Binding {
-                binding: 2,
-                resource: wgpu::BindingResource::Sampler(&sampler),
-            },
-        ],
-        label: None,
-    });
+                wgpu::Binding {
+                    binding: 1,
+                    resource: wgpu::BindingResource::TextureView(&texture_view),
+                },
+                wgpu::Binding {
+                    binding: 2,
+                    resource: wgpu::BindingResource::Sampler(&sampler),
+                },
+            ],
+            label: None,
+        });
+        bind_group
+    };
+
     let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         bind_group_layouts: &[&bind_group_layout],
     });

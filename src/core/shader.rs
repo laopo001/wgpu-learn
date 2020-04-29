@@ -27,16 +27,23 @@ fn create_texels(size: usize) -> Vec<u8> {
         })
         .collect()
 }
-pub struct Shader {
+pub struct Shader<'a> {
+    pub bind_group_layout: Option<wgpu::BindGroupLayout>,
     pub render_pipeline: Option<wgpu::RenderPipeline>,
     pub bind_group: Option<wgpu::BindGroup>,
+    pub pipeline_layout: Option<wgpu::PipelineLayout>,
+
+    pub layouts: Option<Vec<wgpu::BindGroupLayoutEntry>>,
+    pub bindings: Option<Vec<wgpu::Binding<'a>>>,
+    pub attributes: Option<Vec<wgpu::VertexAttributeDescriptor>>,
+    pub vertex_desc: Option<Vec<wgpu::VertexBufferDescriptor<'a>>>,
     pub uniform_vars: UniformVars,
     pub vertex_buffer: Option<VertexBuffer>,
     pub app: *const App,
     pub vs_module: wgpu::ShaderModule,
     pub fs_module: wgpu::ShaderModule,
 }
-impl Shader {
+impl<'a> Shader<'a> {
     pub fn new(app: &App, vs_code: &str, fs_code: &str) -> Self {
         let vs_bytes = load_glsl(vs_code, ShaderType::Vertex);
         let fs_bytes = load_glsl(fs_code, ShaderType::Fragment);
@@ -44,8 +51,14 @@ impl Shader {
         let fs_module = app.device.create_shader_module(&fs_bytes);
         let uniform_vars = UniformVars::new();
         Shader {
+            bind_group_layout: None,
             render_pipeline: None,
             bind_group: None,
+            pipeline_layout: None,
+            layouts: None,
+            bindings: None,
+            attributes: None,
+            vertex_desc: None,
             uniform_vars,
             vertex_buffer: None,
             app: app as *const App,
@@ -166,6 +179,8 @@ impl Shader {
         unsafe {
             let mut layouts = vec![];
             let mut bindings = vec![];
+            let mut attributes = vec![];
+            let mut vertex_desc = vec![];
             for (i, o_var) in self.uniform_vars.vars.iter().enumerate() {
                 if let Some(var) = o_var {
                     layouts.push(wgpu::BindGroupLayoutEntry {
@@ -179,7 +194,7 @@ impl Shader {
                                 binding: i as u32,
                                 resource: wgpu::BindingResource::Buffer {
                                     buffer: &buffer,
-                                    range: 0..64,
+                                    range: range.clone(),
                                 },
                             });
                         }
@@ -218,8 +233,7 @@ impl Shader {
                     .create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                         bind_group_layouts: &[&bind_group_layout],
                     });
-            let mut attributes = vec![];
-            let mut vertex_desc = vec![];
+
             if self.vertex_buffer.is_some() {
                 for (i, o_var) in self
                     .vertex_buffer
@@ -239,6 +253,7 @@ impl Shader {
                         });
                     }
                 }
+
                 vertex_desc.push(wgpu::VertexBufferDescriptor {
                     stride: self
                         .vertex_buffer
@@ -286,8 +301,10 @@ impl Shader {
                         sample_mask: !0,
                         alpha_to_coverage_enabled: false,
                     });
+            self.bind_group_layout = Some(bind_group_layout);
             self.bind_group = Some(bind_group);
             self.render_pipeline = Some(render_pipeline);
+            self.pipeline_layout = Some(pipeline_layout);
         }
     }
 }
