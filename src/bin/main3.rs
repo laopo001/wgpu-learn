@@ -3,14 +3,16 @@
 extern crate lazy_static;
 use wgpu_learn::{
     app,
-    config::{Config, Event, SEMANTIC},
+    config::{Attrib, Config, Event, Uniform},
     console_log,
     core::shader::Shader,
+    core::shader_var::{UniformBindingResource, UniformVar},
     core::vertex_buffer::VertexBuffer,
     core::vertex_format::{VertexFormat, VertexType},
     time, Matrix4, Vector2, Vector3,
 };
 use zerocopy::{AsBytes, FromBytes};
+
 struct Vertex {
     position: Vector3,
     tex_coord: Vector2,
@@ -35,18 +37,15 @@ async fn run() {
         },
     ];
     let index_data: Vec<u16> = vec![0, 1, 2, 2, 1, 3];
+
     let gvf = VertexFormat::new(vec![
         VertexType {
-            semantic: SEMANTIC::POSITION,
+            attrib: Attrib::POSITION,
             size: 4,
-            normalize: true,
-            isF64: false,
         },
         VertexType {
-            semantic: SEMANTIC::TEXCOORD0,
+            attrib: Attrib::TEXCOORD0,
             size: 2,
-            normalize: true,
-            isF64: false,
         },
     ]);
     // dbg!(gvf.elements[0].size);
@@ -71,11 +70,80 @@ async fn run() {
     );
 
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
-    let shader = Shader::new(
+    let mut shader = Shader::new(
         &app,
         include_str!("./main2.vert"),
         include_str!("./main2.frag"),
     );
+    shader.set_vertex_buffer(gvb);
+    let mx_projection = cgmath::perspective(
+        cgmath::Deg(45f32),
+        app.size.width as f32 / app.size.height as f32,
+        1.0,
+        10.0,
+    );
+    let mx_view = cgmath::Matrix4::look_at(
+        cgmath::Point3::new(0.0, 0.0, 2.0),
+        cgmath::Point3::new(0.0001, 0.0, 0.0),
+        cgmath::Vector3::unit_z(),
+    );
+
+    let mx_model: Matrix4 = cgmath::Matrix4::new(
+        1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+    );
+
+    let model_view_projection_matrix = mx_model * mx_projection * mx_view;
+    let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
+    let uniform_buf = app.device.create_buffer_with_data(
+        mx_ref.as_bytes(),
+        wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
+    );
+    shader.set_uniform_vars(
+        Uniform::ModelViewProjectionMatrix,
+        UniformVar {
+            visibility: wgpu::ShaderStage::VERTEX,
+            ty: wgpu::BindingType::UniformBuffer { dynamic: false },
+            resource: UniformBindingResource::Buffer {
+                buffer: uniform_buf,
+                range: 0..64,
+            },
+        },
+    );
+    let texture_view = shader.create_texture();
+    let sampler = app.device.create_sampler(&wgpu::SamplerDescriptor {
+        address_mode_u: wgpu::AddressMode::ClampToEdge,
+        address_mode_v: wgpu::AddressMode::ClampToEdge,
+        address_mode_w: wgpu::AddressMode::ClampToEdge,
+        mag_filter: wgpu::FilterMode::Nearest,
+        min_filter: wgpu::FilterMode::Linear,
+        mipmap_filter: wgpu::FilterMode::Nearest,
+        lod_min_clamp: -100.0,
+        lod_max_clamp: 100.0,
+        compare: wgpu::CompareFunction::Always,
+    });
+    shader.set_uniform_vars(
+        Uniform::Texture0,
+        UniformVar {
+            visibility: wgpu::ShaderStage::FRAGMENT,
+            ty: wgpu::BindingType::SampledTexture {
+                multisampled: false,
+                component_type: wgpu::TextureComponentType::Float,
+                dimension: wgpu::TextureViewDimension::D2,
+            },
+            resource: UniformBindingResource::TextureView(texture_view),
+        },
+    );
+    shader.set_uniform_vars(
+        Uniform::Sampler0,
+        UniformVar {
+            visibility: wgpu::ShaderStage::FRAGMENT,
+            ty: wgpu::BindingType::Sampler { comparison: false },
+            resource: UniformBindingResource::Sampler(sampler),
+        },
+    );
+    dbg!(shader.get_attrib_shader_head());
+    dbg!(shader.get_uniform_shader_head());
+
     app.on(Event::Update, move |app| unsafe {
         let frame = app
             .swap_chain
@@ -103,7 +171,7 @@ async fn run() {
         app.queue.submit(Some(encoder.finish()));
     });
 
-    app.start();
+    // app.start();
 }
 
 fn main() {

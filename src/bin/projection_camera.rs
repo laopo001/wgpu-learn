@@ -104,11 +104,11 @@ async fn run() {
 
     let vs_bytes = wgpu_learn::util::load_glsl(
         include_str!("./projection_camera.vert"),
-        wgpu_learn::ShaderStage::Vertex,
+        glsl_to_spirv::ShaderType::Vertex,
     );
     let fs_bytes = wgpu_learn::util::load_glsl(
         include_str!("./projection_camera.frag"),
-        wgpu_learn::ShaderStage::Fragment,
+        glsl_to_spirv::ShaderType::Fragment,
     );
     let vs_module = device.create_shader_module(&vs_bytes);
     let fs_module = device.create_shader_module(&fs_bytes);

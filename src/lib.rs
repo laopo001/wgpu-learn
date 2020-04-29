@@ -1,6 +1,8 @@
 #![feature(fn_traits)]
 #![allow(non_snake_case)]
 #![allow(unused)]
+#[macro_use]
+extern crate lazy_static;
 // pub enum ShaderStage {
 //     Vertex,
 //     Fragment,
@@ -64,4 +66,4 @@ pub type Vector3 = cgmath::Vector3<f32>;
 pub type Vector2 = cgmath::Vector2<f32>;
 pub type Color = wgpu::Color;
 pub type VertexFormat = wgpu::VertexFormat;
-pub type ShaderStage = glsl_to_spirv::ShaderType;
+// pub type ShaderStage = glsl_to_spirv::ShaderType;
