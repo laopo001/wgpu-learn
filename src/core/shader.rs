@@ -115,13 +115,13 @@ impl Shader {
                 match uniform_var.visibility {
                     wgpu::ShaderStage::VERTEX => {
                         vert += &format!(
-                            "layout(set = 0, binding = {}) uniform {} {};",
+                            "layout(set = 0, binding = {}) uniform {} {};\n",
                             i, UNIFORMNAMES[i].1, UNIFORMNAMES[i].0
                         );
                     } // Fragment,
                     wgpu::ShaderStage::FRAGMENT => {
                         frag += &format!(
-                            "layout(set = 0, binding = {}) uniform {} {};",
+                            "layout(set = 0, binding = {}) uniform {} {};\n",
                             i, UNIFORMNAMES[i].1, UNIFORMNAMES[i].0
                         );
                     }
@@ -130,6 +130,11 @@ impl Shader {
             }
         }
         return (vert, frag);
+    }
+    pub fn get_shader_head(&self) -> (String, String) {
+        let (vert, frag) = self.get_uniform_shader_head();
+        let vert2 = self.get_attrib_shader_head();
+        (vert + &vert2, frag)
     }
     pub fn set_vertex_buffer(&mut self, buffer: VertexBuffer) {
         self.vertex_buffer = Some(buffer);
@@ -155,7 +160,7 @@ impl Shader {
                 .vars[i];
             if let Some(vertex_var) = item {
                 vert += &format!(
-                    "layout (location = {}) in {} {};",
+                    "layout (location = {}) in {} {};\n",
                     i, ATTRIBNAMES[i].1, ATTRIBNAMES[i].0
                 )
             }
@@ -205,6 +210,38 @@ impl Shader {
             );
             (*self.app).queue.submit(Some(init_encoder.finish()));
             texture_view
+        }
+    }
+    pub unsafe fn get_bind_group(&self) -> wgpu::BindGroupLayout {
+        unsafe {
+            let bind_group_layout =
+                (*self.app)
+                    .device
+                    .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                        bindings: &[
+                            wgpu::BindGroupLayoutEntry {
+                                binding: 0,
+                                visibility: wgpu::ShaderStage::VERTEX,
+                                ty: wgpu::BindingType::UniformBuffer { dynamic: false },
+                            },
+                            wgpu::BindGroupLayoutEntry {
+                                binding: 1,
+                                visibility: wgpu::ShaderStage::FRAGMENT,
+                                ty: wgpu::BindingType::SampledTexture {
+                                    multisampled: false,
+                                    component_type: wgpu::TextureComponentType::Float,
+                                    dimension: wgpu::TextureViewDimension::D2,
+                                },
+                            },
+                            wgpu::BindGroupLayoutEntry {
+                                binding: 2,
+                                visibility: wgpu::ShaderStage::FRAGMENT,
+                                ty: wgpu::BindingType::Sampler { comparison: false },
+                            },
+                        ],
+                        label: None,
+                    });
+            bind_group_layout
         }
     }
 }

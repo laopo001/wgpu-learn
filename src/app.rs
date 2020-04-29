@@ -1,3 +1,4 @@
+use crate::core::shader::Shader;
 use crate::{
     config::{Config, Event},
     Color,
@@ -107,6 +108,9 @@ impl App {
     pub fn set_clear_color(&mut self, color: Color) {
         self._clear_color = color;
     }
+    // pub fn set_shader(&self, shader: Shader) {
+
+    // }
     pub fn start(mut self) {
         unsafe {
             let p_app = &mut self as *mut App;

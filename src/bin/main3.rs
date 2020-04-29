@@ -141,8 +141,7 @@ async fn run() {
             resource: UniformBindingResource::Sampler(sampler),
         },
     );
-    dbg!(shader.get_attrib_shader_head());
-    dbg!(shader.get_uniform_shader_head());
+    dbg!(shader.get_shader_head());
 
     app.on(Event::Update, move |app| unsafe {
         let frame = app
