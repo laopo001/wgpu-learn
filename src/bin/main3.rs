@@ -185,12 +185,11 @@ async fn run() {
                 }],
                 depth_stencil_attachment: None,
             });
-            rpass.set_pipeline(&shader.render_pipeline.as_ref().expect("error1"));
-            rpass.set_bind_group(0, &shader.bind_group.as_ref().expect("error2"), &[]);
+            rpass.set_pipeline(shader.render_pipeline.as_ref().expect("error1"));
+            rpass.set_bind_group(0, shader.bind_group.as_ref().expect("error2"), &[]);
             rpass.set_index_buffer(&index_buf, 0, 0);
             rpass.set_vertex_buffer(0, &vertex_buf, 0, 0);
-            // rpass.draw(0..3, 0..1);
-            rpass.draw_indexed(0..6 as u32, 0, 0..1);
+            rpass.draw_indexed(0..6, 0, 0..1);
         }
 
         app.queue.submit(Some(encoder.finish()));
