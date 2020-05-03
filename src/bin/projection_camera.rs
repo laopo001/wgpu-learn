@@ -134,44 +134,6 @@ async fn run() {
 
     let index_buf = device.create_buffer_with_data(index_data.as_bytes(), wgpu::BufferUsage::INDEX);
 
-    // Create the texture
-    let size = 256u32;
-    let texels = create_texels(size as usize);
-    let texture_extent = wgpu::Extent3d {
-        width: size,
-        height: size,
-        depth: 1,
-    };
-    let texture = device.create_texture(&wgpu::TextureDescriptor {
-        size: texture_extent,
-        // array_layer_count: 1,
-        mip_level_count: 1,
-        sample_count: 1,
-        dimension: wgpu::TextureDimension::D2,
-        format: wgpu::TextureFormat::Rgba8UnormSrgb,
-        usage: wgpu::TextureUsage::SAMPLED | wgpu::TextureUsage::COPY_DST,
-        label: None,
-    });
-    let texture_view = texture.create_default_view();
-    let temp_buf = device.create_buffer_with_data(texels.as_slice(), wgpu::BufferUsage::COPY_SRC);
-    let mut init_encoder =
-        device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
-    init_encoder.copy_buffer_to_texture(
-        wgpu::BufferCopyView {
-            buffer: &temp_buf,
-            offset: 0,
-            bytes_per_row: 4 * size,
-            rows_per_image: size,
-        },
-        wgpu::TextureCopyView {
-            texture: &texture,
-            mip_level: 0,
-            array_layer: 0,
-            origin: wgpu::Origin3d { x: 0, y: 0, z: 0 },
-        },
-        texture_extent,
-    );
-    queue.submit(Some(init_encoder.finish()));
     // Create other resources
     let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
         address_mode_u: wgpu::AddressMode::ClampToEdge,
@@ -184,31 +146,47 @@ async fn run() {
         lod_max_clamp: 100.0,
         compare: wgpu::CompareFunction::Always,
     });
-    let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-        bindings: &[
-            wgpu::BindGroupLayoutEntry {
-                binding: 0,
-                visibility: wgpu::ShaderStage::VERTEX,
-                ty: wgpu::BindingType::UniformBuffer { dynamic: false },
+
+    let abc = || {
+        // Create the texture
+        let size = 256u32;
+        let texels = create_texels(size as usize);
+        let texture_extent = wgpu::Extent3d {
+            width: size,
+            height: size,
+            depth: 1,
+        };
+        let texture = device.create_texture(&wgpu::TextureDescriptor {
+            size: texture_extent,
+            // array_layer_count: 1,
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format: wgpu::TextureFormat::Rgba8UnormSrgb,
+            usage: wgpu::TextureUsage::SAMPLED | wgpu::TextureUsage::COPY_DST,
+            label: None,
+        });
+        let texture_view = texture.create_default_view();
+        let temp_buf =
+            device.create_buffer_with_data(texels.as_slice(), wgpu::BufferUsage::COPY_SRC);
+        let mut init_encoder =
+            device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        init_encoder.copy_buffer_to_texture(
+            wgpu::BufferCopyView {
+                buffer: &temp_buf,
+                offset: 0,
+                bytes_per_row: 4 * size,
+                rows_per_image: size,
             },
-            wgpu::BindGroupLayoutEntry {
-                binding: 1,
-                visibility: wgpu::ShaderStage::FRAGMENT,
-                ty: wgpu::BindingType::SampledTexture {
-                    multisampled: false,
-                    component_type: wgpu::TextureComponentType::Float,
-                    dimension: wgpu::TextureViewDimension::D2,
-                },
+            wgpu::TextureCopyView {
+                texture: &texture,
+                mip_level: 0,
+                array_layer: 0,
+                origin: wgpu::Origin3d { x: 0, y: 0, z: 0 },
             },
-            wgpu::BindGroupLayoutEntry {
-                binding: 2,
-                visibility: wgpu::ShaderStage::FRAGMENT,
-                ty: wgpu::BindingType::Sampler { comparison: false },
-            },
-        ],
-        label: None,
-    });
-    let bind_group = {
+            texture_extent,
+        );
+        queue.submit(Some(init_encoder.finish()));
         let model_view_projection_matrix = mx_model * mx_projection * mx_view;
         // dbg!(model_view_projection_matrix);
         let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
@@ -216,6 +194,30 @@ async fn run() {
             mx_ref.as_bytes(),
             wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
         );
+        let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            bindings: &[
+                wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStage::VERTEX,
+                    ty: wgpu::BindingType::UniformBuffer { dynamic: false },
+                },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 1,
+                    visibility: wgpu::ShaderStage::FRAGMENT,
+                    ty: wgpu::BindingType::SampledTexture {
+                        multisampled: false,
+                        component_type: wgpu::TextureComponentType::Float,
+                        dimension: wgpu::TextureViewDimension::D2,
+                    },
+                },
+                wgpu::BindGroupLayoutEntry {
+                    binding: 2,
+                    visibility: wgpu::ShaderStage::FRAGMENT,
+                    ty: wgpu::BindingType::Sampler { comparison: false },
+                },
+            ],
+            label: None,
+        });
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &bind_group_layout,
             bindings: &[
@@ -237,9 +239,10 @@ async fn run() {
             ],
             label: None,
         });
-        bind_group
-    };
 
+        return (bind_group, bind_group_layout);
+    };
+    let (bind_group, bind_group_layout) = abc();
     let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         bind_group_layouts: &[&bind_group_layout],
     });

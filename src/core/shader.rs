@@ -193,7 +193,7 @@ impl<'a> Shader<'a> {
                             bindings.push(wgpu::Binding {
                                 binding: i as u32,
                                 resource: wgpu::BindingResource::Buffer {
-                                    buffer: &buffer,
+                                    buffer,
                                     range: range.clone(),
                                 },
                             });
