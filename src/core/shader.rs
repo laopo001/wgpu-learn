@@ -175,7 +175,7 @@ impl<'a> Shader<'a> {
             texture_view
         }
     }
-    pub fn get_bind_group(&mut self) {
+    pub fn get_bind(&mut self) {
         unsafe {
             let mut layouts = vec![];
             let mut bindings = vec![];

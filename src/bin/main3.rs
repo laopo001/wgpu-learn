@@ -142,7 +142,7 @@ async fn run() {
         },
     );
     dbg!(shader.get_shader_head());
-    shader.get_bind_group();
+    shader.get_bind();
     let vertex_buf = app.device.create_buffer_with_data(
         vertex_data
             .iter()

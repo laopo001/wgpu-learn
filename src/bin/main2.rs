@@ -17,7 +17,7 @@ async fn run() {
         include_str!("./main2.vert"),
         include_str!("./main2.frag"),
     );
-    shader.get_bind_group();
+    shader.get_bind();
     app.on(Event::Update, move |app| unsafe {
         let frame = app
             .swap_chain
