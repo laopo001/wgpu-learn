@@ -27,23 +27,19 @@ fn create_texels(size: usize) -> Vec<u8> {
         })
         .collect()
 }
-pub struct Shader<'a> {
+pub struct Shader {
     pub bind_group_layout: Option<wgpu::BindGroupLayout>,
     pub render_pipeline: Option<wgpu::RenderPipeline>,
     pub bind_group: Option<wgpu::BindGroup>,
     pub pipeline_layout: Option<wgpu::PipelineLayout>,
 
-    pub layouts: Option<Vec<wgpu::BindGroupLayoutEntry>>,
-    pub bindings: Option<Vec<wgpu::Binding<'a>>>,
-    pub attributes: Option<Vec<wgpu::VertexAttributeDescriptor>>,
-    pub vertex_desc: Option<Vec<wgpu::VertexBufferDescriptor<'a>>>,
     pub uniform_vars: UniformVars,
     pub vertex_buffer: Option<VertexBuffer>,
     pub app: *const App,
     pub vs_module: wgpu::ShaderModule,
     pub fs_module: wgpu::ShaderModule,
 }
-impl<'a> Shader<'a> {
+impl Shader {
     pub fn new(app: &App, vs_code: &str, fs_code: &str) -> Self {
         let vs_bytes = load_glsl(vs_code, ShaderType::Vertex);
         let fs_bytes = load_glsl(fs_code, ShaderType::Fragment);
@@ -55,10 +51,6 @@ impl<'a> Shader<'a> {
             render_pipeline: None,
             bind_group: None,
             pipeline_layout: None,
-            layouts: None,
-            bindings: None,
-            attributes: None,
-            vertex_desc: None,
             uniform_vars,
             vertex_buffer: None,
             app: app as *const App,
@@ -175,6 +167,14 @@ impl<'a> Shader<'a> {
             texture_view
         }
     }
+    pub fn set_index_buffer(&self, index_buffer: &[u8]) -> wgpu::Buffer {
+        unsafe {
+            let index_buf = (*self.app)
+                .device
+                .create_buffer_with_data(index_buffer, wgpu::BufferUsage::INDEX);
+            return index_buf;
+        }
+    }
     pub fn get_bind(&mut self) {
         unsafe {
             let mut layouts = vec![];
@@ -264,6 +264,8 @@ impl<'a> Shader<'a> {
                     step_mode: wgpu::InputStepMode::Vertex,
                     attributes: attributes.as_slice(),
                 });
+            } else {
+                println!("not set_vertex_buffer");
             }
             let render_pipeline =
                 (*self.app)
