@@ -69,14 +69,20 @@ impl Shader {
             if let Some(uniform_var) = item {
                 match uniform_var.visibility {
                     wgpu::ShaderStage::VERTEX => {
-                        vert += &format!(
-                            "layout(set = 0, binding = {}) uniform {} {};\n",
+                        frag += &format!(
+                            r#"
+                            layout(set = 0, binding = {}) uniform Locals {{
+                                {} u_{};
+                            }};
+                           "#,
                             i, UNIFORMNAMES[i].1, UNIFORMNAMES[i].0
                         );
                     } // Fragment,
                     wgpu::ShaderStage::FRAGMENT => {
-                        frag += &format!(
-                            "layout(set = 0, binding = {}) uniform {} {};\n",
+                        vert += &format!(
+                            r#"
+                            layout(set = 0, binding = {}) uniform {} u_{};
+                           "#,
                             i, UNIFORMNAMES[i].1, UNIFORMNAMES[i].0
                         );
                     }
@@ -115,7 +121,7 @@ impl Shader {
                 .vars[i];
             if let Some(vertex_var) = item {
                 vert += &format!(
-                    "layout (location = {}) in {} {};\n",
+                    "layout (location = {}) in {} a_{};\n",
                     i, ATTRIBNAMES[i].1, ATTRIBNAMES[i].0
                 )
             }
