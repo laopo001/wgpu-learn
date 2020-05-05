@@ -12,7 +12,7 @@ use wgpu_learn::{
 
 async fn run() {
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
-    let mut shader = Shader::new(
+    let mut shader = Shader::new_by_code(
         &app,
         include_str!("./main2.vert"),
         include_str!("./main2.frag"),

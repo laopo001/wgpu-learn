@@ -2,7 +2,7 @@
 use serde_json;
 // use handlebars;
 
-pub static head: &'static str = "#version 450";
+pub static GLSL_HDAD: &'static str = "#version 450";
 
 pub fn base_vert_str() -> &'static str {
     return include_str!("./base.vert");

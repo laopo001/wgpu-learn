@@ -3,8 +3,9 @@ use crate::core::shader_var::{UniformBindingResource, UniformVar, UniformVars};
 use crate::core::vertex_buffer::VertexBuffer;
 use crate::core::vertex_format::VertexFormat;
 use crate::{app::App, util::load_glsl};
-
 use glsl_to_spirv::ShaderType;
+use std::cell::RefCell;
+use std::rc::Rc;
 fn create_texels(size: usize) -> Vec<u8> {
     use std::iter;
 
@@ -34,13 +35,27 @@ pub struct Shader {
     pub pipeline_layout: Option<wgpu::PipelineLayout>,
 
     pub uniform_vars: UniformVars,
-    pub vertex_buffer: Option<VertexBuffer>,
+    pub vertex_buffer: Option<Rc<RefCell<VertexBuffer>>>,
     pub app: *const App,
-    pub vs_module: wgpu::ShaderModule,
-    pub fs_module: wgpu::ShaderModule,
+    pub vs_module: Option<wgpu::ShaderModule>,
+    pub fs_module: Option<wgpu::ShaderModule>,
 }
 impl Shader {
-    pub fn new(app: &App, vs_code: &str, fs_code: &str) -> Self {
+    pub fn new(app: &App) -> Self {
+        let uniform_vars = UniformVars::new();
+        Shader {
+            bind_group_layout: None,
+            render_pipeline: None,
+            bind_group: None,
+            pipeline_layout: None,
+            uniform_vars,
+            vertex_buffer: None,
+            app: app as *const App,
+            vs_module: None,
+            fs_module: None,
+        }
+    }
+    pub fn new_by_code(app: &App, vs_code: &str, fs_code: &str) -> Self {
         let vs_bytes = load_glsl(vs_code, ShaderType::Vertex);
         let fs_bytes = load_glsl(fs_code, ShaderType::Fragment);
         let vs_module = app.device.create_shader_module(&vs_bytes);
@@ -54,8 +69,8 @@ impl Shader {
             uniform_vars,
             vertex_buffer: None,
             app: app as *const App,
-            vs_module,
-            fs_module,
+            vs_module: Some(vs_module),
+            fs_module: Some(fs_module),
         }
     }
     pub fn set_uniform_vars(&mut self, t: Uniform, var: UniformVar) {
@@ -98,7 +113,7 @@ impl Shader {
         (vert + &vert2, frag)
     }
     pub fn set_vertex_buffer(&mut self, buffer: VertexBuffer) {
-        self.vertex_buffer = Some(buffer);
+        self.vertex_buffer = Some(Rc::new(RefCell::new(buffer)));
     }
     pub fn get_attrib_shader_head(&self) -> String {
         let mut vert = "".to_string();
@@ -107,6 +122,7 @@ impl Shader {
             .vertex_buffer
             .as_ref()
             .expect("请设置vertex_buffer")
+            .borrow()
             .format
             .vertex_vars
             .vars
@@ -116,6 +132,7 @@ impl Shader {
                 .vertex_buffer
                 .as_ref()
                 .expect("请设置vertex_buffer")
+                .borrow()
                 .format
                 .vertex_vars
                 .vars[i];
@@ -245,6 +262,7 @@ impl Shader {
                     .vertex_buffer
                     .as_ref()
                     .expect("can not get vertex_buffer")
+                    .borrow()
                     .format
                     .vertex_vars
                     .vars
@@ -265,6 +283,7 @@ impl Shader {
                         .vertex_buffer
                         .as_ref()
                         .expect("can not get vertex_buffer")
+                        .borrow()
                         .format
                         .stride as wgpu::BufferAddress,
                     step_mode: wgpu::InputStepMode::Vertex,
@@ -279,11 +298,11 @@ impl Shader {
                     .create_render_pipeline(&wgpu::RenderPipelineDescriptor {
                         layout: &pipeline_layout,
                         vertex_stage: wgpu::ProgrammableStageDescriptor {
-                            module: &self.vs_module,
+                            module: self.vs_module.as_ref().unwrap(),
                             entry_point: "main",
                         },
                         fragment_stage: Some(wgpu::ProgrammableStageDescriptor {
-                            module: &self.fs_module,
+                            module: self.vs_module.as_ref().unwrap(),
                             entry_point: "main",
                         }),
                         rasterization_state: Some(wgpu::RasterizationStateDescriptor {

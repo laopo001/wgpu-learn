@@ -68,7 +68,7 @@ async fn run() {
     let gvb = VertexBuffer::new(vbc, gvf);
 
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
-    let mut shader = Shader::new(
+    let mut shader = Shader::new_by_code(
         &app,
         include_str!("./projection_camera.vert"),
         include_str!("./projection_camera.frag"),

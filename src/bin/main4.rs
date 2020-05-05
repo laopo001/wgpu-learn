@@ -44,7 +44,7 @@ fn create_texels(size: usize) -> Vec<u8> {
 
 async fn run() {
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
-    let mut shader = Shader::new(
+    let mut shader = Shader::new_by_code(
         &app,
         include_str!("./projection_camera.vert"),
         include_str!("./projection_camera.frag"),
