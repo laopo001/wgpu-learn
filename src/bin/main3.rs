@@ -48,26 +48,24 @@ async fn run() {
             size: 2,
         },
     ]);
+    let vb = vertex_data
+        .iter()
+        .map(|x| {
+            return [
+                x.position.x,
+                x.position.y,
+                x.position.z,
+                1.0,
+                x.tex_coord.x,
+                x.tex_coord.y,
+            ];
+        })
+        .collect::<Vec<[f32; 6]>>()
+        .concat();
+    let vbc = unsafe { std::mem::transmute::<Vec<f32>, Vec<u8>>(vb) };
     // dbg!(gvf.elements[0].size);
-    let gvb = VertexBuffer::new(
-        vertex_data
-            .iter()
-            .map(|x| {
-                return [
-                    x.position.x,
-                    x.position.y,
-                    x.position.z,
-                    1.0,
-                    x.tex_coord.x,
-                    x.tex_coord.y,
-                ];
-            })
-            .collect::<Vec<[f32; 6]>>()
-            .concat()
-            .as_bytes()
-            .to_vec(),
-        gvf,
-    );
+    // let gvb = VertexBuffer::new(vb.as_bytes().to_vec(), gvf);
+    let gvb = VertexBuffer::new(vbc, gvf);
 
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
     let mut shader = Shader::new(

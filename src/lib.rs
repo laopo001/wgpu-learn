@@ -59,6 +59,7 @@ pub mod time {
 pub mod app;
 pub mod config;
 pub mod core;
+pub mod model;
 pub mod util;
 
 pub type Matrix4 = cgmath::Matrix4<f32>;
