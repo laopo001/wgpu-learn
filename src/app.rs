@@ -216,7 +216,7 @@ impl App {
                     .expect("material get shader")
                     .bind_group
                     .as_ref()
-                    .expect("msg"),
+                    .expect("get not bind_group"),
                 &[],
             );
             rpass.set_index_buffer(

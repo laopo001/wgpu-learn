@@ -28,11 +28,15 @@ fn create_texels(size: usize) -> Vec<u8> {
         })
         .collect()
 }
-pub struct Shader {
+pub struct Shader<'a> {
     pub bind_group_layout: Option<wgpu::BindGroupLayout>,
     pub render_pipeline: Option<wgpu::RenderPipeline>,
     pub bind_group: Option<wgpu::BindGroup>,
     pub pipeline_layout: Option<wgpu::PipelineLayout>,
+    pub layouts: Vec<wgpu::BindGroupLayoutEntry>,
+    pub bindings: Vec<wgpu::Binding<'a>>,
+    pub attributes: Vec<wgpu::VertexAttributeDescriptor>,
+    pub vertex_desc: Vec<wgpu::VertexBufferDescriptor<'a>>,
 
     pub uniform_vars: UniformVars,
     pub vertex_buffer: Option<Rc<RefCell<VertexBuffer>>>,
@@ -40,7 +44,7 @@ pub struct Shader {
     pub vs_module: Option<wgpu::ShaderModule>,
     pub fs_module: Option<wgpu::ShaderModule>,
 }
-impl Shader {
+impl<'a> Shader<'a> {
     pub fn new(app: &App) -> Self {
         let uniform_vars = UniformVars::new();
         Shader {
@@ -48,6 +52,11 @@ impl Shader {
             render_pipeline: None,
             bind_group: None,
             pipeline_layout: None,
+            layouts: vec![],
+            bindings: vec![],
+            attributes: vec![],
+            vertex_desc: vec![],
+
             uniform_vars,
             vertex_buffer: None,
             app: app as *const App,
@@ -66,6 +75,10 @@ impl Shader {
             render_pipeline: None,
             bind_group: None,
             pipeline_layout: None,
+            layouts: vec![],
+            bindings: vec![],
+            attributes: vec![],
+            vertex_desc: vec![],
             uniform_vars,
             vertex_buffer: None,
             app: app as *const App,
@@ -89,7 +102,9 @@ impl Shader {
                                 {} u_{};
                             }};
                            "#,
-                            i, UNIFORMNAMES[i]["type"], UNIFORMNAMES[i]["name"]
+                            i,
+                            UNIFORMNAMES[i]["type"].as_str().unwrap(),
+                            UNIFORMNAMES[i]["name"].as_str().unwrap()
                         );
                     } // Fragment,
                     wgpu::ShaderStage::FRAGMENT => {
@@ -97,7 +112,9 @@ impl Shader {
                             r#"
                             layout(set = 0, binding = {}) uniform {} u_{};
                            "#,
-                            i, UNIFORMNAMES[i]["type"], UNIFORMNAMES[i]["name"]
+                            i,
+                            UNIFORMNAMES[i]["type"].as_str().unwrap(),
+                            UNIFORMNAMES[i]["name"].as_str().unwrap()
                         );
                     }
                     _ => panic!("错误"),
@@ -131,7 +148,9 @@ impl Shader {
             if let Some(vertex_var) = item {
                 vert += &format!(
                     "layout (location = {}) in {} a_{};\n",
-                    i, ATTRIBNAMES[i]["type"], ATTRIBNAMES[i]["name"]
+                    i,
+                    ATTRIBNAMES[i]["type"].as_str().unwrap(),
+                    ATTRIBNAMES[i]["name"].as_str().unwrap()
                 )
             }
         }
@@ -150,11 +169,15 @@ impl Shader {
                 if ATTRIBNAMES[i]["vary"].as_bool().expect("vary 转 bool") {
                     vert += &format!(
                         "layout (location = {}) out {} v_{};\n",
-                        i, ATTRIBNAMES[i]["type"], ATTRIBNAMES[i]["name"]
+                        i,
+                        ATTRIBNAMES[i]["type"].as_str().unwrap(),
+                        ATTRIBNAMES[i]["name"].as_str().unwrap()
                     );
                     frag += &format!(
                         "layout (location = {}) in {} v_{};\n",
-                        i, ATTRIBNAMES[i]["type"], ATTRIBNAMES[i]["name"]
+                        i,
+                        ATTRIBNAMES[i]["type"].as_str().unwrap(),
+                        ATTRIBNAMES[i]["name"].as_str().unwrap()
                     );
                 }
             }
@@ -216,20 +239,16 @@ impl Shader {
     }
     pub fn get_bind(&mut self) {
         unsafe {
-            let mut layouts = vec![];
-            let mut bindings = vec![];
-            let mut attributes = vec![];
-            let mut vertex_desc = vec![];
             for (i, o_var) in self.uniform_vars.vars.iter().enumerate() {
                 if let Some(var) = o_var {
-                    layouts.push(wgpu::BindGroupLayoutEntry {
+                    self.layouts.push(wgpu::BindGroupLayoutEntry {
                         binding: i as u32,
                         visibility: var.visibility,
                         ty: var.ty,
                     });
                     match &var.resource {
                         UniformBindingResource::Buffer { buffer, range } => {
-                            bindings.push(wgpu::Binding {
+                            self.bindings.push(wgpu::Binding {
                                 binding: i as u32,
                                 resource: wgpu::BindingResource::Buffer {
                                     buffer,
@@ -238,13 +257,13 @@ impl Shader {
                             });
                         }
                         UniformBindingResource::TextureView(texture_view) => {
-                            bindings.push(wgpu::Binding {
+                            self.bindings.push(wgpu::Binding {
                                 binding: i as u32,
                                 resource: wgpu::BindingResource::TextureView(&texture_view),
                             });
                         }
                         UniformBindingResource::Sampler(sampler) => {
-                            bindings.push(wgpu::Binding {
+                            self.bindings.push(wgpu::Binding {
                                 binding: i as u32,
                                 resource: wgpu::BindingResource::Sampler(&sampler),
                             });
@@ -256,14 +275,14 @@ impl Shader {
                 (*self.app)
                     .device
                     .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                        bindings: layouts.as_slice(),
+                        bindings: self.layouts.as_slice(),
                         label: None,
                     });
             let bind_group = (*self.app)
                 .device
                 .create_bind_group(&wgpu::BindGroupDescriptor {
                     layout: &bind_group_layout,
-                    bindings: bindings.as_slice(),
+                    bindings: self.bindings.as_slice(),
                     label: None,
                 });
             let pipeline_layout =
@@ -286,7 +305,7 @@ impl Shader {
                     .enumerate()
                 {
                     if let Some(var) = o_var {
-                        attributes.push(wgpu::VertexAttributeDescriptor {
+                        self.attributes.push(wgpu::VertexAttributeDescriptor {
                             format: var.format,
                             offset: var.offset as u64,
                             shader_location: i as u32,
@@ -294,7 +313,7 @@ impl Shader {
                     }
                 }
 
-                vertex_desc.push(wgpu::VertexBufferDescriptor {
+                self.vertex_desc.push(wgpu::VertexBufferDescriptor {
                     stride: self
                         .vertex_buffer
                         .as_ref()
@@ -303,7 +322,7 @@ impl Shader {
                         .format
                         .stride as wgpu::BufferAddress,
                     step_mode: wgpu::InputStepMode::Vertex,
-                    attributes: attributes.as_slice(),
+                    attributes: self.attributes.as_slice(),
                 });
             } else {
                 println!("not set_vertex_buffer");
@@ -338,7 +357,7 @@ impl Shader {
                         depth_stencil_state: None,
                         vertex_state: wgpu::VertexStateDescriptor {
                             index_format: wgpu::IndexFormat::Uint16,
-                            vertex_buffers: vertex_desc.as_slice(),
+                            vertex_buffers: self.vertex_desc.as_slice(),
                         },
                         sample_count: 1,
                         sample_mask: !0,
