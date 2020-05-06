@@ -3,6 +3,8 @@
 #![allow(unused)]
 #[macro_use]
 extern crate lazy_static;
+#[macro_use]
+use serde_json;
 // pub enum ShaderStage {
 //     Vertex,
 //     Fragment,
@@ -60,7 +62,7 @@ pub mod app;
 pub mod config;
 pub mod core;
 pub mod model;
-pub mod shaders;
+
 pub mod util;
 pub type Matrix4 = cgmath::Matrix4<f32>;
 pub type Vector4 = cgmath::Vector4<f32>;

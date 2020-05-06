@@ -1,4 +1,5 @@
 use crate::core::shader::Shader;
+use crate::model::model::Mesh;
 use crate::{
     config::{Config, Event},
     Color,
@@ -178,5 +179,66 @@ impl App {
         } else {
             self.event.insert(e, vec![Box::new(task)]);
         }
+    }
+    pub fn draw_mesh(&mut self, mesh: &mut Mesh) {
+        let frame = self
+            .swap_chain
+            .get_next_texture()
+            .expect("Timeout when acquiring next swap chain texture");
+        let mut encoder = self
+            .device
+            .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+        {
+            let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
+                    attachment: &frame.view,
+                    resolve_target: None,
+                    load_op: wgpu::LoadOp::Clear,
+                    store_op: wgpu::StoreOp::Store,
+                    clear_color: wgpu::Color::GREEN,
+                }],
+                depth_stencil_attachment: None,
+            });
+            rpass.set_pipeline(
+                mesh.material
+                    .shader
+                    .as_ref()
+                    .expect("material get shader")
+                    .render_pipeline
+                    .as_ref()
+                    .expect("msg"),
+            );
+            rpass.set_bind_group(
+                0,
+                mesh.material
+                    .shader
+                    .as_ref()
+                    .expect("material get shader")
+                    .bind_group
+                    .as_ref()
+                    .expect("msg"),
+                &[],
+            );
+            rpass.set_index_buffer(
+                mesh.index_buffer
+                    .as_mut()
+                    .expect("not get index_buffer")
+                    .get_wgpu_index_buffer(&self),
+                0,
+                0,
+            );
+            rpass.set_vertex_buffer(
+                0,
+                mesh.vertex_buffer
+                    .as_mut()
+                    .expect("not get index_buffer")
+                    .get_wgpu_vertex_buffer(&self),
+                0,
+                0,
+            );
+            // rpass.draw(0..3, 0..1);
+            rpass.draw_indexed(0..6 as u32, 0, 0..1);
+        }
+        self.queue.submit(Some(encoder.finish()));
     }
 }

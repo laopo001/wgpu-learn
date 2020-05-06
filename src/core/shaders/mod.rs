@@ -1,5 +1,3 @@
-#[macro_use]
-use serde_json;
 // use handlebars;
 
 pub static GLSL_HDAD: &'static str = "#version 450";

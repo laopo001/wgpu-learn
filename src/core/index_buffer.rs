@@ -1,9 +1,23 @@
+use crate::app::App;
 pub struct IndexBuffer {
     pub buffer: Vec<u8>,
+    pub wgpu_index_buffer: Option<wgpu::Buffer>,
 }
 impl IndexBuffer {
     pub fn new(buffer: Vec<u8>) -> Self {
-        return IndexBuffer { buffer };
+        return IndexBuffer {
+            buffer,
+            wgpu_index_buffer: None,
+        };
     }
-    pub fn get_wgpu_index_buffer() {}
+    pub fn get_wgpu_index_buffer(&mut self, app: &App) -> &wgpu::Buffer {
+        if self.wgpu_index_buffer.is_some() {
+            return self.wgpu_index_buffer.as_ref().unwrap();
+        }
+        let b = app
+            .device
+            .create_buffer_with_data(self.buffer.as_slice(), wgpu::BufferUsage::INDEX);
+        self.wgpu_index_buffer = Some(b);
+        return self.wgpu_index_buffer.as_ref().unwrap();
+    }
 }

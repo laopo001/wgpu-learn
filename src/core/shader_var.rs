@@ -15,16 +15,6 @@ pub struct UniformVar {
     pub ty: wgpu::BindingType,
 }
 
-// impl Clone for UniformVar {
-//     fn clone(&self) -> Self {
-//         return UniformVar {
-//             resource: self.resource,
-//             visibility: self.visibility,
-//             ty: self.ty,
-//         };
-//     }
-// }
-
 pub struct UniformVars {
     pub vars: Vec<Option<UniformVar>>,
 }
@@ -53,7 +43,7 @@ pub struct VertexVars {
 }
 impl VertexVars {
     pub fn new() -> Self {
-        let LEN = 3;
+        let LEN = 4;
         let mut vars = vec![];
         for i in 0..4 {
             vars.push(None);
