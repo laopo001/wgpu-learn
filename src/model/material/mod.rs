@@ -5,11 +5,11 @@ use crate::core::shader_var::{UniformBindingResource, UniformVar};
 use crate::Color3;
 use serde_json::json;
 use zerocopy::{AsBytes, FromBytes};
-pub struct Material<'a> {
-    pub shader: Option<Shader<'a>>,
+pub struct Material {
+    pub shader: Option<Shader>,
     pub color: Color3,
 }
-impl<'a> Material<'a> {
+impl Material {
     pub fn new(app: &App) -> Self {
         return Material {
             color: Color3::new(0.0, 0.0, 0.0),
