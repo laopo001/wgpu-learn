@@ -248,26 +248,27 @@ impl<'a> Shader<'a> {
                     });
                     match &var.resource {
                         UniformBindingResource::Buffer { buffer, range } => {
-                            self.bindings.push(wgpu::Binding {
+                            self.bindings.push(std::mem::transmute(wgpu::Binding {
                                 binding: i as u32,
                                 resource: wgpu::BindingResource::Buffer {
                                     buffer,
                                     range: range.clone(),
                                 },
-                            });
+                            }));
                         }
                         UniformBindingResource::TextureView(texture_view) => {
-                            self.bindings.push(wgpu::Binding {
+                            self.bindings.push(std::mem::transmute(wgpu::Binding {
                                 binding: i as u32,
                                 resource: wgpu::BindingResource::TextureView(&texture_view),
-                            });
+                            }));
                         }
                         UniformBindingResource::Sampler(sampler) => {
-                            self.bindings.push(wgpu::Binding {
+                            self.bindings.push(std::mem::transmute(wgpu::Binding {
                                 binding: i as u32,
                                 resource: wgpu::BindingResource::Sampler(&sampler),
-                            });
+                            }));
                         }
+                        _ => panic!("error"),
                     }
                 }
             }
@@ -322,7 +323,11 @@ impl<'a> Shader<'a> {
                         .format
                         .stride as wgpu::BufferAddress,
                     step_mode: wgpu::InputStepMode::Vertex,
-                    attributes: self.attributes.as_slice(),
+                    attributes: std::mem::transmute::<
+                        &[wgpu::VertexAttributeDescriptor],
+                        &[wgpu::VertexAttributeDescriptor],
+                    >(self.attributes.as_slice())
+                        as &'a [wgpu::VertexAttributeDescriptor],
                 });
             } else {
                 println!("not set_vertex_buffer");
