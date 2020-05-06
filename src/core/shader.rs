@@ -79,8 +79,7 @@ impl Shader {
     pub fn get_uniform_shader_head(&self) -> (String, String) {
         let mut vert = "".to_string();
         let mut frag = "".to_string();
-        for i in 0..self.uniform_vars.vars.len() {
-            let item = &self.uniform_vars.vars[i];
+        for (i, item) in self.uniform_vars.vars.iter().enumerate() {
             if let Some(uniform_var) = item {
                 match uniform_var.visibility {
                     wgpu::ShaderStage::VERTEX => {
@@ -122,7 +121,7 @@ impl Shader {
     pub fn get_attrib_shader_head(&self) -> (String, String) {
         let mut vert = "".to_string();
         let mut frag = "".to_string();
-        for i in 0..self
+        for (i, item) in self
             .vertex_buffer
             .as_ref()
             .expect("请设置vertex_buffer")
@@ -130,16 +129,9 @@ impl Shader {
             .format
             .vertex_vars
             .vars
-            .len()
+            .iter()
+            .enumerate()
         {
-            let item = &self
-                .vertex_buffer
-                .as_ref()
-                .expect("请设置vertex_buffer")
-                .borrow()
-                .format
-                .vertex_vars
-                .vars[i];
             if let Some(vertex_var) = item {
                 vert += &format!(
                     "layout (location = {}) in {} a_{};\n",
