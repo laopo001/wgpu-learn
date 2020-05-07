@@ -73,7 +73,7 @@ async fn run() {
         include_str!("./projection_camera.vert"),
         include_str!("./projection_camera.frag"),
     );
-    shader.set_vertex_buffer(gvb);
+    shader.set_vertex_buffer(std::rc::Rc::new(std::cell::RefCell::new(gvb)));
     let mx_projection = cgmath::perspective(
         cgmath::Deg(45f32),
         app.size.width as f32 / app.size.height as f32,

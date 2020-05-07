@@ -1,11 +1,13 @@
 use crate::config::{Uniform, ATTRIBNAMES, UNIFORMNAMES};
 use crate::core::shader_var::{UniformBindingResource, UniformVar, UniformVars};
+use crate::core::shaders::{base_frag_str, base_vert_str, GLSL_HDAD};
 use crate::core::vertex_buffer::VertexBuffer;
 use crate::core::vertex_format::VertexFormat;
 use crate::{app::App, util::load_glsl};
 use glsl_to_spirv::ShaderType;
 use std::cell::RefCell;
 use std::rc::Rc;
+
 fn create_texels(size: usize) -> Vec<u8> {
     use std::iter;
 
@@ -54,6 +56,39 @@ impl Shader {
             vs_module: None,
             fs_module: None,
         }
+    }
+
+    fn app(&self) -> &App {
+        unsafe {
+            if self.app.is_null() {
+                panic!("app not get");
+            }
+            return &*self.app as &App;
+        }
+    }
+    pub fn set_shader_module(&mut self, vs_code: &str, fs_code: &str) {
+        unsafe {
+            let vs_bytes = load_glsl(vs_code, ShaderType::Vertex);
+            let fs_bytes = load_glsl(fs_code, ShaderType::Fragment);
+            let vs_module = self.app().device.create_shader_module(&vs_bytes);
+            let fs_module = self.app().device.create_shader_module(&fs_bytes);
+            self.vs_module = Some(vs_module);
+            self.fs_module = Some(fs_module);
+        }
+    }
+    pub fn get_base_material(&mut self) {
+        let mut vert = "".to_string();
+        let mut frag = "".to_string();
+        vert += GLSL_HDAD;
+        frag += GLSL_HDAD;
+        let (vert_var, frag_var) = self.get_shader_head();
+        vert += &vert_var;
+        frag += &frag_var;
+        vert += base_vert_str();
+        frag += base_frag_str();
+        std::fs::write("test.vert", &vert).unwrap();
+        std::fs::write("test.frag", &frag).unwrap();
+        self.set_shader_module(&vert, &frag);
     }
     pub fn new_by_code(app: &App, vs_code: &str, fs_code: &str) -> Self {
         let vs_bytes = load_glsl(vs_code, ShaderType::Vertex);
@@ -115,8 +150,8 @@ impl Shader {
         let (vert2, frag2) = self.get_attrib_shader_head();
         (vert + &vert2, frag + &frag2)
     }
-    pub fn set_vertex_buffer(&mut self, buffer: VertexBuffer) {
-        self.vertex_buffer = Some(Rc::new(RefCell::new(buffer)));
+    pub fn set_vertex_buffer(&mut self, buffer: Rc<RefCell<VertexBuffer>>) {
+        self.vertex_buffer = Some(buffer);
     }
     pub fn get_attrib_shader_head(&self) -> (String, String) {
         let mut vert = "".to_string();
@@ -180,7 +215,7 @@ impl Shader {
                 height: size,
                 depth: 1,
             };
-            let texture = (*self.app).device.create_texture(&wgpu::TextureDescriptor {
+            let texture = self.app().device.create_texture(&wgpu::TextureDescriptor {
                 size: texture_extent,
                 // array_layer_count: 1,
                 mip_level_count: 1,
@@ -191,10 +226,12 @@ impl Shader {
                 label: None,
             });
             let texture_view = texture.create_default_view();
-            let temp_buf = (*self.app)
+            let temp_buf = self
+                .app()
                 .device
                 .create_buffer_with_data(texels.as_slice(), wgpu::BufferUsage::COPY_SRC);
-            let mut init_encoder = (*self.app)
+            let mut init_encoder = self
+                .app()
                 .device
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
             init_encoder.copy_buffer_to_texture(
@@ -212,18 +249,11 @@ impl Shader {
                 },
                 texture_extent,
             );
-            (*self.app).queue.submit(Some(init_encoder.finish()));
+            self.app().queue.submit(Some(init_encoder.finish()));
             texture_view
         }
     }
-    pub fn set_index_buffer(&self, index_buffer: &[u8]) -> wgpu::Buffer {
-        unsafe {
-            let index_buf = (*self.app)
-                .device
-                .create_buffer_with_data(index_buffer, wgpu::BufferUsage::INDEX);
-            return index_buf;
-        }
-    }
+
     pub fn get_bind(&mut self) {
         unsafe {
             let mut layouts = vec![];
@@ -263,13 +293,14 @@ impl Shader {
                 }
             }
             let bind_group_layout =
-                (*self.app)
+                self.app()
                     .device
                     .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
                         bindings: layouts.as_slice(),
                         label: None,
                     });
-            let bind_group = (*self.app)
+            let bind_group = self
+                .app()
                 .device
                 .create_bind_group(&wgpu::BindGroupDescriptor {
                     layout: &bind_group_layout,
@@ -277,7 +308,7 @@ impl Shader {
                     label: None,
                 });
             let pipeline_layout =
-                (*self.app)
+                self.app()
                     .device
                     .create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                         bind_group_layouts: &[&bind_group_layout],
@@ -319,7 +350,7 @@ impl Shader {
                 println!("not set_vertex_buffer");
             }
             let render_pipeline =
-                (*self.app)
+                self.app()
                     .device
                     .create_render_pipeline(&wgpu::RenderPipelineDescriptor {
                         layout: &pipeline_layout,

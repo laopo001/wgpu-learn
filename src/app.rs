@@ -1,11 +1,13 @@
 use crate::core::shader::Shader;
-use crate::model::model::Mesh;
+use crate::model::mesh::Mesh;
 use crate::{
     config::{Config, Event},
     Color,
 };
-use std::collections::HashMap;
 
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::rc::Rc;
 pub trait FnBox {
     fn call_box(&mut self, v: &mut App);
 }
@@ -181,6 +183,15 @@ impl App {
         }
     }
     pub fn draw_mesh(&mut self, mesh: &mut Mesh) {
+        let mut r_index_buffer = mesh.index_buffer.as_ref().unwrap().borrow_mut();
+        let index_buffer = r_index_buffer.get_wgpu_index_buffer(&self);
+        let mut r_vertex_buffer = mesh.vertex_buffer.as_ref().unwrap().borrow_mut();
+        let vertex_buffer = r_vertex_buffer.get_wgpu_vertex_buffer(&self);
+        mesh.material.update_shader(self);
+        // mesh.material
+        //     .shader
+        //     .set_vertex_buffer(mesh.vertex_buffer.clone().expect("").clone());
+        mesh.material.shader.get_bind();
         let frame = self
             .swap_chain
             .get_next_texture()
@@ -202,40 +213,22 @@ impl App {
             rpass.set_pipeline(
                 mesh.material
                     .shader
-                    .as_ref()
-                    .expect("material get shader")
                     .render_pipeline
                     .as_ref()
-                    .expect("msg"),
+                    .expect("get render_pipeline"),
             );
             rpass.set_bind_group(
                 0,
                 mesh.material
                     .shader
-                    .as_ref()
-                    .expect("material get shader")
                     .bind_group
                     .as_ref()
-                    .expect("get not bind_group"),
+                    .expect("get bind_group"),
                 &[],
             );
-            rpass.set_index_buffer(
-                mesh.index_buffer
-                    .as_mut()
-                    .expect("not get index_buffer")
-                    .get_wgpu_index_buffer(&self),
-                0,
-                0,
-            );
-            rpass.set_vertex_buffer(
-                0,
-                mesh.vertex_buffer
-                    .as_mut()
-                    .expect("not get index_buffer")
-                    .get_wgpu_vertex_buffer(&self),
-                0,
-                0,
-            );
+
+            rpass.set_index_buffer(index_buffer, 0, 0);
+            rpass.set_vertex_buffer(0, vertex_buffer, 0, 0);
             // rpass.draw(0..3, 0..1);
             rpass.draw_indexed(0..6 as u32, 0, 0..1);
         }

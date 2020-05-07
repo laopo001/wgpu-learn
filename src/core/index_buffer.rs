@@ -10,7 +10,7 @@ impl IndexBuffer {
             wgpu_index_buffer: None,
         };
     }
-    pub fn get_wgpu_index_buffer(&mut self, app: &App) -> &wgpu::Buffer {
+    pub fn get_wgpu_index_buffer<'a>(&'a mut self, app: &App) -> &'a wgpu::Buffer {
         if self.wgpu_index_buffer.is_some() {
             return self.wgpu_index_buffer.as_ref().unwrap();
         }
