@@ -46,26 +46,20 @@ lazy_static! {
     pub static ref UNIFORMNAMES: serde_json::Value = json!([{
         "name": "ModelViewProjectionMatrix",
         "type": "mat4",
-        "vary": false,
+        "is_base": true,
     },{
         "name": "Texture0",
         "type": "texture2D",
-        "vary": false,
+        "is_base": false,
     },{
         "name": "Sampler0",
         "type": "sampler",
-        "vary": false,
+        "is_base": false,
+    },{
+        "name": "Color0",
+        "type": "vec3",
+        "is_base": true,
     }]);
-    // pub static ref UNIFORMNAMES: Vec<(String, String, String)> = {
-    //     let res = vec![
-    //         ("ModelViewProjectionMatrix", "mat4", "is_vary"),
-    //         ("Texture0", "texture2D", "is_vary"),
-    //         ("Sampler0", "sampler"),
-    //     ];
-    //     res.iter()
-    //         .map(|x| (x.0.to_string(), x.1.to_string(), x.2.to_string()))
-    //         .collect()
-    // };
     pub static ref ATTRIBNAMES: serde_json::Value = json!([{
         "name": "POSITION",
         "type": "vec4",
@@ -83,15 +77,4 @@ lazy_static! {
         "type": "vec2",
         "vary": true,
     }]);
-    // pub static ref ATTRIBNAMES: Vec<(String, String)> = {
-    //     let res = vec![
-    //         ("POSITION", "vec4"),
-    //         ("NORMAL", "vec3"),
-    //         ("COLOR", "vec3"),
-    //         ("TEXCOORD0", "vec2"),
-    //     ];
-    //     res.iter()
-    //         .map(|x| (x.0.to_string(), x.1.to_string()))
-    //         .collect()
-    // };
 }

@@ -185,8 +185,11 @@ impl App {
     pub fn draw_mesh(&mut self, mesh: &mut Mesh) {
         let mut r_index_buffer = mesh.index_buffer.as_ref().unwrap().borrow_mut();
         let index_buffer = r_index_buffer.get_wgpu_index_buffer(&self);
-        let mut r_vertex_buffer = mesh.vertex_buffer.as_ref().unwrap().borrow_mut();
-        let vertex_buffer = r_vertex_buffer.get_wgpu_vertex_buffer(&self);
+        let vertex_buffer = mesh
+            .vertex_buffer
+            .as_mut()
+            .expect("msg")
+            .get_wgpu_vertex_buffer(&self);
         mesh.material.update_shader(self);
         // mesh.material
         //     .shader
@@ -206,7 +209,7 @@ impl App {
                     resolve_target: None,
                     load_op: wgpu::LoadOp::Clear,
                     store_op: wgpu::StoreOp::Store,
-                    clear_color: wgpu::Color::GREEN,
+                    clear_color: wgpu::Color::BLACK,
                 }],
                 depth_stencil_attachment: None,
             });

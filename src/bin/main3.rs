@@ -65,7 +65,7 @@ async fn run() {
     let vbc = unsafe { std::mem::transmute::<Vec<f32>, Vec<u8>>(vb) };
     // dbg!(gvf.elements[0].size);
     // let gvb = VertexBuffer::new(vb.as_bytes().to_vec(), gvf);
-    let gvb = VertexBuffer::new(vbc, gvf);
+    let mut gvb = VertexBuffer::new(vbc, gvf);
 
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
     let mut shader = Shader::new_by_code(
@@ -73,7 +73,7 @@ async fn run() {
         include_str!("./projection_camera.vert"),
         include_str!("./projection_camera.frag"),
     );
-    shader.set_vertex_buffer(std::rc::Rc::new(std::cell::RefCell::new(gvb)));
+    shader.vertex_buffer = std::ptr::NonNull::new(&mut gvb as *mut VertexBuffer);
     let mx_projection = cgmath::perspective(
         cgmath::Deg(45f32),
         app.size.width as f32 / app.size.height as f32,

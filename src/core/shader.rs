@@ -37,7 +37,7 @@ pub struct Shader {
     pub pipeline_layout: Option<wgpu::PipelineLayout>,
 
     pub uniform_vars: UniformVars,
-    pub vertex_buffer: Option<Rc<RefCell<VertexBuffer>>>,
+    pub vertex_buffer: Option<std::ptr::NonNull<VertexBuffer>>,
     pub app: *const App,
     pub vs_module: Option<wgpu::ShaderModule>,
     pub fs_module: Option<wgpu::ShaderModule>,
@@ -116,28 +116,33 @@ impl Shader {
         let mut frag = "".to_string();
         for (i, item) in self.uniform_vars.vars.iter().enumerate() {
             if let Some(uniform_var) = item {
+                let str = if UNIFORMNAMES[i]["is_base"]
+                    .as_bool()
+                    .expect("is_base 转 bool")
+                {
+                    format!(
+                        r#"
+                        layout(set = 0, binding = {}) uniform Locals{} {{
+                            {} u_{};
+                        }};
+                        "#,
+                        i,
+                        i,
+                        UNIFORMNAMES[i]["type"].as_str().unwrap(),
+                        UNIFORMNAMES[i]["name"].as_str().unwrap(),
+                    )
+                } else {
+                    format!(
+                        "layout(set = 0, binding = {}) uniform {} u_{};\n",
+                        i,
+                        UNIFORMNAMES[i]["type"].as_str().unwrap(),
+                        UNIFORMNAMES[i]["name"].as_str().unwrap(),
+                    )
+                };
                 match uniform_var.visibility {
-                    wgpu::ShaderStage::VERTEX => {
-                        frag += &format!(
-                            r#"
-                            layout(set = 0, binding = {}) uniform Locals {{
-                                {} u_{};
-                            }};
-                           "#,
-                            i,
-                            UNIFORMNAMES[i]["type"].as_str().unwrap(),
-                            UNIFORMNAMES[i]["name"].as_str().unwrap(),
-                        );
-                    } // Fragment,
+                    wgpu::ShaderStage::VERTEX => vert += &str, // Fragment,
                     wgpu::ShaderStage::FRAGMENT => {
-                        vert += &format!(
-                            r#"
-                            layout(set = 0, binding = {}) uniform {} u_{};
-                           "#,
-                            i,
-                            UNIFORMNAMES[i]["type"].as_str().unwrap(),
-                            UNIFORMNAMES[i]["name"].as_str().unwrap(),
-                        );
+                        frag += &str;
                     }
                     _ => panic!("错误"),
                 }
@@ -150,61 +155,60 @@ impl Shader {
         let (vert2, frag2) = self.get_attrib_shader_head();
         (vert + &vert2, frag + &frag2)
     }
-    pub fn set_vertex_buffer(&mut self, buffer: Rc<RefCell<VertexBuffer>>) {
-        self.vertex_buffer = Some(buffer);
-    }
+
     pub fn get_attrib_shader_head(&self) -> (String, String) {
-        let mut vert = "".to_string();
-        let mut frag = "".to_string();
-        for (i, item) in self
-            .vertex_buffer
-            .as_ref()
-            .expect("请设置vertex_buffer")
-            .borrow()
-            .format
-            .vertex_vars
-            .vars
-            .iter()
-            .enumerate()
-        {
-            if let Some(vertex_var) = item {
-                vert += &format!(
-                    "layout (location = {}) in {} a_{};\n",
-                    i,
-                    ATTRIBNAMES[i]["type"].as_str().unwrap(),
-                    ATTRIBNAMES[i]["name"].as_str().unwrap(),
-                )
-            }
-        }
-        for (i, item) in self
-            .vertex_buffer
-            .as_ref()
-            .expect("请设置vertex_buffer")
-            .borrow()
-            .format
-            .vertex_vars
-            .vars
-            .iter()
-            .enumerate()
-        {
-            if let Some(vertex_var) = item {
-                if ATTRIBNAMES[i]["vary"].as_bool().expect("vary 转 bool") {
+        unsafe {
+            let mut vert = "".to_string();
+            let mut frag = "".to_string();
+            for (i, item) in self
+                .vertex_buffer
+                .expect("请设置vertex_buffer")
+                .as_ref()
+                .format
+                .vertex_vars
+                .vars
+                .iter()
+                .enumerate()
+            {
+                if let Some(vertex_var) = item {
                     vert += &format!(
-                        "layout (location = {}) out {} v_{};\n",
+                        "layout (location = {}) in {} a_{};\n",
                         i,
                         ATTRIBNAMES[i]["type"].as_str().unwrap(),
-                        ATTRIBNAMES[i]["name"].as_str().unwrap()
-                    );
-                    frag += &format!(
-                        "layout (location = {}) in {} v_{};\n",
-                        i,
-                        ATTRIBNAMES[i]["type"].as_str().unwrap(),
-                        ATTRIBNAMES[i]["name"].as_str().unwrap()
-                    );
+                        ATTRIBNAMES[i]["name"].as_str().unwrap(),
+                    )
                 }
             }
+            for (i, item) in self
+                .vertex_buffer
+                .as_ref()
+                .expect("请设置vertex_buffer")
+                .as_ref()
+                .format
+                .vertex_vars
+                .vars
+                .iter()
+                .enumerate()
+            {
+                if let Some(vertex_var) = item {
+                    if ATTRIBNAMES[i]["vary"].as_bool().expect("vary 转 bool") {
+                        vert += &format!(
+                            "layout (location = {}) out {} v_{};\n",
+                            i,
+                            ATTRIBNAMES[i]["type"].as_str().unwrap(),
+                            ATTRIBNAMES[i]["name"].as_str().unwrap()
+                        );
+                        frag += &format!(
+                            "layout (location = {}) in {} v_{};\n",
+                            i,
+                            ATTRIBNAMES[i]["type"].as_str().unwrap(),
+                            ATTRIBNAMES[i]["name"].as_str().unwrap()
+                        );
+                    }
+                }
+            }
+            return (vert, frag);
         }
-        return (vert, frag);
     }
     pub fn create_texture(&self) -> wgpu::TextureView {
         unsafe {
@@ -319,7 +323,7 @@ impl Shader {
                     .vertex_buffer
                     .as_ref()
                     .expect("can not get vertex_buffer")
-                    .borrow()
+                    .as_ref()
                     .format
                     .vertex_vars
                     .vars
@@ -340,7 +344,7 @@ impl Shader {
                         .vertex_buffer
                         .as_ref()
                         .expect("can not get vertex_buffer")
-                        .borrow()
+                        .as_ref()
                         .format
                         .stride as wgpu::BufferAddress,
                     step_mode: wgpu::InputStepMode::Vertex,

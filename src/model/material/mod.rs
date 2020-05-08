@@ -13,7 +13,7 @@ pub struct Material {
 impl Material {
     pub fn new(app: &App) -> Self {
         return Material {
-            color: Color3::new(0.0, 0.0, 0.0),
+            color: Color3::new(0.0, 1.0, 0.0),
             shader: Shader::new(app),
         };
     }
@@ -27,11 +27,10 @@ impl Material {
             wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
         );
 
-        self.shader.get_base_material();
         self.shader.set_uniform_vars(
             Uniform::Color0,
             UniformVar {
-                visibility: wgpu::ShaderStage::VERTEX,
+                visibility: wgpu::ShaderStage::FRAGMENT,
                 ty: wgpu::BindingType::UniformBuffer { dynamic: false },
                 resource: UniformBindingResource::Buffer {
                     buffer: uniform_buf,
@@ -39,5 +38,6 @@ impl Material {
                 },
             },
         );
+        self.shader.get_base_material();
     }
 }
