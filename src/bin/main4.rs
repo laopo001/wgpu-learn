@@ -106,7 +106,7 @@ async fn run() {
         },
     );
     let texture = Texture::new_for_png(include_bytes!("./negz.png"));
-    mesh.material.texture = Some(texture);
+    // mesh.material.texture = Some(texture);
     app.on(Event::Update, move |app| unsafe {
         app.draw_mesh(&mut mesh);
     });

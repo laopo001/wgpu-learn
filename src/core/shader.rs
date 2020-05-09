@@ -81,9 +81,17 @@ impl Shader {
         let mut frag = "".to_string();
         vert += GLSL_HDAD;
         frag += GLSL_HDAD;
-        let (vert_var, frag_var) = self.get_shader_head();
-        vert += &vert_var;
-        frag += &frag_var;
+        if self.uniform_vars.vars[Uniform::Texture0 as usize].is_some() {
+            frag += &format!(
+                "#define use_{};\n",
+                UNIFORMNAMES[Uniform::Texture0 as usize]["name"]
+                    .as_str()
+                    .unwrap()
+            );
+        }
+        // let (vert_var, frag_var) = self.get_shader_head();
+        // vert += &vert_var;
+        // frag += &frag_var;
         vert += base_vert_str();
         frag += base_frag_str();
         std::fs::write("test.vert", &vert).unwrap();
