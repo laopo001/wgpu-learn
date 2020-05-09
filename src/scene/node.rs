@@ -18,9 +18,9 @@ pub struct Node {
     pub(crate) world_position: Vec3,
     pub(crate) world_rotation: Quat,
     pub(crate) world_euler_angle: Vec3,
-    pub world_transform: Mat4,
-    pub(crate) parent: *mut Node,
-    pub(crate) children: Vec<*mut Node>,
+    pub(crate) world_transform: Mat4,
+    pub parent: *mut Node,
+    pub children: Vec<*mut Node>,
     _dirty_local: bool,
     _dirty_world: bool,
     enabled: bool,
@@ -67,8 +67,8 @@ impl Node {
                 self.local_position.set(x, y, z);
             } else {
                 let inv_parent_transform = (*self.parent).get_world_transform();
-                (*self.parent).world_transform = inv_parent_transform.invert().unwrap();
-                self.local_position = inv_parent_transform
+                let t_inv_parent_transform = inv_parent_transform.invert().unwrap();
+                self.local_position = t_inv_parent_transform
                     .transform_point(Point3::new(x, y, z))
                     .into2();
             }
@@ -180,8 +180,6 @@ impl Node {
             }
         }
     }
-    // #[allow(dead_code, unused_parens)]
-
     pub fn sync_hierarchy(&mut self) {
         if !self.enabled {
             return;
@@ -196,8 +194,6 @@ impl Node {
         }
     }
     pub fn _sync(&mut self) {
-        let local_transform_ptr = self.local_transform;
-        let world_transform_ptr = self.world_transform;
         unsafe {
             if self._dirty_local {
                 self.local_transform.set_from_trs(
@@ -209,14 +205,8 @@ impl Node {
             }
             if self._dirty_world {
                 if self.parent.is_null() {
-                    // let temp = &local_transform_ptr;
-                    // // release 编译会无限循环 所以加上了clone
-                    // (*world_transform_ptr).copy(&temp.clone());
-                    self.world_transform = self.local_transform
+                    self.world_transform = self.local_transform;
                 } else {
-                    // let parent_world_transform_ptr = &(*self.parent).world_transform;
-                    // (*world_transform_ptr)
-                    //     .mul2(&*parent_world_transform_ptr, &*local_transform_ptr);
                     self.world_transform = (*self.parent).world_transform * self.local_transform;
                 }
                 self._dirty_world = false;

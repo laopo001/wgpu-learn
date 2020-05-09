@@ -6,9 +6,10 @@
         {
             "type": "cargo",
             "label": "cargo build",
-            "command": "cargo",
+            "command": "build",
             "args": [
-                "build --bin main5"
+                "--bin",
+                "main5"
             ],
             "problemMatcher": [
                 "$rustc"
