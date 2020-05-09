@@ -47,18 +47,22 @@ lazy_static! {
         "name": "ModelViewProjectionMatrix",
         "type": "mat4",
         "is_base": true,
+        "visibility": "vert"
     },{
         "name": "Texture0",
         "type": "texture2D",
         "is_base": false,
+        "visibility": "frag"
     },{
         "name": "Sampler0",
         "type": "sampler",
         "is_base": false,
+        "visibility": "frag"
     },{
         "name": "Color0",
         "type": "vec3",
         "is_base": true,
+        "visibility": "frag"
     }]);
     pub static ref ATTRIBNAMES: serde_json::Value = json!([{
         "name": "POSITION",

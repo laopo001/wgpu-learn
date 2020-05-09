@@ -7,14 +7,24 @@ use std::rc::Rc;
 pub struct Mesh {
     pub material: Material,
     pub vertex_buffer: Option<VertexBuffer>,
-    pub index_buffer: Option<Rc<RefCell<IndexBuffer>>>,
+    pub index_buffer: Option<IndexBuffer>,
+    app: *const App,
 }
 impl Mesh {
+    fn app(&self) -> &App {
+        if self.app.is_null() {
+            panic!("app get not")
+        }
+        unsafe {
+            return &*self.app;
+        }
+    }
     pub fn new(app: &App) -> Self {
         return Mesh {
             vertex_buffer: None,
             index_buffer: None,
             material: Material::new(app),
+            app: app as *const App,
         };
     }
     pub fn set_vertex_buffer(&mut self, mut vertex_buffer: VertexBuffer) {
@@ -24,6 +34,6 @@ impl Mesh {
         self.vertex_buffer = Some(vertex_buffer);
     }
     pub fn set_index_buffer(&mut self, index_buffer: IndexBuffer) {
-        self.index_buffer = Some(Rc::new(RefCell::new(index_buffer)));
+        self.index_buffer = Some(index_buffer);
     }
 }

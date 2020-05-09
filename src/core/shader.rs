@@ -115,36 +115,43 @@ impl Shader {
         let mut vert = "".to_string();
         let mut frag = "".to_string();
         for (i, item) in self.uniform_vars.vars.iter().enumerate() {
+            let str = if UNIFORMNAMES[i]["is_base"]
+                .as_bool()
+                .expect("is_base 转 bool")
+            {
+                format!(
+                    r#"
+layout(set = 0, binding = {}) uniform Locals{} {{
+    {} u_{};
+}};
+"#,
+                    i,
+                    i,
+                    UNIFORMNAMES[i]["type"].as_str().unwrap(),
+                    UNIFORMNAMES[i]["name"].as_str().unwrap(),
+                )
+            } else {
+                format!(
+                    "layout(set = 0, binding = {}) uniform {} u_{};\n",
+                    i,
+                    UNIFORMNAMES[i]["type"].as_str().unwrap(),
+                    UNIFORMNAMES[i]["name"].as_str().unwrap(),
+                )
+            };
             if let Some(uniform_var) = item {
-                let str = if UNIFORMNAMES[i]["is_base"]
-                    .as_bool()
-                    .expect("is_base 转 bool")
-                {
-                    format!(
-                        r#"
-                        layout(set = 0, binding = {}) uniform Locals{} {{
-                            {} u_{};
-                        }};
-                        "#,
-                        i,
-                        i,
-                        UNIFORMNAMES[i]["type"].as_str().unwrap(),
-                        UNIFORMNAMES[i]["name"].as_str().unwrap(),
-                    )
-                } else {
-                    format!(
-                        "layout(set = 0, binding = {}) uniform {} u_{};\n",
-                        i,
-                        UNIFORMNAMES[i]["type"].as_str().unwrap(),
-                        UNIFORMNAMES[i]["name"].as_str().unwrap(),
-                    )
-                };
                 match uniform_var.visibility {
                     wgpu::ShaderStage::VERTEX => vert += &str, // Fragment,
                     wgpu::ShaderStage::FRAGMENT => {
                         frag += &str;
                     }
                     _ => panic!("错误"),
+                }
+            } else {
+                if UNIFORMNAMES[i]["visibility"].as_str().unwrap() == "vert" {
+                    vert += &str;
+                }
+                if UNIFORMNAMES[i]["visibility"].as_str().unwrap() == "frag" {
+                    frag += &str;
                 }
             }
         }

@@ -8,6 +8,7 @@ use crate::{
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
+
 pub trait FnBox {
     fn call_box(&mut self, v: &mut App);
 }
@@ -56,6 +57,7 @@ use winit::{
 
 impl App {
     pub async fn new(title: &str, power: Config) -> Self {
+        env_logger::init();
         let event_loop = EventLoop::new();
         let window = winit::window::Window::new(&event_loop).unwrap();
         let size = window.inner_size();
@@ -182,13 +184,69 @@ impl App {
             self.event.insert(e, vec![Box::new(task)]);
         }
     }
+    pub fn create_wgpu_texture(
+        &self,
+        img_data: &Vec<u8>,
+        width: u32,
+        height: u32,
+    ) -> wgpu::TextureView {
+        unsafe {
+            let texels = img_data;
+            let texture_extent = wgpu::Extent3d {
+                width: width,
+                height: height,
+                depth: 1,
+            };
+            let texture = self.device.create_texture(&wgpu::TextureDescriptor {
+                size: texture_extent,
+                mip_level_count: 1,
+                sample_count: 1,
+                dimension: wgpu::TextureDimension::D2,
+                format: wgpu::TextureFormat::Rgba8UnormSrgb,
+                usage: wgpu::TextureUsage::SAMPLED | wgpu::TextureUsage::COPY_DST,
+                label: None,
+            });
+            let texture_view = texture.create_default_view();
+            let temp_buf = self
+                .device
+                .create_buffer_with_data(texels, wgpu::BufferUsage::COPY_SRC);
+            let mut init_encoder = self
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
+            log::debug!("Copying skybox image of size {},{} to gpu", width, height,);
+            init_encoder.copy_buffer_to_texture(
+                wgpu::BufferCopyView {
+                    buffer: &temp_buf,
+                    offset: 0,
+                    bytes_per_row: 4 * width,
+                    rows_per_image: 0,
+                },
+                wgpu::TextureCopyView {
+                    texture: &texture,
+                    mip_level: 0,
+                    array_layer: 0 as u32,
+                    origin: wgpu::Origin3d::ZERO,
+                },
+                wgpu::Extent3d {
+                    width: width,
+                    height: height,
+                    depth: 1,
+                },
+            );
+            self.queue.submit(Some(init_encoder.finish()));
+            texture_view
+        }
+    }
     pub fn draw_mesh(&mut self, mesh: &mut Mesh) {
-        let mut r_index_buffer = mesh.index_buffer.as_ref().unwrap().borrow_mut();
-        let index_buffer = r_index_buffer.get_wgpu_index_buffer(&self);
+        let index_buffer = mesh
+            .index_buffer
+            .as_mut()
+            .expect("get index_buffer")
+            .get_wgpu_index_buffer(&self);
         let vertex_buffer = mesh
             .vertex_buffer
             .as_mut()
-            .expect("msg")
+            .expect("get vertex_buffer")
             .get_wgpu_vertex_buffer(&self);
         mesh.material.update_shader(self);
         // mesh.material

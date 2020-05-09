@@ -2,6 +2,7 @@
 #![allow(unused)]
 
 use wgpu;
+use wgpu_learn::model::material::texture::Texture;
 use wgpu_learn::model::mesh::Mesh;
 use wgpu_learn::{
     app,
@@ -19,29 +20,6 @@ use zerocopy::{AsBytes, FromBytes};
 struct Vertex {
     position: Vector3,
     tex_coord: Vector2,
-}
-
-fn create_texels(size: usize) -> Vec<u8> {
-    use std::iter;
-
-    (0..size * size)
-        .flat_map(|id| {
-            // get high five for recognizing this ;)
-            let cx = 3.0 * (id % size) as f32 / (size - 1) as f32 - 2.0;
-            let cy = 2.0 * (id / size) as f32 / (size - 1) as f32 - 1.0;
-            let (mut x, mut y, mut count) = (cx, cy, 0);
-            while count < 0xFF && x * x + y * y < 4.0 {
-                let old_x = x;
-                x = x * x - y * y + cx;
-                y = 2.0 * old_x * y + cy;
-                count += 1;
-            }
-            iter::once(0xFF - (count * 5) as u8)
-                .chain(iter::once(0xFF - (count * 15) as u8))
-                .chain(iter::once(0xFF - (count * 50) as u8))
-                .chain(iter::once(1))
-        })
-        .collect()
 }
 
 async fn run() {
@@ -73,18 +51,17 @@ async fn run() {
                 x.position.x,
                 x.position.y,
                 x.position.z,
-                1.0,
                 x.tex_coord.x,
                 x.tex_coord.y,
             ];
         })
-        .collect::<Vec<[f32; 6]>>()
+        .collect::<Vec<[f32; 5]>>()
         .concat();
 
     let format = VertexFormat::new(vec![
         VertexType {
             attrib: Attrib::POSITION,
-            size: 4,
+            size: 3,
         },
         VertexType {
             attrib: Attrib::TEXCOORD0,
@@ -128,6 +105,8 @@ async fn run() {
             visibility: wgpu::ShaderStage::VERTEX,
         },
     );
+    let texture = Texture::new_for_png(include_bytes!("./negz.png"));
+    mesh.material.texture = Some(texture);
     app.on(Event::Update, move |app| unsafe {
         app.draw_mesh(&mut mesh);
     });
