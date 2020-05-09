@@ -190,6 +190,11 @@ impl App {
         width: u32,
         height: u32,
     ) -> wgpu::TextureView {
+        log::info!(
+            "create_wgpu_texture: Copying image of size {},{} to gpu",
+            width,
+            height,
+        );
         unsafe {
             let texels = img_data;
             let texture_extent = wgpu::Extent3d {
@@ -213,7 +218,7 @@ impl App {
             let mut init_encoder = self
                 .device
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
-            log::debug!("Copying skybox image of size {},{} to gpu", width, height,);
+
             init_encoder.copy_buffer_to_texture(
                 wgpu::BufferCopyView {
                     buffer: &temp_buf,
