@@ -24,10 +24,11 @@ pub struct Node {
     _dirty_local: bool,
     _dirty_world: bool,
     enabled: bool,
+    name: String,
 }
 
 impl Node {
-    pub fn new() -> Node {
+    pub fn new() -> Self {
         return Node {
             local_position: Vec3::zero(),
             local_rotation: Quat::zero(),
@@ -43,7 +44,12 @@ impl Node {
             _dirty_local: false,
             _dirty_world: false,
             enabled: true,
+            name: "".to_string(),
         };
+    }
+    pub fn name(mut self, name: &str) -> Self {
+        self.name = name.to_string();
+        self
     }
 
     pub fn add_child(&mut self, child: &mut Node) {
