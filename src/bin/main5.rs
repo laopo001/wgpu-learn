@@ -4,8 +4,10 @@
 use wgpu;
 use wgpu_learn::model::material::texture::Texture;
 use wgpu_learn::model::mesh::Mesh;
+use wgpu_learn::scene::camera::Camera;
 use wgpu_learn::scene::node::Node;
 use wgpu_learn::trait_help::{Into, Matrix4Plus, QuatPlus, Vector3Plus, Vector4Plus};
+use wgpu_learn::Deg;
 use wgpu_learn::{
     app,
     config::{Attrib, Config, Event, Uniform},
@@ -43,4 +45,7 @@ fn main() {
         grandson.get_local_position().data(),
         Vector3::new(-2.0, -4.0, -6.0).data()
     );
+    let mut q = Camera::new();
+    q.set_perspective(90.0, 10.0 / 6.0, 0.1, 1000.0);
+    dbg!(&q.projection_matrix);
 }

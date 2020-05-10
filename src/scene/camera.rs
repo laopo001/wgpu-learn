@@ -18,8 +18,7 @@ impl Camera {
     pub fn set_perspective(&mut self, fov: f32, aspect: f32, near: f32, far: f32) {
         self.near_clip = near;
         self.far_clip = far;
-        self.projection_matrix = cgmath::perspective(Rad(fov), aspect, near, far);
-        // self.projection_matrix
-        //     .set_perspective(fov, aspect, near, far);
+        let f = Rad::from(cgmath::Deg(fov));
+        self.projection_matrix = cgmath::perspective(f, aspect, near, far);
     }
 }

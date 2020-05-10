@@ -74,6 +74,9 @@ pub type Vector3 = cgmath::Vector3<f32>;
 pub type Vector2 = cgmath::Vector2<f32>;
 pub type Point3 = cgmath::Point3<f32>;
 pub type Quat = cgmath::Quaternion<f32>;
+pub type Rad = cgmath::Rad<f32>;
+pub type Deg = cgmath::Deg<f32>;
+
 pub type Color3 = Vector3;
 pub type Color4 = Vector4;
 pub type Color = wgpu::Color;
