@@ -1,4 +1,6 @@
 #![feature(fn_traits)]
+#![feature(type_alias_impl_trait)]
+#![feature(trait_alias)]
 #![allow(non_snake_case)]
 #![allow(unused)]
 #[macro_use]

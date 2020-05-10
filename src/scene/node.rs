@@ -275,70 +275,70 @@ fn test_child_set_get_position() {
     );
 }
 
-// #[test]
-// fn test_child_set_get_local_angles() {
-//     let mut node = Node::new();
-//     node.set_local_euler_angles(1.0, 2.0, 3.0);
-//     assert_eq!(
-//         node.get_local_euler_angles()
-//             .data()
-//             .into_iter()
-//             .map(|x| x.round())
-//             .collect::<Box<[f32]>>(),
-//         Vec3::new(1.0, 2.0, 3.0).data()
-//     );
-// }
+#[test]
+fn test_child_set_get_local_angles() {
+    let mut node = Node::new();
+    node.set_local_euler_angles(1.0, 2.0, 3.0);
+    assert_eq!(
+        node.get_local_euler_angles()
+            .data()
+            .into_iter()
+            .map(|x| x.round())
+            .collect::<Box<[f32]>>(),
+        Vec3::new(1.0, 2.0, 3.0).data()
+    );
+}
 
-// #[test]
-// fn test_child_set_get_angles() {
-//     let mut node = Node::new();
-//     let mut child = Node::new();
-//     let mut grandson = Node::new();
-//     node.add_child(&mut child);
-//     child.add_child(&mut grandson);
-//     node.set_local_euler_angles(1.0, 0.0, 0.0);
-//     child.set_local_euler_angles(1.0, 0.0, 0.0);
-//     grandson.set_local_euler_angles(1.0, 0.0, 0.0);
-//     assert_eq!(
-//         grandson
-//             .get_euler_angles()
-//             .data()
-//             .into_iter()
-//             .map(|x| x.round())
-//             .collect::<Box<[f32]>>(),
-//         Vec3::new(3.0, 0.0, 0.0).data()
-//     );
-//     grandson.set_euler_angles(0.0, 0.0, 0.0);
-//     assert_eq!(
-//         grandson
-//             .get_euler_angles()
-//             .data()
-//             .into_iter()
-//             .map(|x| x.round())
-//             .collect::<Box<[f32]>>(),
-//         Vec3::new(0.0, 0.0, 0.0).data()
-//     );
-//     assert_eq!(
-//         grandson
-//             .get_local_euler_angles()
-//             .data()
-//             .into_iter()
-//             .map(|x| x.round())
-//             .collect::<Box<[f32]>>(),
-//         Vec3::new(-2.0, 0.0, 0.0).data()
-//     );
-// }
+#[test]
+fn test_child_set_get_angles() {
+    let mut node = Node::new();
+    let mut child = Node::new();
+    let mut grandson = Node::new();
+    node.add_child(&mut child);
+    child.add_child(&mut grandson);
+    node.set_local_euler_angles(1.0, 0.0, 0.0);
+    child.set_local_euler_angles(1.0, 0.0, 0.0);
+    grandson.set_local_euler_angles(1.0, 0.0, 0.0);
+    assert_eq!(
+        grandson
+            .get_euler_angles()
+            .data()
+            .into_iter()
+            .map(|x| x.round())
+            .collect::<Box<[f32]>>(),
+        Vec3::new(3.0, 0.0, 0.0).data()
+    );
+    grandson.set_euler_angles(0.0, 0.0, 0.0);
+    assert_eq!(
+        grandson
+            .get_euler_angles()
+            .data()
+            .into_iter()
+            .map(|x| x.round())
+            .collect::<Box<[f32]>>(),
+        Vec3::new(0.0, 0.0, 0.0).data()
+    );
+    assert_eq!(
+        grandson
+            .get_local_euler_angles()
+            .data()
+            .into_iter()
+            .map(|x| x.round())
+            .collect::<Box<[f32]>>(),
+        Vec3::new(-2.0, 0.0, 0.0).data()
+    );
+}
 
-// #[test]
-// fn test_child_set_get_local_scale() {
-//     let mut node = Node::new();
-//     node.set_local_scale(1.0, 2.0, 3.0);
-//     assert_eq!(
-//         node.get_local_scale()
-//             .data()
-//             .into_iter()
-//             .map(|x| x.round())
-//             .collect::<Box<[f32]>>(),
-//         Vec3::new(1.0, 2.0, 3.0).data()
-//     );
-// }
+#[test]
+fn test_child_set_get_local_scale() {
+    let mut node = Node::new();
+    node.set_local_scale(1.0, 2.0, 3.0);
+    assert_eq!(
+        node.get_local_scale()
+            .data()
+            .into_iter()
+            .map(|x| x.round())
+            .collect::<Box<[f32]>>(),
+        Vec3::new(1.0, 2.0, 3.0).data()
+    );
+}

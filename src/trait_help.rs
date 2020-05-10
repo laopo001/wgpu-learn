@@ -8,6 +8,11 @@ use crate::Point3;
 use crate::Quat;
 use crate::Vector3 as Vec3;
 use crate::Vector4 as Vec4;
+use std::ops::{Add, AddAssign, Mul, MulAssign};
+trait Sqrt {
+    fn sqrt(self) -> Self;
+}
+trait Number = std::marker::Sized + MulAssign + Mul<Output = Self> + Add<Output = Self>;
 // use cgmath::prelude::SquareMatrix;
 // use cgmath::Array;
 pub trait Into<T>: Sized {
