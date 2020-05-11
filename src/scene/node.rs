@@ -51,12 +51,50 @@ impl Node {
         self.name = name.to_string();
         self
     }
-
+    pub fn up(&mut self) -> Vec3 {
+        self.get_world_transform().get_x()
+    }
+    pub fn forward(&mut self) -> Vec3 {
+        self.get_world_transform().get_y()
+    }
+    pub fn right(&mut self) -> Vec3 {
+        self.get_world_transform().get_z()
+    }
+    pub fn lookat(&mut self, target: &mut Node) {
+        let up = target.up();
+        let target_location = target.get_position();
+        let mat4 = Mat4::look_at(self.get_position().into2(), target_location.into2(), up);
+        let mut quat = Quat::zero();
+        quat.set_from_mat4(&mat4);
+        self.set_rotation(&quat);
+    }
     pub fn add_child(&mut self, child: &mut Node) {
         child.parent = self;
         self.children.push(child);
     }
+    fn set_rotation(&mut self, rotation: &Quat) {
+        unsafe {
+            if (self.parent.is_null()) {
+                self.local_rotation = rotation.clone();
+            } else {
+                let mut inv_parent_rot = (*self.parent).get_rotation().clone();
+                inv_parent_rot.invert();
+                self.local_rotation = inv_parent_rot;
+                self.local_rotation = self.local_rotation * rotation;
+            }
 
+            if (!self._dirty_local) {
+                self._dirtify(true);
+            }
+        }
+    }
+    fn get_rotation(&mut self) -> &Quat {
+        unsafe {
+            let world_transform_ptr = self.get_world_transform_ptr();
+            self.world_rotation.set_from_mat4(&*world_transform_ptr);
+            return &self.world_rotation;
+        }
+    }
     pub fn set_local_position(&mut self, x: f32, y: f32, z: f32) {
         self.local_position.set(x, y, z);
         if !self._dirty_local {
@@ -90,21 +128,13 @@ impl Node {
         return &self.world_position;
     }
 
-    fn get_rotation(&mut self) -> &Quat {
-        unsafe {
-            let world_transform_ptr = self.get_world_transform_ptr();
-            self.world_rotation.set_from_mat4(&*world_transform_ptr);
-            return &self.world_rotation;
-        }
-    }
-
     pub fn set_local_euler_angles(&mut self, x: f32, y: f32, z: f32) {
         self.local_rotation.set_from_euler_angles(x, y, z);
         if !self._dirty_local {
             self._dirtify(true);
         }
     }
-    pub(crate) fn get_local_euler_angles(&mut self) -> &Vec3 {
+    pub fn get_local_euler_angles(&mut self) -> &Vec3 {
         self.local_rotation
             .get_euler_angles(&mut self.local_euler_angle);
         return &self.local_euler_angle;

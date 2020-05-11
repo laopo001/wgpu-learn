@@ -25,9 +25,9 @@ pub trait Matrix4Plus {
     fn data(&self) -> Vec<f32>;
     fn get_euler_angles(&self, eulers: &mut Vec3);
     fn get_scale(&self, v: &mut Vec3);
-    fn get_x(&self, v: &mut Vec3);
-    fn get_y(&self, v: &mut Vec3);
-    fn get_z(&self, v: &mut Vec3);
+    fn get_x(&self) -> Vec3;
+    fn get_y(&self) -> Vec3;
+    fn get_z(&self) -> Vec3;
     fn set_from_trs(&mut self, t: &Vec3, r: &Quat, s: &Vec3);
     fn copy(&mut self, v: &Mat4);
     fn set(
@@ -65,27 +65,38 @@ impl Matrix4Plus for Mat4 {
     }
 
     fn get_scale(&self, v: &mut Vec3) {
-        let mut temp1 = Vec3::zero();
-        let mut temp2 = Vec3::zero();
-        let mut temp3 = Vec3::zero();
-        self.get_x(&mut temp1);
-        self.get_y(&mut temp2);
-        self.get_z(&mut temp3);
+        let mut temp1 = self.get_x();
+        let mut temp2 = self.get_y();
+        let mut temp3 = self.get_z();
         v.set(temp1.length(), temp2.length(), temp3.length());
     }
-    fn get_x(&self, v: &mut Vec3) {
+    fn get_x(&self) -> Vec3 {
         let m = self.data();
-        v.set(m[0], m[1], m[2]);
+
+        Vec3 {
+            x: m[0],
+            y: m[1],
+            z: m[2],
+        }
     }
 
-    fn get_y(&self, v: &mut Vec3) {
+    fn get_y(&self) -> Vec3 {
         let m = self.data();
-        v.set(m[4], m[5], m[6]);
+        Vec3 {
+            x: m[4],
+            y: m[5],
+            z: m[6],
+        }
     }
 
-    fn get_z(&self, v: &mut Vec3) {
+    fn get_z(&self) -> Vec3 {
         let m = self.data();
-        v.set(m[8], m[9], m[10]);
+
+        Vec3 {
+            x: m[8],
+            y: m[9],
+            z: m[10],
+        }
     }
     fn get_euler_angles(&self, eulers: &mut Vec3) {
         let mut scale = Vec3::zero();
@@ -249,16 +260,22 @@ impl Into<Vec3> for Point3 {
     }
 }
 
+impl Into<Point3> for Vec3 {
+    fn into2(self) -> Point3 {
+        return Point3::new(self.x, self.y, self.z);
+    }
+}
+
 pub trait QuatPlus {
     fn set(&mut self, x: f32, y: f32, z: f32, w: f32);
     fn set_from_mat4(&mut self, mat: &Mat4);
     fn set_from_euler_angles(&mut self, ex: f32, ey: f32, ez: f32);
     fn get_euler_angles(&self, eulers: &mut Vec3);
     fn conjugate(&mut self) -> &mut Self;
-    fn normalize(&mut self);
+    fn normalize(&mut self) -> &mut Self;
     fn length(&self) -> f32;
     fn length_sq(&self) -> f32;
-    fn invert(&mut self);
+    fn invert(&mut self) -> &mut Self;
 }
 impl QuatPlus for Quat {
     fn set(&mut self, x: f32, y: f32, z: f32, w: f32) {
@@ -395,20 +412,21 @@ impl QuatPlus for Quat {
         self.v.z *= -1.0;
         return self;
     }
-    fn normalize(&mut self) {
+    fn normalize(&mut self) -> &mut Self {
         let len = self.length();
         if len == 0.0 {
             self.v.x = 0.0;
             self.v.y = 0.0;
             self.v.z = 0.0;
             self.s = 1.0;
-            return;
+            return self;
         }
         let inv = 1.0 / len;
         self.v.x *= inv;
         self.v.y *= inv;
         self.v.z *= inv;
         self.s *= inv;
+        self
     }
     fn length_sq(&self) -> f32 {
         return self.v.x * self.v.x + self.v.y * self.v.y + self.v.z * self.v.z + self.s * self.s;
@@ -416,7 +434,7 @@ impl QuatPlus for Quat {
     fn length(&self) -> f32 {
         self.length_sq().sqrt()
     }
-    fn invert(&mut self) {
+    fn invert(&mut self) -> &mut Self {
         return self.conjugate().normalize();
     }
 }
