@@ -25,16 +25,15 @@ fn main() {
     // let mut node = Node::new();
     // let mut child = Node::new();
     // let mut grandson = Node::new();
-    // dbg!(node.parent.is_null());
     // node.add_child(&mut child);
     // child.add_child(&mut grandson);
     // node.set_local_position(1.0, 2.0, 3.0);
     // child.set_local_position(1.0, 2.0, 3.0);
     // grandson.set_local_position(1.0, 2.0, 3.0);
-    // // assert_eq!(
-    // //     grandson.get_position().data(),
-    // //     Vector3::new(3.0, 6.0, 9.0).data()
-    // // );
+    // assert_eq!(
+    //     grandson.get_position().data(),
+    //     Vector3::new(3.0, 6.0, 9.0).data()
+    // );
     // grandson.set_position(0.0, 0.0, 0.0);
 
     // assert_eq!(
@@ -53,22 +52,34 @@ fn main() {
     let mut node = Entity::new("1");
     let mut child = Entity::new("2");
     let mut grandson = Entity::new("3");
-    child.add_child(grandson);
-    node.add_child(child);
-
-    node.set_local_position(1.0, 2.0, 3.0);
-    node.get_by_name("2")
-        .unwrap()
-        .set_local_position(1.0, 2.0, 3.0);
-    node.get_by_name("3")
-        .unwrap()
-        .set_local_position(1.0, 2.0, 3.0);
+    child.add_child(&mut grandson);
     unsafe {
-        dbg!(&(*node.__node.parent));
+        dbg!(&(*(child.get_by_name("3").unwrap().__node.parent)).name);
+    }
+    node.add_child(&mut child);
+    unsafe {
+        dbg!(&(*(node.get_by_name("2").unwrap().__node.parent)).name);
+    }
+    // node.set_local_position(1.0, 2.0, 3.0);
+    // node.get_by_name("2")
+    //     .unwrap()
+    //     .set_local_position(1.0, 2.0, 3.0);
+    // node.get_by_name("3")
+    //     .unwrap()
+    //     .set_local_position(1.0, 2.0, 3.0);
+    // unsafe {
+    //     dbg!(&(node));
+    // }
+    unsafe {
+        dbg!(&(*node.get_by_name("3").unwrap().__node.parent)
+            .parent
+            .is_null());
+        dbg!(&(*grandson.parent).parent.is_null());
     }
 
-    assert_eq!(
-        node.get_by_name("3").unwrap().get_position().data(),
-        Vector3::new(3.0, 6.0, 9.0).data()
-    );
+    // dbg!(node.get_by_name("3").unwrap().get_position().data());
+    // assert_eq!(
+    //     node.get_by_name("3").unwrap().get_position().data(),
+    //     Vector3::new(3.0, 6.0, 9.0).data()
+    // );
 }

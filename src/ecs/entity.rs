@@ -5,7 +5,7 @@ pub struct Entity {
     name: String,
     tags: Vec<String>,
     pub parent: *mut Entity,
-    pub children: Vec<Entity>,
+    pub children: Vec<*mut Entity>,
 }
 use core::ops::{Deref, DerefMut};
 impl Deref for Entity {
@@ -38,7 +38,7 @@ impl Entity {
             return Some(&mut *self.parent as &mut Entity);
         }
     }
-    pub fn add_child(&mut self, mut child: Self) {
+    pub fn add_child(&mut self, child: &mut Self) {
         self.__node.add_child(&mut child.__node);
         child.parent = self;
         self.children.push(child);
@@ -47,9 +47,11 @@ impl Entity {
         if (self.name == name) {
             return Some(self);
         }
-        for x in self.children.iter_mut() {
-            return x.get_by_name(name);
+        unsafe {
+            for x in self.children.iter_mut() {
+                return (**x).get_by_name(name);
+            }
+            return None;
         }
-        return None;
     }
 }

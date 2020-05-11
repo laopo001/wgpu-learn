@@ -24,7 +24,7 @@ pub struct Node {
     _dirty_local: bool,
     _dirty_world: bool,
     enabled: bool,
-    name: String,
+    pub name: String,
 }
 
 impl Node {
@@ -167,7 +167,7 @@ impl Node {
                 return &mut self.world_transform as &mut Mat4;
             }
             if !self.parent.is_null() {
-                dbg!(123);
+                // dbg!(&self.name);
                 (*self.parent).get_world_transform();
             }
             self._sync();
