@@ -167,6 +167,7 @@ impl Node {
                 return &mut self.world_transform as &mut Mat4;
             }
             if !self.parent.is_null() {
+                dbg!(123);
                 (*self.parent).get_world_transform();
             }
             self._sync();
@@ -244,6 +245,7 @@ impl Node {
                     self.world_transform = self.local_transform;
                 } else {
                     self.world_transform = (*self.parent).world_transform * self.local_transform;
+                    // dbg!(&(*self.parent).world_transform, self.local_transform);
                 }
                 self._dirty_world = false;
             }

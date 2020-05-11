@@ -64,6 +64,7 @@ pub mod time {
 pub mod app;
 pub mod config;
 pub mod core;
+pub mod ecs;
 pub mod model;
 pub mod scene;
 pub mod trait_help;
