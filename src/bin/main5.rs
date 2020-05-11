@@ -52,34 +52,41 @@ fn main() {
     let mut node = Entity::new("1");
     let mut child = Entity::new("2");
     let mut grandson = Entity::new("3");
-    child.add_child(&mut grandson);
-    unsafe {
-        dbg!(&(*(child.get_by_name("3").unwrap().__node.parent)).name);
-    }
-    node.add_child(&mut child);
-    unsafe {
-        dbg!(&(*(node.get_by_name("2").unwrap().__node.parent)).name);
-    }
-    // node.set_local_position(1.0, 2.0, 3.0);
-    // node.get_by_name("2")
-    //     .unwrap()
-    //     .set_local_position(1.0, 2.0, 3.0);
-    // node.get_by_name("3")
-    //     .unwrap()
-    //     .set_local_position(1.0, 2.0, 3.0);
+    // dbg!(&node as *const Entity);
+    // dbg!(&child as *const Entity);
+    dbg!(&grandson as *const Box<Entity>);
+    child.add_child(grandson);
+    // dbg!(&child as *const Entity);
+    dbg!(child.get_by_name("2").unwrap() as *const Entity);
+    // unsafe {
+    //     dbg!(&(*(child.get_by_name("3").unwrap().__node.parent)).name);
+    // }
+    node.add_child(child);
+    // unsafe {
+    //     dbg!(&(*(node.get_by_name("2").unwrap().__node.parent)).name);
+    // }
+    node.set_local_position(1.0, 2.0, 3.0);
+    node.get_by_name("2")
+        .unwrap()
+        .set_local_position(1.0, 2.0, 3.0);
+    node.get_by_name("3")
+        .unwrap()
+        .set_local_position(1.0, 2.0, 3.0);
     // unsafe {
     //     dbg!(&(node));
     // }
-    unsafe {
-        dbg!(&(*node.get_by_name("3").unwrap().__node.parent)
-            .parent
-            .is_null());
-        dbg!(&(*grandson.parent).parent.is_null());
-    }
+    dbg!(node.get_by_name("1").unwrap() as *const Entity);
+    dbg!(node.get_by_name("2").unwrap() as *const Entity);
+    dbg!(node.get_by_name("3").unwrap() as *const Entity);
 
-    // dbg!(node.get_by_name("3").unwrap().get_position().data());
-    // assert_eq!(
-    //     node.get_by_name("3").unwrap().get_position().data(),
-    //     Vector3::new(3.0, 6.0, 9.0).data()
-    // );
+    unsafe {
+        dbg!((node.get_by_name("3").unwrap().parent as *const Entity));
+        // dbg!(&node.children[0].children[0] as *const Entity);
+        dbg!(&(*node.children[0].children[0].parent).parent.is_null());
+    }
+    dbg!(node.get_by_name("3").unwrap().get_position().data());
+    assert_eq!(
+        node.get_by_name("3").unwrap().get_position().data(),
+        Vector3::new(3.0, 6.0, 9.0).data()
+    );
 }

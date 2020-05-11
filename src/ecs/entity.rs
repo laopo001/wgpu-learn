@@ -5,7 +5,7 @@ pub struct Entity {
     name: String,
     tags: Vec<String>,
     pub parent: *mut Entity,
-    pub children: Vec<*mut Entity>,
+    pub children: Vec<Box<Entity>>,
 }
 use core::ops::{Deref, DerefMut};
 impl Deref for Entity {
@@ -21,14 +21,14 @@ impl DerefMut for Entity {
 }
 
 impl Entity {
-    pub fn new(name: &str) -> Self {
-        return Entity {
+    pub fn new(name: &str) -> Box<Self> {
+        return Box::new(Entity {
             __node: Node::new().name(name),
             name: name.to_string(),
             tags: vec![],
             parent: std::ptr::null_mut(),
             children: vec![],
-        };
+        });
     }
     pub fn parent(&mut self) -> Option<&mut Self> {
         unsafe {
@@ -38,20 +38,22 @@ impl Entity {
             return Some(&mut *self.parent as &mut Entity);
         }
     }
-    pub fn add_child(&mut self, child: &mut Self) {
+    pub fn add_child(&mut self, mut child: Box<Self>) {
         self.__node.add_child(&mut child.__node);
-        child.parent = self;
+        // dbg!("----");
+        // dbg!(self as *const Entity);
+        // dbg!(&child as *const Box<Entity>);
+        // dbg!("---------");
+        child.parent = self as *mut Entity;
         self.children.push(child);
     }
     pub fn get_by_name(&mut self, name: &str) -> Option<&mut Self> {
         if (self.name == name) {
             return Some(self);
         }
-        unsafe {
-            for x in self.children.iter_mut() {
-                return (**x).get_by_name(name);
-            }
-            return None;
+        for x in self.children.iter_mut() {
+            return x.get_by_name(name);
         }
+        return None;
     }
 }
