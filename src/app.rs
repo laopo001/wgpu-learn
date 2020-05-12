@@ -134,8 +134,10 @@ impl App {
                 mut event,
                 array,
                 _clear_color,
-                scene,
+                mut scene,
             } = self;
+            scene.initialize();
+            scene.draw(&mut *p_app as &mut App);
             event
                 .get_mut(&Event::Start)
                 .get_or_insert(&mut vec![])
@@ -156,7 +158,7 @@ impl App {
                             .for_each(|e| unsafe {
                                 (e).call_box(std::mem::transmute::<*mut App, &mut App>(p_app));
                             });
-                        // !todo
+                        // scene.draw(&mut *p_app as &mut App); // TODO
                     }
                     // 关闭
                     winit::event::Event::WindowEvent {

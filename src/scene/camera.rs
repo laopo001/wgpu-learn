@@ -8,11 +8,12 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn new() -> Self {
+    pub fn new(fov: f32, aspect: f32, near: f32, far: f32) -> Self {
+        let f = Rad::from(cgmath::Deg(fov));
         return Camera {
-            far_clip: 1000.0,
-            near_clip: 0.1,
-            projection_matrix: Matrix4::one(),
+            far_clip: far,
+            near_clip: near,
+            projection_matrix: cgmath::perspective(f, aspect, near, far),
         };
     }
     pub fn set_perspective(&mut self, fov: f32, aspect: f32, near: f32, far: f32) {
@@ -20,5 +21,8 @@ impl Camera {
         self.far_clip = far;
         let f = Rad::from(cgmath::Deg(fov));
         self.projection_matrix = cgmath::perspective(f, aspect, near, far);
+    }
+    pub fn get_perspective(&self) -> &Matrix4 {
+        return &self.projection_matrix;
     }
 }

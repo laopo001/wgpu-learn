@@ -63,7 +63,13 @@ impl Node {
     pub fn lookat(&mut self, target: &mut Node) {
         let up = target.up();
         let target_location = target.get_position();
-        let mat4 = Mat4::look_at(self.get_position().into2(), target_location.into2(), up);
+        dbg!(&self.get_position(), target_location);
+        let mat4 = Mat4::look_at(
+            self.get_position().into2(),
+            target_location.into2(),
+            cgmath::Vector3::unit_z(),
+        );
+        dbg!(&mat4);
         let mut quat = Quat::zero();
         quat.set_from_mat4(&mat4);
         self.set_rotation(&quat);

@@ -80,16 +80,19 @@ async fn run() {
         1.0,
         10.0,
     );
+    // dbg!(&mx_projection);
     let mx_view = cgmath::Matrix4::look_at(
         cgmath::Point3::new(0.0, 0.0, 2.0),
         cgmath::Point3::new(0.0001, 0.0, 0.0),
         cgmath::Vector3::unit_z(),
     );
-
+    dbg!(&mx_view);
     let mx_model: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
         1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
     );
+    // dbg!(&mx_model);
     let model_view_projection_matrix = mx_model * mx_projection * mx_view;
+
     let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
     let uniform_buf = app.device.create_buffer_with_data(
         mx_ref.as_bytes(),
@@ -109,10 +112,16 @@ async fn run() {
     let texture = Texture::new_for_png(include_bytes!("./negz.png"));
     let mut face = Entity::new("a");
     face.set_component(Component::Mesh { mesh });
-    face.set_local_position(0.0, 0.0, -1.0);
+    face.set_position(0.0001, 0.0, 0.0);
 
     let mut camera = Entity::new("camera");
-    camera.set_component(Component::Camera);
+    camera.set_position(0.0, 0.0, 2.0);
+    camera.set_component(Component::Camera {
+        fov: 45.0,
+        aspect: app.size.width as f32 / app.size.height as f32,
+        near: 1.0,
+        far: 10.0,
+    });
     camera.lookat(&mut face);
     app.scene.root.add_child(face);
     app.scene.root.add_child(camera);

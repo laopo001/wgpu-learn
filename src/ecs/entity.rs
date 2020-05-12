@@ -4,6 +4,8 @@ use crate::model::mesh::Mesh;
 use crate::scene::camera::Camera;
 use crate::scene::node::Node;
 use crate::scene::Scene;
+use std::cell::RefCell;
+use std::rc::Rc;
 pub struct Entity {
     pub __node: Node,
     name: String,
@@ -11,8 +13,9 @@ pub struct Entity {
     scene: *mut Scene,
     pub parent: *mut Entity,
     pub children: Vec<Box<Entity>>,
-    pub mesh_component: Option<MeshComponent>,
-    pub camera_component: Option<CameraComponent>,
+    pub mesh_component: Option<Rc<RefCell<MeshComponent>>>,
+    pub camera_component: Option<Rc<RefCell<CameraComponent>>>,
+    pub initialized: bool,
 }
 use core::ops::{Deref, DerefMut};
 impl Deref for Entity {
@@ -28,8 +31,15 @@ impl DerefMut for Entity {
 }
 
 pub enum Component {
-    Mesh { mesh: Mesh },
-    Camera,
+    Mesh {
+        mesh: Mesh,
+    },
+    Camera {
+        fov: f32,
+        aspect: f32,
+        near: f32,
+        far: f32,
+    },
 }
 
 impl Entity {
@@ -43,22 +53,36 @@ impl Entity {
             mesh_component: None,
             camera_component: None,
             scene: std::ptr::null_mut(),
+            initialized: false,
         });
     }
     pub fn set_component(&mut self, q: Component) {
-        if let Some(s) = self.scene() {
-            match q {
-                Component::Mesh { mesh } => {
-                    let mut c = MeshComponent::new(mesh);
-                    // s.systems.set_mesh_component(c); !TODO
-                    self.mesh_component = Some(c);
+        match q {
+            Component::Mesh { mesh } => {
+                let c = Rc::new(RefCell::new(MeshComponent::new(self, mesh)));
+                if let Some(s) = self.scene() {
+                    s.systems.add_mesh_component(c.clone());
                 }
-                Component::Camera {} => {
-                    let mut c = CameraComponent::new();
-                    self.camera_component = Some(c);
-                }
-                _ => panic!("Component"),
+
+                self.mesh_component = Some(c);
             }
+            Component::Camera {
+                fov,
+                aspect,
+                near,
+                far,
+            } => {
+                let mut c = Rc::new(RefCell::new(CameraComponent::new(
+                    self,
+                    Camera::new(fov, aspect, near, far),
+                )));
+                if let Some(s) = self.scene() {
+                    s.systems.add_camera_component(c.clone());
+                }
+
+                self.camera_component = Some(c);
+            }
+            _ => panic!("Component"),
         }
     }
     pub(crate) fn set_scene(&mut self, scene: *mut Scene) {
