@@ -1,10 +1,10 @@
 use crate::core::shader::Shader;
 use crate::model::mesh::Mesh;
+use crate::scene::Scene;
 use crate::{
     config::{Config, Event},
     Color,
 };
-
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -35,6 +35,7 @@ pub struct App {
     pub event: HashMap<Event, Vec<Task>>,
     pub array: Vec<i32>,
     _clear_color: Color,
+    pub scene: Scene,
 }
 
 impl Into<wgpu::PowerPreference> for Config {
@@ -104,6 +105,7 @@ impl App {
             event: HashMap::new(),
             array: vec![],
             _clear_color: Color::BLACK,
+            scene: Scene::new(),
         };
     }
     #[cfg(not(target_arch = "wasm32"))]
@@ -132,6 +134,7 @@ impl App {
                 mut event,
                 array,
                 _clear_color,
+                scene,
             } = self;
             event
                 .get_mut(&Event::Start)

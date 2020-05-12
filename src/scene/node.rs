@@ -163,15 +163,7 @@ impl Node {
 
     pub fn get_world_transform(&mut self) -> &mut Mat4 {
         unsafe {
-            if self._dirty_local == false && self._dirty_world == false {
-                return &mut self.world_transform as &mut Mat4;
-            }
-            if !self.parent.is_null() {
-                // dbg!(&self.name);
-                (*self.parent).get_world_transform();
-            }
-            self._sync();
-            return &mut self.world_transform as &mut Mat4;
+            return &mut *self.get_world_transform_ptr() as &mut Mat4;
         }
     }
     pub fn get_world_transform_ptr(&mut self) -> *mut Mat4 {
