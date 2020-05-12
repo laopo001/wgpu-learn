@@ -3,18 +3,15 @@ use crate::model::mesh::Mesh;
 
 pub struct MeshComponent {
     __super: BaseComponent,
-    mesh: Option<Mesh>,
+    mesh: Mesh,
 }
 
 impl MeshComponent {
-    pub fn new() -> MeshComponent {
+    pub fn new(m: Mesh) -> MeshComponent {
         return MeshComponent {
             __super: BaseComponent::new(),
-            mesh: None,
+            mesh: m,
         };
-    }
-    pub fn mesh(&mut self, mesh: Mesh) {
-        self.mesh = Some(mesh);
     }
 }
 

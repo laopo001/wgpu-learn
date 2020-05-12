@@ -23,8 +23,8 @@ pub struct Node {
     pub children: Vec<*mut Node>,
     _dirty_local: bool,
     _dirty_world: bool,
-    enabled: bool,
-    pub name: String,
+    pub enabled: bool,
+    name: String,
 }
 
 impl Node {

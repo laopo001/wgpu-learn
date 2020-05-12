@@ -1,6 +1,6 @@
 use crate::ecs::components::mesh::MeshComponent;
+use crate::model::mesh::Mesh;
 use crate::scene::node::Node;
-
 pub struct Entity {
     pub __node: Node,
     name: String,
@@ -25,7 +25,7 @@ impl DerefMut for Entity {
 impl Entity {
     pub fn new(name: &str) -> Box<Self> {
         return Box::new(Entity {
-            __node: Node::new().name(name),
+            __node: Node::new(),
             name: name.to_string(),
             tags: vec![],
             parent: std::ptr::null_mut(),
@@ -33,6 +33,11 @@ impl Entity {
             mesh_component: None,
         });
     }
+    pub fn set_mesh_component(&mut self, mesh: Mesh) {
+        let mut c = MeshComponent::new(mesh);
+        self.mesh_component = Some(c);
+    }
+
     pub fn parent(&mut self) -> Option<&mut Self> {
         unsafe {
             if (self.parent.is_null()) {
@@ -45,6 +50,11 @@ impl Entity {
         self.__node.add_child(&mut child.__node);
         child.parent = self as *mut Entity;
         self.children.push(child);
+        if (!self.enabled) {
+            self.enabled = false;
+        } else {
+            self.enabled = true;
+        }
     }
     pub fn get_by_name(&mut self, name: &str) -> Option<&mut Self> {
         if (self.name == name) {
