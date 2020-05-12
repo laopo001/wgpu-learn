@@ -1,5 +1,6 @@
 use crate::app::App;
 use crate::core::vertex_format::VertexFormat;
+
 pub struct VertexBuffer {
     pub buffer: Vec<u8>,
     pub format: VertexFormat,

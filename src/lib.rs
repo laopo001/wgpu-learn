@@ -37,7 +37,7 @@ macro_rules! console_log {
 macro_rules! extends {
     ($a:ident,$b:ty, $( {$k:ident: $v:ty} ),* ) => {
         pub struct $a {
-            pub __parent: $b,
+            pub __super: $b,
             $(
                 pub $k: $v,
             )*
@@ -46,7 +46,26 @@ macro_rules! extends {
         impl Deref for $a {
             type Target = $b;
             fn deref<'a>(&'a self) -> &'a $b {
-                &self.__parent
+                &self.__super
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! extends2 {
+    ($a:ident,$b:ident ) => {
+        use core::ops::Deref;
+        impl Deref for $a {
+            type Target = $b;
+            fn deref(&self) -> &Self::Target {
+                &self.__super
+            }
+        }
+        use core::ops::DerefMut;
+        impl DerefMut for $a {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.__super
             }
         }
     };

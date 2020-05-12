@@ -1,11 +1,13 @@
+use crate::ecs::components::mesh::MeshComponent;
 use crate::scene::node::Node;
-#[derive(Debug)]
+
 pub struct Entity {
     pub __node: Node,
     name: String,
     tags: Vec<String>,
     pub parent: *mut Entity,
     pub children: Vec<Box<Entity>>,
+    pub mesh_component: Option<MeshComponent>,
 }
 use core::ops::{Deref, DerefMut};
 impl Deref for Entity {
@@ -28,6 +30,7 @@ impl Entity {
             tags: vec![],
             parent: std::ptr::null_mut(),
             children: vec![],
+            mesh_component: None,
         });
     }
     pub fn parent(&mut self) -> Option<&mut Self> {
@@ -40,10 +43,6 @@ impl Entity {
     }
     pub fn add_child(&mut self, mut child: Box<Self>) {
         self.__node.add_child(&mut child.__node);
-        // dbg!("----");
-        // dbg!(self as *const Entity);
-        // dbg!(&child as *const Box<Entity>);
-        // dbg!("---------");
         child.parent = self as *mut Entity;
         self.children.push(child);
     }
