@@ -4,6 +4,7 @@
 use cgmath::{Matrix4, Vector2, Vector3};
 use wgpu;
 use wgpu_learn;
+use wgpu_learn::ShaderStage;
 use winit::{
     event,
     event_loop::{ControlFlow, EventLoop},
@@ -105,11 +106,11 @@ async fn run() {
 
     let vs_bytes = wgpu_learn::util::load_glsl(
         include_str!("./projection_camera.vert"),
-        glsl_to_spirv::ShaderType::Vertex,
+        ShaderStage::VERTEX,
     );
     let fs_bytes = wgpu_learn::util::load_glsl(
         include_str!("./projection_camera.frag"),
-        glsl_to_spirv::ShaderType::Fragment,
+        ShaderStage::FRAGMENT,
     );
     let vs_module = device.create_shader_module(&vs_bytes);
     let fs_module = device.create_shader_module(&fs_bytes);

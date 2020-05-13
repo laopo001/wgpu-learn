@@ -1,6 +1,22 @@
+use crate::ShaderStage;
+
 #[cfg(not(target_arch = "wasm32"))]
-pub fn load_glsl(code: &str, stage: glsl_to_spirv::ShaderType) -> Vec<u32> {
-    wgpu::read_spirv(glsl_to_spirv::compile(&code, stage).unwrap()).unwrap()
+pub fn load_glsl(code: &str, stage: ShaderStage) -> Vec<u32> {
+    match stage {
+        ShaderStage::VERTEX => {
+            return wgpu::read_spirv(
+                glsl_to_spirv::compile(&code, glsl_to_spirv::ShaderType::Vertex).unwrap(),
+            )
+            .unwrap()
+        }
+        ShaderStage::FRAGMENT => {
+            return wgpu::read_spirv(
+                glsl_to_spirv::compile(&code, glsl_to_spirv::ShaderType::Fragment).unwrap(),
+            )
+            .unwrap()
+        }
+        _ => panic!("error"),
+    }
 }
 
 #[cfg(target_arch = "wasm32")]
@@ -14,9 +30,10 @@ extern "C" {
 }
 
 #[cfg(target_arch = "wasm32")]
-pub fn load_glsl(code: &str, stage: glsl_to_spirv::ShaderType) -> Vec<u32> {
+pub fn load_glsl(code: &str, stage: ShaderStage) -> Vec<u32> {
     match stage {
-        glsl_to_spirv::ShaderType::Vertex => return compileGLSL(code, "vertex"),
-        glsl_to_spirv::ShaderType::Fragment => return compileGLSL(code, "fragment"),
+        ShaderStage::VERTEX => return return compileGLSL(code, "vertex"),
+        ShaderStage::FRAGMENT => return compileGLSL(code, "fragment"),
+        _ => panic!("error"),
     }
 }

@@ -3,8 +3,8 @@ use crate::core::shader_var::{UniformBindingResource, UniformVar, UniformVars};
 use crate::core::shaders::{base_frag_str, base_vert_str, GLSL_HDAD};
 use crate::core::vertex_buffer::VertexBuffer;
 use crate::core::vertex_format::VertexFormat;
+use crate::ShaderStage;
 use crate::{app::App, util::load_glsl};
-use glsl_to_spirv::ShaderType;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -68,8 +68,8 @@ impl Shader {
     }
     pub fn set_shader_module(&mut self, vs_code: &str, fs_code: &str) {
         unsafe {
-            let vs_bytes = load_glsl(vs_code, ShaderType::Vertex);
-            let fs_bytes = load_glsl(fs_code, ShaderType::Fragment);
+            let vs_bytes = load_glsl(vs_code, ShaderStage::VERTEX);
+            let fs_bytes = load_glsl(fs_code, ShaderStage::FRAGMENT);
             let vs_module = self.app().device.create_shader_module(&vs_bytes);
             let fs_module = self.app().device.create_shader_module(&fs_bytes);
             self.vs_module = Some(vs_module);
@@ -99,8 +99,8 @@ impl Shader {
         self.set_shader_module(&vert, &frag);
     }
     pub fn new_by_code(app: &App, vs_code: &str, fs_code: &str) -> Self {
-        let vs_bytes = load_glsl(vs_code, ShaderType::Vertex);
-        let fs_bytes = load_glsl(fs_code, ShaderType::Fragment);
+        let vs_bytes = load_glsl(vs_code, ShaderStage::VERTEX);
+        let fs_bytes = load_glsl(fs_code, ShaderStage::FRAGMENT);
         let vs_module = app.device.create_shader_module(&vs_bytes);
         let fs_module = app.device.create_shader_module(&fs_bytes);
         let uniform_vars = UniformVars::new();

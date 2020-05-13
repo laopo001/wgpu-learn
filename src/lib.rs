@@ -102,3 +102,4 @@ pub type Color4 = Vector4;
 pub type Color = wgpu::Color;
 pub type VertexFormat = wgpu::VertexFormat;
 // pub type ShaderStage = glsl_to_spirv::ShaderType;
+pub type ShaderStage = wgpu::ShaderStage;
