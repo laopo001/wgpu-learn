@@ -2,3 +2,6 @@
 .idea/
 test.frag
 test.vert
+
+web/build/
+web/node_modules/
