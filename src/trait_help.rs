@@ -22,7 +22,7 @@ pub trait Into<T>: Sized {
 pub trait Matrix4Plus {
     fn get_translate(&self) -> Vec3;
     fn get(&self, i: usize) -> f32;
-    fn data(&self) -> Vec<f32>;
+    // fn data(&self) -> Vec<f32>;
     fn get_euler_angles(&self, eulers: &mut Vec3);
     fn get_scale(&self, v: &mut Vec3);
     fn get_x(&self) -> Vec3;
@@ -59,10 +59,10 @@ impl Matrix4Plus for Mat4 {
         let m: [[f32; 4]; 4] = self.clone().into();
         return m[i / 4][i % 4];
     }
-    fn data(&self) -> Vec<f32> {
-        let m: [[f32; 4]; 4] = self.clone().into();
-        m.concat()
-    }
+    // fn data(&self) -> Vec<f32> {
+    //     let m: [[f32; 4]; 4] = self.clone().into();
+    //     m.concat()
+    // }
 
     fn get_scale(&self, v: &mut Vec3) {
         let mut temp1 = self.get_x();
@@ -71,7 +71,7 @@ impl Matrix4Plus for Mat4 {
         v.set(temp1.length(), temp2.length(), temp3.length());
     }
     fn get_x(&self) -> Vec3 {
-        let m = self.data();
+        let m: &[f32; 16] = self.as_ref();
 
         Vec3 {
             x: m[0],
@@ -81,7 +81,7 @@ impl Matrix4Plus for Mat4 {
     }
 
     fn get_y(&self) -> Vec3 {
-        let m = self.data();
+        let m: &[f32; 16] = self.as_ref();
         Vec3 {
             x: m[4],
             y: m[5],
@@ -90,8 +90,7 @@ impl Matrix4Plus for Mat4 {
     }
 
     fn get_z(&self) -> Vec3 {
-        let m = self.data();
-
+        let m: &[f32; 16] = self.as_ref();
         Vec3 {
             x: m[8],
             y: m[9],
@@ -105,7 +104,7 @@ impl Matrix4Plus for Mat4 {
         let sy = scale.y;
         let sz = scale.z;
 
-        let m = self.data();
+        let m: &[f32; 16] = self.as_ref();
         let x: f32;
         let y = (-m[2] / sx).asin();
         let z: f32;
@@ -151,7 +150,7 @@ impl Matrix4Plus for Mat4 {
         let wx = qw * x2;
         let wy = qw * y2;
         let wz = qw * z2;
-        let mut m = self.data();
+        let mut m: &mut [f32; 16] = self.as_mut();
         m[0] = (1.0 - (yy + zz)) * sx;
         m[1] = (xy + wz) * sx;
         m[2] = (xz - wy) * sx;
@@ -171,28 +170,28 @@ impl Matrix4Plus for Mat4 {
         m[13] = ty;
         m[14] = tz;
         m[15] = 1.0;
-        self.x.x = m[0];
-        self.x.y = m[1];
-        self.x.z = m[2];
-        self.x.w = m[3];
+        // self.x.x = m[0];
+        // self.x.y = m[1];
+        // self.x.z = m[2];
+        // self.x.w = m[3];
 
-        self.y.x = m[4];
-        self.y.y = m[5];
-        self.y.z = m[6];
-        self.y.w = m[7];
+        // self.y.x = m[4];
+        // self.y.y = m[5];
+        // self.y.z = m[6];
+        // self.y.w = m[7];
 
-        self.z.x = m[8];
-        self.z.y = m[9];
-        self.z.z = m[10];
-        self.z.w = m[11];
+        // self.z.x = m[8];
+        // self.z.y = m[9];
+        // self.z.z = m[10];
+        // self.z.w = m[11];
 
-        self.w.x = m[12];
-        self.w.y = m[13];
-        self.w.z = m[14];
-        self.w.w = m[15];
+        // self.w.x = m[12];
+        // self.w.y = m[13];
+        // self.w.z = m[14];
+        // self.w.w = m[15];
     }
     fn copy(&mut self, v: &Mat4) {
-        let data = v.data();
+        let data: &[f32; 16] = self.as_ref();
         let n0 = data[0];
         let n1 = data[1];
         let n2 = data[2];
@@ -283,7 +282,7 @@ impl QuatPlus for Quat {
         self.s = w;
     }
     fn set_from_mat4(&mut self, mat: &Mat4) {
-        let m = mat.data();
+        let m: &[f32; 16] = mat.as_ref();
 
         let mut m00 = m[0];
         let mut m01 = m[1];
@@ -489,5 +488,6 @@ fn mat4_add() {
         1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     );
     mat1 = mat1 + mat2;
-    assert_eq!(mat2.data()[0], 1.0);
+    let m: &[f32; 16] = mat2.as_ref();
+    assert_eq!(m[0], 1.0);
 }

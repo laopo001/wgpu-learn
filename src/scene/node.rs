@@ -65,13 +65,14 @@ impl Node {
         let target_location = target.get_position();
         let eye = self.get_position().into2();
         let center = target_location.into2();
-        dbg!(&self.get_position(), target_location);
+        // dbg!(&self.get_position(), target_location);
         let mat4 = Mat4::look_at(eye, center, up);
-        let mat4 = Mat4::look_at_dir(eye, center - eye, up);
-        dbg!(&mat4);
+        // let mat4 = Mat4::look_at_dir(eye, center - eye, up);
+        // dbg!(&mat4);
         let mut quat = Quat::zero();
         quat.set_from_mat4(&mat4);
         self.set_rotation(&quat);
+        // dbg!(self.get_world_transform());
     }
     pub fn add_child(&mut self, child: &mut Node) {
         child.parent = self;

@@ -74,43 +74,44 @@ async fn run() {
     let index_data: Vec<u16> = vec![0, 1, 2, 2, 1, 3];
     let index_buffer = IndexBuffer::new(index_data.as_bytes().to_vec());
     mesh.set_index_buffer(index_buffer);
-    let mx_projection = cgmath::perspective(
-        cgmath::Deg(45f32),
-        app.size.width as f32 / app.size.height as f32,
-        1.0,
-        10.0,
-    );
+    // let mx_projection = cgmath::perspective(
+    //     cgmath::Deg(45f32),
+    //     app.size.width as f32 / app.size.height as f32,
+    //     1.0,
+    //     10.0,
+    // );
     // dbg!(&mx_projection);
-    let mx_view = cgmath::Matrix4::look_at(
-        cgmath::Point3::new(0.0, 0.0, 2.0),
-        cgmath::Point3::new(0.0001, 0.0, 0.0),
-        cgmath::Vector3::unit_z(),
-    );
-    dbg!(&mx_view);
-    let mx_model: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
-        1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
-    );
-    // dbg!(&mx_model);
-    let model_view_projection_matrix = mx_model * mx_projection * mx_view;
+    // let mx_view = cgmath::Matrix4::look_at(
+    //     cgmath::Point3::new(0.0, 0.0, 2.0),
+    //     cgmath::Point3::new(0.0001, 0.0, 0.0),
+    //     cgmath::Vector3::unit_z(),
+    // );
+    // dbg!(&mx_view);
+    // let mx_model: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
+    //     1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+    // );
+    // // dbg!(&mx_model);
+    // let model_view_projection_matrix = mx_model * mx_projection * mx_view;
 
-    let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
-    let uniform_buf = app.device.create_buffer_with_data(
-        mx_ref.as_bytes(),
-        wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
-    );
-    mesh.material.set_uniform_vars(
-        Uniform::ModelViewProjectionMatrix,
-        UniformVar {
-            resource: UniformBindingResource::Buffer {
-                buffer: uniform_buf,
-                range: 0..64,
-            },
-            ty: wgpu::BindingType::UniformBuffer { dynamic: false },
-            visibility: wgpu::ShaderStage::VERTEX,
-        },
-    );
+    // let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
+    // let uniform_buf = app.device.create_buffer_with_data(
+    //     mx_ref.as_bytes(),
+    //     wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
+    // );
+    // mesh.material.set_uniform_vars(
+    //     Uniform::ModelViewProjectionMatrix,
+    //     UniformVar {
+    //         resource: UniformBindingResource::Buffer {
+    //             buffer: uniform_buf,
+    //             range: 0..64,
+    //         },
+    //         ty: wgpu::BindingType::UniformBuffer { dynamic: false },
+    //         visibility: wgpu::ShaderStage::VERTEX,
+    //     },
+    // );
     let texture = Texture::new_for_png(include_bytes!("./negz.png"));
     let mut face = Entity::new("a");
+    mesh.material.texture = Some(texture);
     face.set_component(Component::Mesh { mesh });
     face.set_position(0.0001, 0.0, 0.0);
 
@@ -125,7 +126,7 @@ async fn run() {
     camera.lookat(&mut face);
     app.scene.root.add_child(face);
     app.scene.root.add_child(camera);
-    // mesh.material.texture = Some(texture);
+
     app.on(Event::Update, move |app| unsafe {
         // app.draw_mesh(&mut mesh);
     });

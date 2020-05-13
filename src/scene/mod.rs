@@ -62,13 +62,19 @@ impl Scene {
     pub fn draw(&mut self, app: &mut App) {
         unsafe {
             let camera = self.active_camera();
-            let view = *(camera.borrow_mut().entity().get_world_transform());
-            dbg!(&view);
-            let projection = (*camera.borrow_mut().camera.get_perspective());
+            let view = camera
+                .borrow_mut()
+                .entity()
+                .get_world_transform()
+                .invert()
+                .unwrap();
+            // dbg!(&view);
+            let projection = camera.borrow_mut().camera.get_perspective().clone();
+            let view_projection = (projection * view);
             // dbg!(&projection);
             for mesh_c in self.systems.mesh.components.iter_mut() {
                 let model = *(mesh_c.borrow_mut().entity().get_world_transform());
-                let model_view_projection_matrix = (model) * (projection) * (view);
+                let model_view_projection_matrix = (model) * view_projection;
                 // dbg!(&model);
                 let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
                 let uniform_buf = app.device.create_buffer_with_data(
