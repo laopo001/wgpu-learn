@@ -48,4 +48,4 @@ rev = "49640d2497ffac1936feb1cebb0ef64a39c31dce"
 [package.metadata.commands]
 start = "RUST_LOG=info cargo run --bin main4"
 dbg = "cargo run --bin main5"
-wasm = "RUSTFLAGS=--cfg=web_sys_unstable_apis cargo build --target wasm32-unknown-unknown --bin main"
+wasm = "RUSTFLAGS=--cfg=web_sys_unstable_apis cargo build --target wasm32-unknown-unknown --bin main && wasm-bindgen --out-dir web/build/generated --web target/wasm32-unknown-unknown/debug/main.wasm"
