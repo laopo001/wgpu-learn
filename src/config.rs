@@ -41,7 +41,12 @@ pub enum Uniform {
     Sampler0 = 2,
     Color0 = 3,
 }
-
+#[allow(non_upper_case_globals)]
+#[cfg(target_arch = "wasm32")]
+pub static TextureFormat: wgpu::TextureFormat = wgpu::TextureFormat::Bgra8Unorm;
+#[allow(non_upper_case_globals)]
+#[cfg(not(target_arch = "wasm32"))]
+pub static TextureFormat: wgpu::TextureFormat = wgpu::TextureFormat::Bgra8UnormSrgb;
 lazy_static! {
     pub static ref UNIFORMNAMES: serde_json::Value = json!([{
         "name": "ModelViewProjectionMatrix",

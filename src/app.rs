@@ -111,7 +111,7 @@ impl App {
             &surface,
             &wgpu::SwapChainDescriptor {
                 usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
-                format: wgpu::TextureFormat::Bgra8UnormSrgb,
+                format: crate::config::TextureFormat,
                 width: size.width as u32,
                 height: size.height as u32,
                 present_mode: wgpu::PresentMode::Mailbox,
