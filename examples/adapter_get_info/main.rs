@@ -23,6 +23,7 @@ fn main() {
     #[cfg(not(target_arch = "wasm32"))]
     {
         env_logger::init();
+
         async_std::task::block_on(run());
     }
     #[cfg(target_arch = "wasm32")]

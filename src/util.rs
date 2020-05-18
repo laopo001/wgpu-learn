@@ -54,11 +54,17 @@ pub fn console_error<T: std::fmt::Debug>(s: T) {
 
 #[cfg(target_arch = "wasm32")]
 pub fn console_log<T: std::fmt::Debug>(s: T) {
-    // web_sys::console::log(s);
-    log(&format!("{:?}", s));
+    let arr = js_sys::Array::new();
+    let v = wasm_bindgen::JsValue::from_str(&format!("{:?}", s));
+    arr.push(&v);
+    web_sys::console::log(&arr);
+    // log(&format!("{:?}", s));
 }
 #[cfg(target_arch = "wasm32")]
 pub fn console_error<T: std::fmt::Debug>(s: T) {
-    // js_sys::Error::new(s);
-    error(&format!("{:?}", s));
+    let arr = js_sys::Array::new();
+    let v = wasm_bindgen::JsValue::from_str(&format!("{:?}", s));
+    arr.push(&v);
+    web_sys::console::error(&arr);
+    // error(&format!("{:?}", s));
 }

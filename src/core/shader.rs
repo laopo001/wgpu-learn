@@ -240,7 +240,7 @@ layout(set = 0, binding = {}) uniform Locals{} {{
                 mip_level_count: 1,
                 sample_count: 1,
                 dimension: wgpu::TextureDimension::D2,
-                format: wgpu::TextureFormat::Rgba8UnormSrgb,
+                format: crate::config::TextureFormat,
                 usage: wgpu::TextureUsage::SAMPLED | wgpu::TextureUsage::COPY_DST,
                 label: None,
             });
@@ -389,7 +389,7 @@ layout(set = 0, binding = {}) uniform Locals{} {{
                         }),
                         primitive_topology: wgpu::PrimitiveTopology::TriangleList,
                         color_states: &[wgpu::ColorStateDescriptor {
-                            format: wgpu::TextureFormat::Bgra8UnormSrgb,
+                            format: crate::config::TextureFormat,
                             color_blend: wgpu::BlendDescriptor::REPLACE,
                             alpha_blend: wgpu::BlendDescriptor::REPLACE,
                             write_mask: wgpu::ColorWrite::ALL,

@@ -9,7 +9,7 @@ pub struct Camera {
 
 impl Camera {
     pub fn new(fov: f32, aspect: f32, near: f32, far: f32) -> Self {
-        let f = Rad::from(cgmath::Deg(fov));
+        let f = cgmath::Deg(fov);
         return Camera {
             far_clip: far,
             near_clip: near,

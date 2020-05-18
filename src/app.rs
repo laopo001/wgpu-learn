@@ -81,13 +81,12 @@ impl App {
                 })
                 .expect("couldn't append canvas to document body");
         }
-        // env_logger::init();
 
-        // let window = winit::window::Window::new(&event_loop).unwrap();
         let size = window.inner_size();
         let instance = wgpu::Instance::new();
+        // crate::util::console_log("1");
         let surface = unsafe { instance.create_surface(&window) };
-        // crate::util::console_log("chrome 报错以下");
+        // crate::util::console_log("2");
         let adapter = instance
             .request_adapter(
                 &wgpu::RequestAdapterOptions {
@@ -239,7 +238,7 @@ impl App {
                 mip_level_count: 1,
                 sample_count: 1,
                 dimension: wgpu::TextureDimension::D2,
-                format: wgpu::TextureFormat::Rgba8UnormSrgb,
+                format: crate::config::TextureFormat,
                 usage: wgpu::TextureUsage::SAMPLED | wgpu::TextureUsage::COPY_DST,
                 label: None,
             });
