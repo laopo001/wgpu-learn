@@ -94,8 +94,11 @@ impl Shader {
         // frag += &frag_var;
         vert += base_vert_str();
         frag += base_frag_str();
-        std::fs::write("test.vert", &vert).unwrap();
-        std::fs::write("test.frag", &frag).unwrap();
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            std::fs::write("test.vert", &vert).unwrap();
+            std::fs::write("test.frag", &frag).unwrap();
+        }
         self.set_shader_module(&vert, &frag);
     }
     pub fn new_by_code(app: &App, vs_code: &str, fs_code: &str) -> Self {

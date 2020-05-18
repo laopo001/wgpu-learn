@@ -10,6 +10,6 @@ void main() {
 
 glslangModule().then(gl => {
     console.log(gl);
+    window.glslangModuleInit && window.glslangModuleInit();
     // console.log(window.glslang.compileGLSL(vertexShaderGLSL, "vertex"));
-
 });

@@ -22,16 +22,16 @@ pub fn Texture2TextureCopyView<'a>(t: &'a wgpu::Texture) -> wgpu::TextureCopyVie
         origin: wgpu::Origin3d { x: 0, y: 0, z: 0 },
     }
 }
-#[macro_export]
-macro_rules! console_log {
-    ( $( $x:expr ),* ) => {
-        {
-            $(
-                println!("{:?}",$x);
-            )*
-        }
-    };
-}
+// #[macro_export]
+// macro_rules! console_log {
+//     ( $( $x:expr ),* ) => {
+//         {
+//             $(
+//                 println!("{:?}",$x);
+//             )*
+//         }
+//     };
+// }
 
 #[macro_export]
 macro_rules! extends {
@@ -87,6 +87,7 @@ pub mod ecs;
 pub mod model;
 pub mod scene;
 pub mod trait_help;
+#[macro_use]
 pub mod util;
 pub type Matrix4 = cgmath::Matrix4<f32>;
 pub type Vector4 = cgmath::Vector4<f32>;

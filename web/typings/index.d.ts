@@ -1,5 +1,5 @@
 declare global {
-    interface Window { glslang: any; }
+    interface Window { glslang: any; glslangModuleInit: any }
 }
 
 export { }

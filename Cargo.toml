@@ -21,6 +21,7 @@ console_log = "0.1.2"
 handlebars = "3.0.1"
 serde_json = "1.0"
 env_logger = "0.7"
+cfg-if = "0.1.10"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 async-std = "1.5.0"
@@ -127,4 +128,4 @@ rev = "c830faa06b4ddf6fe7c747159e949d6c363e0460"
 [package.metadata.commands]
 start = "RUST_LOG=info cargo run --bin main4"
 dbg = "RUST_LOG=info && cargo run --bin main5"
-wasm = "RUSTFLAGS=--cfg=web_sys_unstable_apis cargo build --target wasm32-unknown-unknown --bin main && wasm-bindgen --out-dir web/build/generated --web target/wasm32-unknown-unknown/debug/main.wasm"
+wasm = "RUSTFLAGS=--cfg=web_sys_unstable_apis cargo build --target wasm32-unknown-unknown --bin main6 && mv target/wasm32-unknown-unknown/debug/main6.wasm target/wasm32-unknown-unknown/debug/main.wasm && wasm-bindgen --out-dir web/build/generated --web target/wasm32-unknown-unknown/debug/main.wasm"

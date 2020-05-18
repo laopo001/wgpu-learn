@@ -4,7 +4,7 @@ extern crate lazy_static;
 #[cfg(not(target_arch = "wasm32"))]
 use async_std::task;
 use std::sync::Mutex;
-use wgpu_learn::util::console_log;
+
 use wgpu_learn::{
     app,
     config::{Config, Event},
@@ -31,7 +31,7 @@ async fn run() {
     app.on(Event::End, |app| {
         dbg!(app.array.len());
     });
-    app.start();
+    // app.start();
 }
 
 fn main() {

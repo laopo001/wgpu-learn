@@ -81,12 +81,12 @@ impl App {
                 })
                 .expect("couldn't append canvas to document body");
         }
-
+        crate::console_log!("新建window");
         let size = window.inner_size();
         let instance = wgpu::Instance::new();
-        // crate::util::console_log("1");
+
         let surface = unsafe { instance.create_surface(&window) };
-        // crate::util::console_log("2");
+
         let adapter = instance
             .request_adapter(
                 &wgpu::RequestAdapterOptions {
@@ -146,6 +146,7 @@ impl App {
     // }
     pub fn start(mut self) {
         unsafe {
+            crate::console_log!("开始");
             let p_app = &mut self as *mut App;
             // let event_loop = self.event_loop;
             let App {

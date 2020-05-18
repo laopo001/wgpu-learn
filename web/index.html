@@ -16,7 +16,12 @@
 <script src="./index.js"></script>
 <script type="module">
     import init from "./generated/main.js";
-    init();
+    window.glslangModuleInit = function () {
+        console.log('glslangModuleInit');
+
+        init();
+    }
+
 </script>
 
 </html>
