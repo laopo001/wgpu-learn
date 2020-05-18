@@ -56,12 +56,15 @@ async fn run() {
         .await
         .unwrap();
     let (device, queue) = adapter
-        .request_device(&wgpu::DeviceDescriptor {
-            extensions: wgpu::Extensions {
-                anisotropic_filtering: false,
+        .request_device(
+            &wgpu::DeviceDescriptor {
+                extensions: wgpu::Extensions {
+                    anisotropic_filtering: false,
+                },
+                limits: wgpu::Limits::default(),
             },
-            limits: wgpu::Limits::default(),
-        })
+            None,
+        )
         .await
         .unwrap();
     // data
@@ -146,6 +149,7 @@ async fn run() {
         lod_min_clamp: -100.0,
         lod_max_clamp: 100.0,
         compare: wgpu::CompareFunction::Always,
+        label: None,
     });
 
     let abc = || {
@@ -224,10 +228,7 @@ async fn run() {
             bindings: &[
                 wgpu::Binding {
                     binding: 0,
-                    resource: wgpu::BindingResource::Buffer {
-                        buffer: &uniform_buf,
-                        range: 0..64,
-                    },
+                    resource: wgpu::BindingResource::Buffer(uniform_buf.slice(..)),
                 },
                 wgpu::Binding {
                     binding: 1,
@@ -332,8 +333,8 @@ async fn run() {
                     });
                     rpass.set_pipeline(&render_pipeline);
                     rpass.set_bind_group(0, &bind_group, &[]);
-                    rpass.set_index_buffer(&index_buf, 0, 0);
-                    rpass.set_vertex_buffer(0, &vertex_buf, 0, 0);
+                    rpass.set_index_buffer(index_buf.slice(..));
+                    rpass.set_vertex_buffer(0, vertex_buf.slice(..));
                     // rpass.draw(0..3, 0..1);
                     rpass.draw_indexed(0..6 as u32, 0, 0..1);
                 }

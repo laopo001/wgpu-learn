@@ -290,10 +290,9 @@ layout(set = 0, binding = {}) uniform Locals{} {{
                         UniformBindingResource::Buffer { buffer, range } => {
                             bindings.push(wgpu::Binding {
                                 binding: i as u32,
-                                resource: wgpu::BindingResource::Buffer {
-                                    buffer,
-                                    range: range.clone(),
-                                },
+                                resource: wgpu::BindingResource::Buffer(
+                                    buffer.slice(range.clone()),
+                                ),
                             });
                         }
                         UniformBindingResource::TextureView(texture_view) => {

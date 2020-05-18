@@ -118,6 +118,7 @@ async fn run() {
         lod_min_clamp: -100.0,
         lod_max_clamp: 100.0,
         compare: wgpu::CompareFunction::Always,
+        label: None,
     });
     shader.set_uniform_vars(
         Uniform::Texture0,
@@ -185,8 +186,8 @@ async fn run() {
             });
             rpass.set_pipeline(shader.render_pipeline.as_ref().expect("error1"));
             rpass.set_bind_group(0, shader.bind_group.as_ref().expect("error2"), &[]);
-            rpass.set_index_buffer(&index_buf, 0, 0);
-            rpass.set_vertex_buffer(0, &vertex_buf, 0, 0);
+            rpass.set_index_buffer(index_buf.slice(..));
+            rpass.set_vertex_buffer(0, vertex_buf.slice(..));
             rpass.draw_indexed(0..6, 0, 0..1);
         }
 

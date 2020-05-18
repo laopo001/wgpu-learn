@@ -99,12 +99,15 @@ impl App {
             .await
             .unwrap();
         let (device, queue) = adapter
-            .request_device(&wgpu::DeviceDescriptor {
-                extensions: wgpu::Extensions {
-                    anisotropic_filtering: false,
+            .request_device(
+                &wgpu::DeviceDescriptor {
+                    extensions: wgpu::Extensions {
+                        anisotropic_filtering: false,
+                    },
+                    limits: wgpu::Limits::default(),
                 },
-                limits: wgpu::Limits::default(),
-            })
+                None,
+            )
             .await
             .unwrap();
         let mut swap_chain = device.create_swap_chain(
@@ -322,8 +325,8 @@ impl App {
                 &[],
             );
 
-            rpass.set_index_buffer(index_buffer, 0, 0);
-            rpass.set_vertex_buffer(0, vertex_buffer, 0, 0);
+            rpass.set_index_buffer(index_buffer.slice(..));
+            rpass.set_vertex_buffer(0, vertex_buffer.slice(..));
             // rpass.draw(0..3, 0..1);
             rpass.draw_indexed(0..6 as u32, 0, 0..1);
         }

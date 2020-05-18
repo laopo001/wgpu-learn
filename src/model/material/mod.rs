@@ -64,6 +64,7 @@ impl Material {
                     lod_min_clamp: -100.0,
                     lod_max_clamp: 100.0,
                     compare: wgpu::CompareFunction::Always,
+                    label: None,
                 });
                 self.shader.set_uniform_vars(
                     Uniform::Sampler0,
