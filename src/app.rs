@@ -157,15 +157,16 @@ impl App {
                 surface,
                 device,
                 queue,
-                swap_chain,
-                mut event,
+                mut swap_chain,
+                event,
                 array,
                 _clear_color,
                 mut scene,
             } = self;
+            let mut event_listener = event;
             scene.initialize();
             scene.draw(&mut *p_app as &mut App);
-            event
+            event_listener
                 .get_mut(&Event::Start)
                 .get_or_insert(&mut vec![])
                 .iter_mut()
@@ -176,9 +177,25 @@ impl App {
                 *control_flow = winit::event_loop::ControlFlow::Poll;
                 match e {
                     winit::event::Event::MainEventsCleared => window.request_redraw(),
+                    winit::event::Event::WindowEvent {
+                        event: WindowEvent::Resized(size),
+                        ..
+                    } => {
+                        crate::console_log!("Resizing to {:?}", size);
+                        swap_chain = device.create_swap_chain(
+                            &surface,
+                            &wgpu::SwapChainDescriptor {
+                                usage: wgpu::TextureUsage::OUTPUT_ATTACHMENT,
+                                format: crate::config::TextureFormat,
+                                width: size.width as u32,
+                                height: size.height as u32,
+                                present_mode: wgpu::PresentMode::Mailbox,
+                            },
+                        );
+                    }
                     // 更新
                     winit::event::Event::RedrawRequested(_) => {
-                        event
+                        event_listener
                             .get_mut(&Event::Update)
                             .get_or_insert(&mut vec![])
                             .iter_mut()
@@ -188,19 +205,28 @@ impl App {
                         // scene.draw(&mut *p_app as &mut App); // TODO
                     }
                     // 关闭
-                    winit::event::Event::WindowEvent {
-                        event: winit::event::WindowEvent::CloseRequested,
-                        ..
-                    } => {
-                        event
-                            .get_mut(&Event::End)
-                            .get_or_insert(&mut vec![])
-                            .iter_mut()
-                            .for_each(|e| unsafe {
-                                (e).call_box(std::mem::transmute::<*mut App, &mut App>(p_app));
-                            });
-                        *control_flow = winit::event_loop::ControlFlow::Exit
-                    }
+                    winit::event::Event::WindowEvent { event, .. } => match event {
+                        WindowEvent::KeyboardInput {
+                            input:
+                                winit::event::KeyboardInput {
+                                    virtual_keycode: Some(winit::event::VirtualKeyCode::Escape),
+                                    state: winit::event::ElementState::Pressed,
+                                    ..
+                                },
+                            ..
+                        }
+                        | WindowEvent::CloseRequested => {
+                            event_listener
+                                .get_mut(&Event::End)
+                                .get_or_insert(&mut vec![])
+                                .iter_mut()
+                                .for_each(|e| unsafe {
+                                    (e).call_box(std::mem::transmute::<*mut App, &mut App>(p_app));
+                                });
+                            *control_flow = ControlFlow::Exit;
+                        }
+                        _ => {}
+                    },
                     _ => {}
                 }
             });
@@ -222,11 +248,10 @@ impl App {
         width: u32,
         height: u32,
     ) -> wgpu::TextureView {
-        log::info!(
+        crate::console_log!(format!(
             "create_wgpu_texture: Copying image of size {},{} to gpu",
-            width,
-            height,
-        );
+            width, height,
+        ));
         unsafe {
             let texels = img_data;
             let texture_extent = wgpu::Extent3d {

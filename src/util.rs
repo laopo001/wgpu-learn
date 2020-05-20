@@ -47,16 +47,21 @@ pub fn load_glsl(code: &str, stage: ShaderStage) -> Vec<u32> {
 macro_rules! console_log {
     ($val:expr) => {
         cfg_if::cfg_if!{
-            if #[cfg(not(target_arch = "wasm32"))] {
-                dbg!($val);
-                log::info!("[{}:{}] {:?}", std::file!(), std::line!(), $val);
-            } else {
-                let arr = js_sys::Array::new();
-                let v = wasm_bindgen::JsValue::from_str(&format!("{:?}", $val));
-                arr.push(&v);
-                web_sys::console::log(&arr);
+                // log::info!("[{}:{}] {:?}", std::file!(), std::line!(), $val);
+                if #[cfg(not(target_arch = "wasm32"))] {
+                    if std::env::var("RUST_LOG").is_err() {
+                        dbg!($val);
+                    } else {
+                        log::info!("[{}:{}] {:?}", std::file!(), std::line!(), $val);
+                    }
+                } else {
+                    let arr = js_sys::Array::new();
+                    let v = wasm_bindgen::JsValue::from_str(&format!("[{}:{}] {:?}", std::file!(), std::line!(), $val));
+                    arr.push(&v);
+                    web_sys::console::log(&arr);
+                }
             }
-        }
+
     };
     ( $( $x:expr ),* ) => {
         {
@@ -76,7 +81,7 @@ macro_rules! console_error {
                 // panic!("console error");
             } else {
                 let arr = js_sys::Array::new();
-                let v = wasm_bindgen::JsValue::from_str(&format!("{:?}", $val));
+                let v = wasm_bindgen::JsValue::from_str(&format!("[{}:{}] {:?}", std::file!(), std::line!(), $val));
                 arr.push(&v);
                 web_sys::console::error(&arr);
             }

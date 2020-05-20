@@ -135,7 +135,6 @@ async fn run() {
 }
 
 fn main() {
-    wgpu_learn::console_error!("123");
     #[cfg(not(target_arch = "wasm32"))]
     async_std::task::block_on(run());
     #[cfg(target_arch = "wasm32")]
