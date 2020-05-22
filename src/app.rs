@@ -300,11 +300,13 @@ impl App {
         }
     }
     pub fn draw_mesh(&mut self, mesh: &mut Mesh) {
+        let len = mesh.index_buffer.as_ref().expect("msg").length;
         let index_buffer = mesh
             .index_buffer
             .as_mut()
             .expect("get index_buffer")
             .get_wgpu_index_buffer(&self);
+
         let vertex_buffer = mesh
             .vertex_buffer
             .as_mut()
@@ -353,7 +355,7 @@ impl App {
             rpass.set_index_buffer(index_buffer.slice(..));
             rpass.set_vertex_buffer(0, vertex_buffer.slice(..));
             // rpass.draw(0..3, 0..1);
-            rpass.draw_indexed(0..6 as u32, 0, 0..1);
+            rpass.draw_indexed(0..len as u32, 0, 0..1);
         }
         self.queue.submit(Some(encoder.finish()));
     }

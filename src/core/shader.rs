@@ -31,9 +31,10 @@ fn create_texels(size: usize) -> Vec<u8> {
         .collect()
 }
 pub struct Shader {
-    pub bind_group_layout: Option<wgpu::BindGroupLayout>,
     pub render_pipeline: Option<wgpu::RenderPipeline>,
     pub bind_group: Option<wgpu::BindGroup>,
+
+    pub bind_group_layout: Option<wgpu::BindGroupLayout>,
     pub pipeline_layout: Option<wgpu::PipelineLayout>,
 
     pub uniform_vars: UniformVars,
