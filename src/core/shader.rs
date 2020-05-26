@@ -1,4 +1,5 @@
 use crate::config::{Uniform, ATTRIBNAMES, UNIFORMNAMES};
+use crate::core::index_buffer::IndexBuffer;
 use crate::core::shader_var::{UniformBindingResource, UniformVar, UniformVars};
 use crate::core::shaders::{base_frag_str, base_vert_str, GLSL_HDAD};
 use crate::core::vertex_buffer::VertexBuffer;
@@ -39,6 +40,7 @@ pub struct Shader {
 
     pub uniform_vars: UniformVars,
     pub vertex_buffer: Option<std::ptr::NonNull<VertexBuffer>>,
+    pub index_buffer: Option<std::ptr::NonNull<IndexBuffer>>,
     pub app: *const App,
     pub vs_module: Option<wgpu::ShaderModule>,
     pub fs_module: Option<wgpu::ShaderModule>,
@@ -53,6 +55,7 @@ impl Shader {
             pipeline_layout: None,
             uniform_vars,
             vertex_buffer: None,
+            index_buffer: None,
             app: app as *const App,
             vs_module: None,
             fs_module: None,
@@ -115,6 +118,7 @@ impl Shader {
             pipeline_layout: None,
             uniform_vars,
             vertex_buffer: None,
+            index_buffer: None,
             app: app as *const App,
             vs_module: Some(vs_module),
             fs_module: Some(fs_module),
@@ -400,7 +404,12 @@ layout(set = 0, binding = {}) uniform Locals{} {{
                         }],
                         depth_stencil_state: None,
                         vertex_state: wgpu::VertexStateDescriptor {
-                            index_format: wgpu::IndexFormat::Uint16,
+                            index_format: self
+                                .index_buffer
+                                .as_ref()
+                                .expect("get index_buffer")
+                                .as_ref()
+                                .size,
                             vertex_buffers: vertex_desc.as_slice(),
                         },
                         sample_count: 1,

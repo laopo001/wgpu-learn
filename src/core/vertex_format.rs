@@ -20,7 +20,7 @@ pub struct VertexType {
 //         &self.vertex_type
 //     }
 // }
-
+#[derive(Debug)]
 pub struct VertexFormat {
     pub stride: u32,
     pub vertex_vars: VertexVars,

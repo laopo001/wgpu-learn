@@ -21,61 +21,15 @@ use zerocopy::{AsBytes, FromBytes};
 
 async fn run() {
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
-    let mut mesh = Mesh::new(&app);
+    let mut mesh = Mesh::create_box(&app, None, None, None, None);
+    wgpu_learn::console_log!(&mesh.vertex_buffer.as_ref().unwrap().format);
+    unsafe {
+        wgpu_learn::console_log!(&mesh.material.shader.vertex_buffer.unwrap().as_ref().format);
+    }
 
-    let vertex_data = [
-        Vertex {
-            position: [-0.5, 0.5, 0.0],
-            tex_coord: Some([0.0, 1.0]),
-            color: None,
-            normal: None,
-        },
-        Vertex {
-            position: [-0.5, -0.5, 0.0],
-            tex_coord: Some([0.0, 0.0]),
-            color: None,
-            normal: None,
-        },
-        Vertex {
-            position: [0.5, 0.5, 0.0],
-            tex_coord: Some([1.0, 1.0]),
-            color: None,
-            normal: None,
-        },
-        Vertex {
-            position: [0.5, -0.5, 0.0],
-            tex_coord: Some([1.0, 0.0]),
-            color: None,
-            normal: None,
-        },
-    ];
-    let vertex_data = vertex_data
-        .iter()
-        .map(|x| {
-            return x.data();
-        })
-        .collect::<Vec<Box<[f32]>>>()
-        .concat();
-
-    let format = VertexFormat::new(vec![
-        VertexType {
-            attrib: Attrib::POSITION,
-            size: 3,
-        },
-        VertexType {
-            attrib: Attrib::TEXCOORD0,
-            size: 2,
-        },
-    ]);
-    let vertex_buffer = VertexBuffer::new(vertex_data.as_bytes().to_vec(), format);
-    mesh.set_vertex_buffer(vertex_buffer);
-    let index_data: Vec<u16> = vec![0, 1, 2, 2, 1, 3];
-    let index_buffer = IndexBuffer::new(index_data.as_bytes().to_vec(), index_data.len());
-    mesh.set_index_buffer(index_buffer);
-
-    let texture = Texture::new_for_png(include_bytes!("./negz.png"));
+    // let texture = Texture::new_for_png(include_bytes!("./negz.png"));
     let mut face = Entity::new("a");
-    mesh.material.texture = Some(texture);
+    // mesh.material.texture = Some(texture);
     face.set_component(Component::Mesh { mesh });
     face.set_position(0.0001, 0.0, 0.0);
 
