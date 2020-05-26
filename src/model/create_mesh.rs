@@ -148,12 +148,18 @@ fn create_mesh(app: &App, param: CreateMeshParam) -> Mesh {
         attrib: Attrib::POSITION,
         size: 3,
     });
-    // if param.normals.is_some() {
-    //     vertex_type_vec.push(VertexType {
-    //         attrib: Attrib::NORMAL,
-    //         size: 3,
-    //     });
-    // }
+    if param.colors.is_some() {
+        vertex_type_vec.push(VertexType {
+            attrib: Attrib::COLOR,
+            size: 3,
+        });
+    }
+    if param.normals.is_some() {
+        vertex_type_vec.push(VertexType {
+            attrib: Attrib::NORMAL,
+            size: 3,
+        });
+    }
     if param.uvs.is_some() {
         vertex_type_vec.push(VertexType {
             attrib: Attrib::TEXCOORD0,
@@ -172,9 +178,15 @@ fn create_mesh(app: &App, param: CreateMeshParam) -> Mesh {
                 param.positions[i * 3 + 1],
                 param.positions[i * 3 + 2],
             ],
-            color: None,
+            color: param
+                .colors
+                .as_ref()
+                .map(|vec| [vec[i * 3], vec[i * 3 + 1], vec[i * 3 + 2]]),
             tex_coord: param.uvs.as_ref().map(|vec| [vec[i * 2], vec[i * 2 + 1]]),
-            normal: None,
+            normal: param
+                .normals
+                .as_ref()
+                .map(|vec| [vec[i * 3], vec[i * 3 + 1], vec[i * 3 + 2]]),
         });
     }
     let vertex_data = vertex_data
