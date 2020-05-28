@@ -52,23 +52,25 @@ impl Node {
         self
     }
     pub fn up(&mut self) -> Vec3 {
-        self.get_world_transform().get_x()
-    }
-    pub fn forward(&mut self) -> Vec3 {
         self.get_world_transform().get_y()
     }
-    pub fn right(&mut self) -> Vec3 {
+    pub fn forward(&mut self) -> Vec3 {
         self.get_world_transform().get_z()
+    }
+    pub fn right(&mut self) -> Vec3 {
+        self.get_world_transform().get_x()
     }
     pub fn lookat(&mut self, target: &mut Node) {
         let up = target.up();
         let target_location = target.get_position();
-        let eye = self.get_position().into2();
-        let center = target_location.into2();
+        let eye = self.get_position();
+        let center = target_location;
         // dbg!(&self.get_position(), target_location);
-        let mat4 = Mat4::look_at(eye, center, up);
+        // let mat4 = Mat4::look_at(eye, center, up);
+        let mut mat4 = Mat4::zero();
+        mat4.set_look_at(*eye, *center, up);
         // let mat4 = Mat4::look_at_dir(eye, center - eye, up);
-        // dbg!(&mat4);
+        dbg!(&mat4);
         let mut quat = Quat::zero();
         quat.set_from_mat4(&mat4);
         self.set_rotation(&quat);

@@ -199,7 +199,7 @@ fn create_mesh(app: &App, param: CreateMeshParam) -> Mesh {
 
     let vertex_buffer = VertexBuffer::new(vertex_data.as_bytes().to_vec(), format);
     mesh.set_vertex_buffer(vertex_buffer);
-    crate::console_log!(param.indices.as_ref().unwrap());
+    // crate::console_log!(param.indices.as_ref().unwrap());
     if let Some(indices) = param.indices {
         let index_buffer = IndexBuffer::new(indices.as_bytes().to_vec(), indices.len());
         mesh.set_index_buffer(index_buffer);

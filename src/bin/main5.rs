@@ -22,33 +22,15 @@ use wgpu_learn::{
 };
 use zerocopy::{AsBytes, FromBytes};
 fn main() {
-    // let mut node = Node::new();
-    // let mut child = Node::new();
-    // let mut grandson = Node::new();
-    // node.add_child(&mut child);
-    // child.add_child(&mut grandson);
-    // node.set_local_position(1.0, 2.0, 3.0);
-    // child.set_local_position(1.0, 2.0, 3.0);
-    // grandson.set_local_position(1.0, 2.0, 3.0);
-    // assert_eq!(
-    //     grandson.get_position().data(),
-    //     Vector3::new(3.0, 6.0, 9.0).data()
-    // );
-    // grandson.set_position(0.0, 0.0, 0.0);
-
-    // assert_eq!(
-    //     grandson.get_position().data(),
-    //     Vector3::new(0.0, 0.0, 0.0).data()
-    // );
-
-    // assert_eq!(
-    //     grandson.get_local_position().data(),
-    //     Vector3::new(-2.0, -4.0, -6.0).data()
-    // );
-    // let mut q = Camera::new();
-    // q.set_perspective(90.0, 10.0 / 6.0, 0.1, 1000.0);
-    // dbg!(&q.projection_matrix);
-
+    let mut node = Node::new();
+    node.set_local_position(2.0, 0.0, 2.0);
+    let mut node2 = Node::new();
+    node2.set_local_position(0.0, 0.0, 0.0);
+    dbg!(node.get_world_transform().data());
+    node.lookat(&mut node2);
+    dbg!(node.get_world_transform().data());
+    dbg!("=================");
+    return;
     let mut node = Entity::new("1");
     let mut child = Entity::new("2");
     let mut grandson = Entity::new("3");

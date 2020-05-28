@@ -22,12 +22,13 @@ pub trait Into<T>: Sized {
 pub trait Matrix4Plus {
     fn get_translate(&self) -> Vec3;
     fn get(&self, i: usize) -> f32;
-    // fn data(&self) -> Vec<f32>;
+    fn data(&self) -> &[f32; 16];
     fn get_euler_angles(&self, eulers: &mut Vec3);
     fn get_scale(&self, v: &mut Vec3);
     fn get_x(&self) -> Vec3;
     fn get_y(&self) -> Vec3;
     fn get_z(&self) -> Vec3;
+    fn set_look_at(&mut self, position: Vec3, target: Vec3, up: Vec3);
     fn set_from_trs(&mut self, t: &Vec3, r: &Quat, s: &Vec3);
     fn copy(&mut self, v: &Mat4);
     fn set(
@@ -52,6 +53,37 @@ pub trait Matrix4Plus {
 }
 
 impl Matrix4Plus for Mat4 {
+    fn set_look_at(&mut self, position: Vec3, target: Vec3, up: Vec3) {
+        // dbg!(position, target, up);
+        let mut z = (position - target).normalize();
+        if (z.length() == 0.0) {
+            z.z = 1.0;
+        }
+        let mut y = up.normalize();
+        let mut x = y.cross(z).normalize();
+        if (x.length() == 0.0) {
+            z.x += 0.0001;
+            x = y.cross(z).normalize();
+        }
+        y = z.cross(x);
+        let mut r: &mut [f32; 16] = self.as_mut();
+        r[0] = x.x;
+        r[1] = x.y;
+        r[2] = x.z;
+        r[3] = 0.0;
+        r[4] = y.x;
+        r[5] = y.y;
+        r[6] = y.z;
+        r[7] = 0.0;
+        r[8] = z.x;
+        r[9] = z.y;
+        r[10] = z.z;
+        r[11] = 0.0;
+        r[12] = position.x;
+        r[13] = position.y;
+        r[14] = position.z;
+        r[15] = 1.0;
+    }
     fn get_translate(&self) -> Vec3 {
         Vec3::new(self.w.x, self.w.y, self.w.z)
     }
@@ -59,10 +91,10 @@ impl Matrix4Plus for Mat4 {
         let m: [[f32; 4]; 4] = self.clone().into();
         return m[i / 4][i % 4];
     }
-    // fn data(&self) -> Vec<f32> {
-    //     let m: [[f32; 4]; 4] = self.clone().into();
-    //     m.concat()
-    // }
+    fn data(&self) -> &[f32; 16] {
+        let m: &[f32; 16] = self.as_ref();
+        m
+    }
 
     fn get_scale(&self, v: &mut Vec3) {
         let mut temp1 = self.get_x();
@@ -170,25 +202,6 @@ impl Matrix4Plus for Mat4 {
         m[13] = ty;
         m[14] = tz;
         m[15] = 1.0;
-        // self.x.x = m[0];
-        // self.x.y = m[1];
-        // self.x.z = m[2];
-        // self.x.w = m[3];
-
-        // self.y.x = m[4];
-        // self.y.y = m[5];
-        // self.y.z = m[6];
-        // self.y.w = m[7];
-
-        // self.z.x = m[8];
-        // self.z.y = m[9];
-        // self.z.z = m[10];
-        // self.z.w = m[11];
-
-        // self.w.x = m[12];
-        // self.w.y = m[13];
-        // self.w.z = m[14];
-        // self.w.w = m[15];
     }
     fn copy(&mut self, v: &Mat4) {
         let data: &[f32; 16] = self.as_ref();

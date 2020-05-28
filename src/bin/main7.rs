@@ -6,6 +6,7 @@ use wgpu_learn::core::vertex::Vertex;
 use wgpu_learn::ecs::entity::{Component, Entity};
 use wgpu_learn::model::material::texture::Texture;
 use wgpu_learn::model::mesh::Mesh;
+use wgpu_learn::trait_help::*;
 use wgpu_learn::{
     app,
     config::{Attrib, Config, Event, Uniform},
@@ -34,7 +35,7 @@ async fn run() {
     face.set_position(0.0001, 0.0, 0.0);
 
     let mut camera = Entity::new("camera");
-    camera.set_position(0.0, 0.0, 2.0);
+    camera.set_position(2.0, 2.0, 2.0);
     camera.set_component(Component::Camera {
         fov: 45.0,
         aspect: app.size.width as f32 / app.size.height as f32,
@@ -42,6 +43,8 @@ async fn run() {
         far: 10.0,
     });
     camera.lookat(&mut face);
+
+    wgpu_learn::console_log!(camera.get_world_transform().as_ref() as &[f32; 16]);
     app.scene.root.add_child(face);
     app.scene.root.add_child(camera);
 
