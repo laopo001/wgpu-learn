@@ -28,9 +28,9 @@ async fn run() {
         wgpu_learn::console_log!(&mesh.material.shader.vertex_buffer.unwrap().as_ref().format);
     }
 
-    // let texture = Texture::new_for_png(include_bytes!("./negz.png"));
+    let texture = Texture::new_for_png(include_bytes!("./negz.png"));
     let mut face = Entity::new("a");
-    // mesh.material.texture = Some(texture);
+    mesh.material.texture = Some(texture);
     face.set_component(Component::Mesh { mesh });
     face.set_position(0.0001, 0.0, 0.0);
 

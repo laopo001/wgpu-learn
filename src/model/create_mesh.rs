@@ -118,7 +118,7 @@ pub fn create_box(
     generateFace(3, ws, ls);
     generateFace(4, ls, hs);
     generateFace(5, ls, hs);
-    // crate::console_log!(&positions);
+    // crate::console_log!(&uvs);
     return create_mesh(
         app,
         CreateMeshParam {
@@ -154,16 +154,16 @@ fn create_mesh(app: &App, param: CreateMeshParam) -> Mesh {
             size: 3,
         });
     }
-    if param.normals.is_some() {
-        vertex_type_vec.push(VertexType {
-            attrib: Attrib::NORMAL,
-            size: 3,
-        });
-    }
     if param.uvs.is_some() {
         vertex_type_vec.push(VertexType {
             attrib: Attrib::TEXCOORD0,
             size: 2,
+        });
+    }
+    if param.normals.is_some() {
+        vertex_type_vec.push(VertexType {
+            attrib: Attrib::NORMAL,
+            size: 3,
         });
     }
     let format = VertexFormat::new(vertex_type_vec);
@@ -199,7 +199,7 @@ fn create_mesh(app: &App, param: CreateMeshParam) -> Mesh {
 
     let vertex_buffer = VertexBuffer::new(vertex_data.as_bytes().to_vec(), format);
     mesh.set_vertex_buffer(vertex_buffer);
-    // crate::console_log!(param.indices.as_ref().unwrap());
+
     if let Some(indices) = param.indices {
         let index_buffer = IndexBuffer::new(indices.as_bytes().to_vec(), indices.len());
         mesh.set_index_buffer(index_buffer);
