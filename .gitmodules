@@ -1,0 +1,3 @@
+[submodule "deno"]
+	path = deno
+	url = https://github.com/laopo001/deno.git
