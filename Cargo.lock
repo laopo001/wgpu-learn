@@ -739,7 +739,7 @@ dependencies = [
 
 [[package]]
 name = "deno"
-version = "1.0.2"
+version = "1.0.3"
 dependencies = [
  "atty",
  "base64 0.12.1",
@@ -789,7 +789,7 @@ dependencies = [
 
 [[package]]
 name = "deno_core"
-version = "0.45.2"
+version = "0.46.0"
 dependencies = [
  "downcast-rs",
  "futures 0.3.5",
@@ -803,7 +803,7 @@ dependencies = [
 
 [[package]]
 name = "deno_typescript"
-version = "0.45.2"
+version = "0.46.0"
 dependencies = [
  "deno_core",
  "serde",
@@ -2936,18 +2936,18 @@ checksum = "b46e1121e8180c12ff69a742aabc4f310542b6ccb69f1691689ac17fdf8618aa"
 
 [[package]]
 name = "serde"
-version = "1.0.106"
+version = "1.0.111"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36df6ac6412072f67cf767ebbde4133a5b2e88e76dc6187fa7104cd16f783399"
+checksum = "c9124df5b40cbd380080b2cc6ab894c040a3070d995f5c9dc77e18c34a8ae37d"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.106"
+version = "1.0.111"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e549e3abf4fb8621bd1609f11dfc9f5e50320802273b12f3811a67e6716ea6c"
+checksum = "3f2c3ac8e6ca1e9c80b8be1023940162bf81ae3cffbb1809474152f2ce1eb250"
 dependencies = [
  "proc-macro2 1.0.7",
  "quote 1.0.2",
@@ -2956,9 +2956,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.52"
+version = "1.0.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7894c8ed05b7a3a279aeb79025fdec1d3158080b75b98a08faf2806bb799edd"
+checksum = "993948e75b189211a9b31a7528f950c6adc21f9720b6438ff80a7fa2f864cea2"
 dependencies = [
  "indexmap",
  "itoa",
@@ -3273,9 +3273,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_visit"
-version = "0.4.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "802b13ac5811ebc6897c9a1ed999aa9ca3dd6faf8e664b9df44e162e2b3a03ed"
+checksum = "43d08204c4454eee8dcef3f5f4b9f2104abd1540740e93ebc49677777553b7b5"
 dependencies = [
  "num-bigint",
  "swc_atoms",
@@ -3286,9 +3286,9 @@ dependencies = [
 
 [[package]]
 name = "swc_ecma_visit_macros"
-version = "0.2.0"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9083af117bcb987631d99129ce57e634315267d84521fd562926135fa49bee38"
+checksum = "1a32877a341800d772d95858c24344ce00f68361763eae5fa97187e6be136c4b"
 dependencies = [
  "Inflector",
  "pmutil",
@@ -3661,9 +3661,9 @@ checksum = "936e4b492acfd135421d8dca4b1aa80a7bfc26e702ef3af710e0752684df5372"
 
 [[package]]
 name = "utime"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "055058552ca15c566082fc61da433ae678f78986a6f16957e33162d1b218792a"
+checksum = "cfab4578d925146644058fa81870b9dafd132365259758fb9e6e76b89a303494"
 dependencies = [
  "kernel32-sys",
  "libc",
