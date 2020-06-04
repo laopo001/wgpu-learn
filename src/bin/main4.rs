@@ -24,7 +24,7 @@ struct Vertex {
 
 async fn run() {
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
-    let mut mesh = Mesh::new(&app);
+    let mut mesh = Mesh::new();
 
     let vertex_data = [
         Vertex {

@@ -46,7 +46,7 @@ pub struct Shader {
     pub fs_module: Option<wgpu::ShaderModule>,
 }
 impl Shader {
-    pub fn new(app: &App) -> Self {
+    pub fn new() -> Self {
         let uniform_vars = UniformVars::new();
         Shader {
             bind_group_layout: None,
@@ -56,12 +56,14 @@ impl Shader {
             uniform_vars,
             vertex_buffer: None,
             index_buffer: None,
-            app: app as *const App,
+            app: std::ptr::null() as *const App,
             vs_module: None,
             fs_module: None,
         }
     }
-
+    pub fn set_app(&mut self, app: &App) {
+        self.app = app as *const App;
+    }
     fn app(&self) -> &App {
         unsafe {
             if self.app.is_null() {

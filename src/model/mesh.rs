@@ -21,11 +21,11 @@ impl Mesh {
             return &*self.app;
         }
     }
-    pub fn new(app: &App) -> Self {
+    pub fn new() -> Self {
         return Mesh {
             vertex_buffer: None,
             index_buffer: None,
-            material: Material::new(app),
+            material: Material::new(),
             app: std::ptr::null() as *const App,
         };
     }

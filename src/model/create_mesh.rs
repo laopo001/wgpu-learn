@@ -142,7 +142,7 @@ struct CreateMeshParam {
 }
 
 fn create_mesh(app: &App, param: CreateMeshParam) -> Mesh {
-    let mut mesh = Mesh::new(&app);
+    let mut mesh = Mesh::new();
     let mut vertex_type_vec = vec![];
     vertex_type_vec.push(VertexType {
         attrib: Attrib::POSITION,

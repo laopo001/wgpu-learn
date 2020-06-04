@@ -1,12 +1,13 @@
 use crate::app::App;
 use crate::config::Uniform;
 use crate::core::shader::Shader;
-use crate::core::shader_var::{UniformBindingResource, UniformVar};
+use crate::core::shader_var::{UniformBindingResource, UniformVar, UniformVars};
 use crate::Color3;
 use serde_json::json;
 use std::ptr::NonNull;
 pub mod texture;
 use zerocopy::{AsBytes, FromBytes};
+
 pub struct Material {
     pub shader: Shader,
     pub color: Color3,
@@ -22,18 +23,19 @@ impl Material {
             return &*self.app;
         }
     }
-    pub fn new(app: &App) -> Self {
+    pub fn new() -> Self {
         return Material {
             color: Color3::new(0.0, 1.0, 0.0),
-            shader: Shader::new(app),
+            shader: Shader::new(),
             texture: None,
-            app: app as *const App,
+            app: std::ptr::null() as *const App,
         };
     }
     pub fn set_uniform_vars(&mut self, t: Uniform, var: UniformVar) {
         self.shader.set_uniform_vars(t, var);
     }
     pub fn update_shader(&mut self, app: &App) {
+        self.shader.set_app(app);
         let vec: Vec<f32> = vec![self.color.x, self.color.y, self.color.z];
         let uniform_buf = app.device.create_buffer_with_data(
             vec.as_bytes(),
@@ -41,7 +43,7 @@ impl Material {
         );
         if let Some(t) = self.texture.as_ref() {
             if let Some(data) = t.img_data.as_ref() {
-                let texture_view = self.app().create_wgpu_texture(data, t.size.0, t.size.1);
+                let texture_view = app.create_wgpu_texture(data, t.size.0, t.size.1);
                 self.shader.set_uniform_vars(
                     Uniform::Texture0,
                     UniformVar {
