@@ -26,7 +26,7 @@ impl Mesh {
             vertex_buffer: None,
             index_buffer: None,
             material: Material::new(app),
-            app: app as *const App,
+            app: std::ptr::null() as *const App,
         };
     }
     pub fn set_vertex_buffer(&mut self, mut vertex_buffer: VertexBuffer) {
