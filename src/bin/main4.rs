@@ -71,7 +71,7 @@ async fn run() {
     let vertex_buffer = VertexBuffer::new(vertex_data.as_bytes().to_vec(), format);
     mesh.set_vertex_buffer(vertex_buffer);
     let index_data: Vec<u16> = vec![0, 1, 2, 2, 1, 3];
-    let index_buffer = IndexBuffer::new(index_data.as_bytes().to_vec(), index_data.len());
+    let index_buffer = IndexBuffer::new(index_data.as_bytes().to_vec(), 2);
     mesh.set_index_buffer(index_buffer);
     let mx_projection = cgmath::perspective(
         cgmath::Deg(45f32),

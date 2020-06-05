@@ -23,8 +23,8 @@ pub trait Matrix4Plus {
     fn get_translate(&self) -> Vec3;
     fn get(&self, i: usize) -> f32;
     fn data(&self) -> &[f32; 16];
-    fn get_euler_angles(&self, eulers: &mut Vec3);
-    fn get_scale(&self, v: &mut Vec3);
+    fn get_euler_angles(&self) -> Vec3;
+    fn get_scale(&self) -> Vec3;
     fn get_x(&self) -> Vec3;
     fn get_y(&self) -> Vec3;
     fn get_z(&self) -> Vec3;
@@ -96,11 +96,12 @@ impl Matrix4Plus for Mat4 {
         m
     }
 
-    fn get_scale(&self, v: &mut Vec3) {
+    fn get_scale(&self) -> Vec3 {
         let mut temp1 = self.get_x();
         let mut temp2 = self.get_y();
         let mut temp3 = self.get_z();
-        v.set(temp1.length(), temp2.length(), temp3.length());
+
+        Vec3::new(temp1.length(), temp2.length(), temp3.length())
     }
     fn get_x(&self) -> Vec3 {
         let m: &[f32; 16] = self.as_ref();
@@ -129,9 +130,8 @@ impl Matrix4Plus for Mat4 {
             z: m[10],
         }
     }
-    fn get_euler_angles(&self, eulers: &mut Vec3) {
-        let mut scale = Vec3::zero();
-        self.get_scale(&mut scale);
+    fn get_euler_angles(&self) -> Vec3 {
+        let mut scale = self.get_scale();
         let sx = scale.x;
         let sy = scale.y;
         let sz = scale.z;
@@ -153,8 +153,9 @@ impl Matrix4Plus for Mat4 {
             z = 0.0;
             x = (m[4] / sy).atan2(m[5] / sy);
         }
-        eulers.set(x, y, z);
+        let mut eulers = Vec3::new(x, y, z);
         eulers.scale(RAD_TO_DEG);
+        eulers
     }
     fn set_from_trs(&mut self, t: &Vec3, r: &Quat, s: &Vec3) {
         let tx = t.x;

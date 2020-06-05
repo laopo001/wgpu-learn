@@ -164,7 +164,7 @@ impl Node {
     pub(crate) fn get_euler_angles(&mut self) -> &Vec3 {
         unsafe {
             let world_transform = self.get_world_transform_ptr();
-            (*world_transform).get_euler_angles(&mut self.world_euler_angle);
+            self.world_euler_angle = (*world_transform).get_euler_angles();
             return &self.world_euler_angle;
         }
     }
@@ -187,7 +187,7 @@ impl Node {
         }
     }
 
-    pub(crate) fn get_local_transform(&mut self) -> &mut Mat4 {
+    pub fn get_local_transform(&mut self) -> &mut Mat4 {
         if self._dirty_local {
             self._sync();
         }

@@ -119,29 +119,26 @@ pub fn create_box(
     generateFace(4, ls, hs);
     generateFace(5, ls, hs);
     // crate::console_log!(&uvs);
-    return create_mesh(
-        app,
-        CreateMeshParam {
-            positions,
-            normals: Some(normals),
-            uvs: Some(uvs),
-            uvs1: Some(uvs1),
-            colors: None,
-            indices: Some(indices),
-        },
-    );
+    return create_mesh(CreateMeshParam {
+        positions,
+        normals: Some(normals),
+        uvs: Some(uvs),
+        uvs1: Some(uvs1),
+        colors: None,
+        indices: Some(indices),
+    });
 }
 
-struct CreateMeshParam {
-    positions: Vec<f32>,
-    normals: Option<Vec<f32>>,
-    colors: Option<Vec<f32>>,
-    uvs: Option<Vec<f32>>,
-    uvs1: Option<Vec<f32>>,
-    indices: Option<Vec<u32>>,
+pub struct CreateMeshParam {
+    pub positions: Vec<f32>,
+    pub normals: Option<Vec<f32>>,
+    pub colors: Option<Vec<f32>>,
+    pub uvs: Option<Vec<f32>>,
+    pub uvs1: Option<Vec<f32>>,
+    pub indices: Option<Vec<u32>>,
 }
 
-fn create_mesh(app: &App, param: CreateMeshParam) -> Mesh {
+pub fn create_mesh(param: CreateMeshParam) -> Mesh {
     let mut mesh = Mesh::new();
     let mut vertex_type_vec = vec![];
     vertex_type_vec.push(VertexType {
@@ -201,7 +198,7 @@ fn create_mesh(app: &App, param: CreateMeshParam) -> Mesh {
     mesh.set_vertex_buffer(vertex_buffer);
 
     if let Some(indices) = param.indices {
-        let index_buffer = IndexBuffer::new(indices.as_bytes().to_vec(), indices.len());
+        let index_buffer = IndexBuffer::new(indices.as_bytes().to_vec(), 4);
         mesh.set_index_buffer(index_buffer);
     }
 
