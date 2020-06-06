@@ -1,5 +1,6 @@
 use gltf::{
-    accessor::DataType, buffer::Data as BufferData, image::Data as ImageData, Node, Semantic,
+    accessor::DataType, buffer::Data as BufferData, camera::Projection, image::Data as ImageData,
+    Node, Semantic,
 };
 use std::error::Error;
 use wgpu_learn::config::Config;
@@ -7,7 +8,7 @@ use wgpu_learn::ecs::entity::{Component, Entity};
 use wgpu_learn::model::create_mesh::{create_mesh, CreateMeshParam};
 use wgpu_learn::model::mesh::Mesh;
 use wgpu_learn::trait_help::*;
-use wgpu_learn::{app, Matrix4};
+use wgpu_learn::{app, Matrix4, Vector3};
 
 fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) -> Box<Entity> {
     let mut entity = Entity::new(node.name().unwrap_or(""));
@@ -137,6 +138,19 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
         });
         entity.set_component(Component::Mesh { mesh })
     });
+    node.camera().map(|gltf_camera| {
+        match gltf_camera.projection() {
+            Projection::Perspective(p) => {
+                entity.set_component(Component::Camera {
+                    fov: p.yfov(),
+                    aspect: p.aspect_ratio().unwrap_or(1.0),
+                    near: p.znear(),
+                    far: p.zfar().unwrap_or(f32::MAX),
+                });
+            }
+            Projection::Orthographic(o) => panic!("error"),
+        };
+    });
     for node in node.children() {
         entity.add_child(each_node(&node, buffers, images));
     }
@@ -147,11 +161,16 @@ async fn run() {
     let mut app = app::App::new("123", Config::PowerHighPerformance).await;
     // let gltf = gltf::Gltf::open("Box.gltf").unwrap();
     let (document, buffers, images) = gltf::import("Box.gltf").unwrap();
-    // dbg!(
-    //     document.accessors().collect::<Vec<gltf::Accessor>>(),
-    //     images.len()
-    // );
-
+    let mut camera = Entity::new("camera");
+    camera.set_position(2.0, 2.0, 2.0);
+    camera.set_component(Component::Camera {
+        fov: 45.0,
+        aspect: app.size.width as f32 / app.size.height as f32,
+        near: 1.0,
+        far: 10.0,
+    });
+    camera.lookat_vec(&Vector3::new(0.0, 0.0, 0.0));
+    app.scene.root.add_child(camera);
     for scene in document.default_scene() {
         let mut entity = Entity::new("gltf_root");
         for node in scene.nodes() {

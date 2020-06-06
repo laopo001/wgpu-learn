@@ -70,7 +70,23 @@ impl Node {
         let mut mat4 = Mat4::zero();
         mat4.set_look_at(*eye, *center, up);
         // let mat4 = Mat4::look_at_dir(eye, center - eye, up);
-        dbg!(&mat4);
+        // dbg!(&mat4);
+        let mut quat = Quat::zero();
+        quat.set_from_mat4(&mat4);
+        self.set_rotation(&quat);
+        // dbg!(self.get_world_transform());
+    }
+    pub fn lookat_vec(&mut self, target: &Vec3) {
+        let up = self.up();
+        let target_location = target;
+        let eye = self.get_position();
+        let center = target_location;
+        // dbg!(&self.get_position(), target_location);
+        // let mat4 = Mat4::look_at(eye, center, up);
+        let mut mat4 = Mat4::zero();
+        mat4.set_look_at(*eye, *center, up);
+        // let mat4 = Mat4::look_at_dir(eye, center - eye, up);
+        // dbg!(&mat4);
         let mut quat = Quat::zero();
         quat.set_from_mat4(&mat4);
         self.set_rotation(&quat);
