@@ -87,13 +87,47 @@ impl Shader {
         let mut frag = "".to_string();
         vert += GLSL_HDAD;
         frag += GLSL_HDAD;
-        if self.uniform_vars.vars[Uniform::Texture0 as usize].is_some() {
-            frag += &format!(
-                "#define use_{};\n",
-                UNIFORMNAMES[Uniform::Texture0 as usize]["name"]
-                    .as_str()
-                    .unwrap()
-            );
+        // if self.uniform_vars.vars[Uniform::Texture0 as usize].is_some() {
+        //     frag += &format!(
+        //         "#define use_{};\n",
+        //         UNIFORMNAMES[Uniform::Texture0 as usize]["name"]
+        //             .as_str()
+        //             .unwrap()
+        //     );
+        // }
+        unsafe {
+            for (i, item) in self
+                .vertex_buffer
+                .as_ref()
+                .expect("请设置vertex_buffer")
+                .as_ref()
+                .format
+                .vertex_vars
+                .vars
+                .iter()
+                .enumerate()
+            {
+                if let Some(vertex_var) = item {
+                    vert += &format!(
+                        "#define use_{};\n",
+                        ATTRIBNAMES[i]["name"].as_str().unwrap(),
+                    );
+                    if ATTRIBNAMES[i]["vary"].as_bool().expect("vary 转 bool") {
+                        frag += &format!(
+                            "#define use_{};\n",
+                            ATTRIBNAMES[i]["name"].as_str().unwrap(),
+                        );
+                    }
+                }
+            }
+        }
+        for (i, item) in self.uniform_vars.vars.iter().enumerate() {
+            if item.is_some() {
+                frag += &format!(
+                    "#define use_{};\n",
+                    UNIFORMNAMES[i]["name"].as_str().unwrap(),
+                );
+            }
         }
         // let (vert_var, frag_var) = self.get_shader_head();
         // vert += &vert_var;

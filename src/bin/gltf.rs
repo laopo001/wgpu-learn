@@ -79,6 +79,7 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                                     / std::mem::size_of::<f32>(),
                             )
                             .to_vec();
+
                             uvs = Some(b);
                         }
                         Semantic::Colors(size) => {
