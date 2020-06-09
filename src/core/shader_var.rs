@@ -36,6 +36,7 @@ impl UniformVars {
 pub struct VertexVar {
     pub format: wgpu::VertexFormat,
     pub offset: u32,
+    pub data_type: Attrib,
 }
 #[derive(Debug)]
 pub struct VertexVars {

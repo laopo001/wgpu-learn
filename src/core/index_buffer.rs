@@ -1,11 +1,14 @@
 use crate::app::App;
+#[derive(DebugStub)]
 pub struct IndexBuffer {
     pub buffer: Vec<u8>,
     pub type_size: usize,
+    #[debug_stub = "wgpu::Buffer"]
     pub wgpu_index_buffer: Option<wgpu::Buffer>,
     pub size: wgpu::IndexFormat,
     pub length: usize,
 }
+
 impl IndexBuffer {
     pub fn new(buffer: Vec<u8>, type_size: usize) -> Self {
         let length = buffer.len() / type_size;

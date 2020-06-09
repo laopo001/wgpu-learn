@@ -7,7 +7,8 @@
 extern crate lazy_static;
 #[macro_use]
 use serde_json;
-
+#[macro_use]
+extern crate debug_stub_derive;
 // pub enum ShaderStage {
 //     Vertex,
 //     Fragment,
@@ -70,6 +71,23 @@ macro_rules! extends2 {
         }
     };
 }
+
+// #[macro_export]
+// macro_rules! debug{
+//     ($a:ident,$b:ident ) => {
+//         impl std::fmt::Debug for $a {
+//             fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//                 f.debug_struct($a)
+//                     .field("buffer", &self.buffer)
+//                     .field("x", &self.buffer)
+//                     .field("x", &self.buffer)
+//                     .field("x", &self.buffer)
+//                     .field("x", &self.buffer)
+//                     .finish()
+//             }
+//         }
+//     };
+// }
 
 pub mod time {
     pub fn now() -> u128 {

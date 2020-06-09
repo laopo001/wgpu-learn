@@ -13,6 +13,7 @@ use wgpu_learn::{app, Matrix4, Vector3};
 fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) -> Box<Entity> {
     let mut entity = Entity::new(node.name().unwrap_or(""));
 
+    // let (transform, euler, scale) = node.transform().decomposed();
     let data = node.transform().matrix();
     let mat = Matrix4::from(data);
     let scale = mat.get_scale();
@@ -23,8 +24,6 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
     entity.set_local_scale(scale.x, scale.y, scale.z);
 
     node.mesh().map(|gltf_mesh| {
-        // let m = Mesh::new();
-        // dbg!(std::mem::size_of::<f32>());
         let mut positions: Vec<f32> = vec![];
         let mut normals: Option<Vec<f32>> = None;
         let mut colors: Option<Vec<f32>> = None;
@@ -35,11 +34,11 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                 .attributes()
                 .for_each(|(semantic, accessor)| unsafe {
                     let index = accessor.view().unwrap().buffer().index();
-                    let data_type_size = match accessor.data_type() {
-                        DataType::I8 | DataType::U8 => 1,
-                        DataType::I16 | DataType::U16 => 2,
-                        DataType::U32 | DataType::F32 => 4,
-                    };
+                    // let data_type_size = match accessor.data_type() {
+                    //     DataType::I8 | DataType::U8 => 1,
+                    //     DataType::I16 | DataType::U16 => 2,
+                    //     DataType::U32 | DataType::F32 => 4,
+                    // };
                     // dbg!(&accessor.dimensions(), &accessor.data_type());
                     match semantic {
                         Semantic::Positions => {
@@ -101,11 +100,11 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                 });
             primitive.indices().map(|accessor| unsafe {
                 let index = accessor.view().unwrap().buffer().index();
-                // dbg!(&accessor.data_type());
+
                 let buffer = buffers[index].0
                     [accessor.offset()..(accessor.offset() + accessor.count() * accessor.size())]
                     .to_vec();
-
+                dbg!(&buffer);
                 match accessor.data_type() {
                     DataType::U16 => {
                         let b = std::slice::from_raw_parts(
@@ -113,7 +112,8 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                             buffer.len() * std::mem::size_of::<u8>() / std::mem::size_of::<u16>(),
                         )
                         .to_vec();
-                        indices = Some(b.into_iter().map(|x| x as u32).collect());
+
+                        indices = Some(b.into_iter().map(u32::from).collect());
                     }
                     DataType::U32 => {
                         indices = Some(
@@ -129,6 +129,7 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                 };
             });
         });
+
         let mesh = create_mesh(CreateMeshParam {
             positions,
             normals,
@@ -137,6 +138,7 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
             uvs1: None,
             indices,
         });
+        // dbg!(&mesh);
         entity.set_component(Component::Mesh { mesh })
     });
     node.camera().map(|gltf_camera| {
@@ -179,7 +181,7 @@ async fn run() {
         }
         app.scene.root.add_child(entity);
     }
-    app.start();
+    // app.start();
 }
 fn main() -> Result<(), Box<dyn Error>> {
     async_std::task::block_on(run());

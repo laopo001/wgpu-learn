@@ -6,6 +6,7 @@ use crate::model::material::Material;
 use crate::Vector3;
 use std::cell::RefCell;
 use std::rc::Rc;
+#[derive(Debug)]
 pub struct Mesh {
     pub material: Material,
     pub vertex_buffer: Option<Box<VertexBuffer>>,
@@ -31,7 +32,6 @@ impl Mesh {
     }
     pub fn set_vertex_buffer(&mut self, mut vertex_buffer: VertexBuffer) {
         // let v = Rc::new(RefCell::new(vertex_buffer));
-
         self.vertex_buffer = Some(Box::new(vertex_buffer));
         self.material.shader.vertex_buffer = std::ptr::NonNull::new(
             self.vertex_buffer.as_mut().unwrap().as_mut() as *mut VertexBuffer,

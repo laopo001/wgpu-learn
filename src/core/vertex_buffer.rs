@@ -1,9 +1,11 @@
 use crate::app::App;
 use crate::core::vertex_format::VertexFormat;
 
+#[derive(DebugStub)]
 pub struct VertexBuffer {
     pub buffer: Vec<u8>,
     pub format: VertexFormat,
+    #[debug_stub = "wgpu::Buffer"]
     pub wgpu_vertex_buffer: Option<wgpu::Buffer>,
 }
 impl VertexBuffer {

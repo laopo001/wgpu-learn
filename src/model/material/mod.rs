@@ -7,8 +7,9 @@ use serde_json::json;
 use std::ptr::NonNull;
 pub mod texture;
 use zerocopy::{AsBytes, FromBytes};
-
+#[derive(DebugStub)]
 pub struct Material {
+    #[debug_stub = "Shader"]
     pub shader: Shader,
     pub color: Color3,
     pub texture: Option<texture::Texture>,

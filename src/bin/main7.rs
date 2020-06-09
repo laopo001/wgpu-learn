@@ -30,6 +30,7 @@ async fn run() {
 
     let texture = Texture::new_for_png(include_bytes!("./negz.png"));
     let mut face = Entity::new("a");
+    dbg!(&mesh);
     mesh.material.texture = Some(texture);
     face.set_component(Component::Mesh { mesh });
     face.set_position(0.0001, 0.0, 0.0);

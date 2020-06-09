@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Texture {
     pub img_data: Option<Vec<u8>>,
     pub size: (u32, u32),

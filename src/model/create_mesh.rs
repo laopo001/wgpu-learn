@@ -189,7 +189,7 @@ pub fn create_mesh(param: CreateMeshParam) -> Mesh {
     let vertex_data = vertex_data
         .iter()
         .map(|x| {
-            return x.data();
+            return x.data(&format);
         })
         .collect::<Vec<Box<[f32]>>>()
         .concat();
