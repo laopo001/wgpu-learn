@@ -104,7 +104,7 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                 let buffer = buffers[index].0
                     [accessor.offset()..(accessor.offset() + accessor.count() * accessor.size())]
                     .to_vec();
-                dbg!(&buffer);
+
                 match accessor.data_type() {
                     DataType::U16 => {
                         let b = std::slice::from_raw_parts(
@@ -112,7 +112,7 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                             buffer.len() * std::mem::size_of::<u8>() / std::mem::size_of::<u16>(),
                         )
                         .to_vec();
-
+                        dbg!(&b);
                         indices = Some(b.into_iter().map(u32::from).collect());
                     }
                     DataType::U32 => {
