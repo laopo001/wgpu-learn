@@ -100,10 +100,14 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                 });
             primitive.indices().map(|accessor| unsafe {
                 let index = accessor.view().unwrap().buffer().index();
-
-                let buffer = buffers[index].0
-                    [accessor.offset()..(accessor.offset() + accessor.count() * accessor.size())]
-                    .to_vec();
+                // dbg!(
+                //     accessor.view().unwrap().buffer().index(),
+                //     accessor.index(),
+                //     accessor.view().unwrap().length(),
+                //     accessor.count() * accessor.size()
+                // );
+                let buffer = &buffers[index].0
+                    [accessor.offset()..(accessor.offset() + accessor.count() * accessor.size())];
 
                 match accessor.data_type() {
                     DataType::U16 => {
@@ -112,7 +116,7 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                             buffer.len() * std::mem::size_of::<u8>() / std::mem::size_of::<u16>(),
                         )
                         .to_vec();
-                        dbg!(&b);
+                        // dbg!(&b);
                         indices = Some(b.into_iter().map(u32::from).collect());
                     }
                     DataType::U32 => {
