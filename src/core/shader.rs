@@ -87,14 +87,6 @@ impl Shader {
         let mut frag = "".to_string();
         vert += GLSL_HDAD;
         frag += GLSL_HDAD;
-        // if self.uniform_vars.vars[Uniform::Texture0 as usize].is_some() {
-        //     frag += &format!(
-        //         "#define use_{};\n",
-        //         UNIFORMNAMES[Uniform::Texture0 as usize]["name"]
-        //             .as_str()
-        //             .unwrap()
-        //     );
-        // }
         unsafe {
             for (i, item) in self
                 .vertex_buffer

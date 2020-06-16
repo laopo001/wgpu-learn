@@ -9,7 +9,7 @@
             "command": "build",
             "args": [
                 "--bin",
-                "main5"
+                "gltf"
             ],
             "problemMatcher": [
                 "$rustc"

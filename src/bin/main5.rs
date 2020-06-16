@@ -30,7 +30,7 @@ fn main() {
     node.lookat(&mut node2);
     dbg!(node.get_world_transform().data());
     dbg!("=================");
-    return;
+
     let mut node = Entity::new("1");
     let mut child = Entity::new("2");
     let mut grandson = Entity::new("3");
@@ -71,4 +71,11 @@ fn main() {
         node.get_by_name("3").unwrap().get_position().data(),
         Vector3::new(3.0, 6.0, 9.0).data()
     );
+    let mut e1 = Entity::new("e1");
+    let mut e = Entity::new("e");
+    e.set_local_position(1.0, 0.0, 0.0);
+    e1.set_local_euler_angles(0.0, -90.0, 0.0);
+    e1.add_child(e);
+    dbg!(e1.get_by_name("e").unwrap().get_position().data());
+    dbg!("-------");
 }

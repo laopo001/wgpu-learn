@@ -18,9 +18,10 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
     let mat = Matrix4::from(data);
     let scale = mat.get_scale();
     let euler = mat.get_euler_angles();
+    dbg!(&euler);
     let transform = mat.get_translate();
-    entity.set_position(transform.x, transform.y, transform.z);
-    entity.set_euler_angles(euler.x, euler.y, euler.z);
+    entity.set_local_position(transform.x, transform.y, transform.z);
+    entity.set_local_euler_angles(euler.x, euler.y, euler.z);
     entity.set_local_scale(scale.x, scale.y, scale.z);
 
     node.mesh().map(|gltf_mesh| {
@@ -33,19 +34,13 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
             primitive
                 .attributes()
                 .for_each(|(semantic, accessor)| unsafe {
-                    let index = accessor.view().unwrap().buffer().index();
-                    // let data_type_size = match accessor.data_type() {
-                    //     DataType::I8 | DataType::U8 => 1,
-                    //     DataType::I16 | DataType::U16 => 2,
-                    //     DataType::U32 | DataType::F32 => 4,
-                    // };
-                    // dbg!(&accessor.dimensions(), &accessor.data_type());
+                    let index = accessor.view().expect("获取view错误").buffer().index();
+                    let view_offset = accessor.view().expect("错误").offset();
+                    let buffer = &buffers[index].0[view_offset + accessor.offset()
+                        ..(view_offset + accessor.offset() + accessor.count() * accessor.size())];
+
                     match semantic {
                         Semantic::Positions => {
-                            let buffer = buffers[index].0[accessor.offset()
-                                ..(accessor.offset() + accessor.count() * accessor.size())]
-                                .to_vec();
-
                             positions = std::slice::from_raw_parts(
                                 buffer.as_ptr() as *const f32,
                                 buffer.len() * std::mem::size_of::<u8>()
@@ -54,10 +49,6 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                             .to_vec();
                         }
                         Semantic::Normals => {
-                            let buffer = buffers[index].0[accessor.offset()
-                                ..(accessor.offset() + accessor.count() * accessor.size())]
-                                .to_vec();
-
                             let b = std::slice::from_raw_parts(
                                 buffer.as_ptr() as *const f32,
                                 buffer.len() * std::mem::size_of::<u8>()
@@ -68,9 +59,6 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                         }
                         Semantic::TexCoords(size) => {
                             assert_eq!(accessor.size(), size as usize);
-                            let buffer = buffers[index].0[accessor.offset()
-                                ..(accessor.offset() + accessor.count() * accessor.size())]
-                                .to_vec();
 
                             let b = std::slice::from_raw_parts(
                                 buffer.as_ptr() as *const f32,
@@ -83,9 +71,6 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                         }
                         Semantic::Colors(size) => {
                             assert_eq!(accessor.size(), size as usize);
-                            let buffer = buffers[index].0[accessor.offset()
-                                ..(accessor.offset() + accessor.count() * accessor.size())]
-                                .to_vec();
 
                             let b = std::slice::from_raw_parts(
                                 buffer.as_ptr() as *const f32,
@@ -99,15 +84,10 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                     }
                 });
             primitive.indices().map(|accessor| unsafe {
-                let index = accessor.view().unwrap().buffer().index();
-                // dbg!(
-                //     accessor.view().unwrap().buffer().index(),
-                //     accessor.index(),
-                //     accessor.view().unwrap().length(),
-                //     accessor.count() * accessor.size()
-                // );
-                let buffer = &buffers[index].0
-                    [accessor.offset()..(accessor.offset() + accessor.count() * accessor.size())];
+                let index = accessor.view().expect("获取view错误").buffer().index();
+                let view_offset = accessor.view().expect("获取view错误").offset();
+                let buffer = &buffers[index].0[view_offset + accessor.offset()
+                    ..(view_offset + accessor.offset() + accessor.count() * accessor.size())];
 
                 match accessor.data_type() {
                     DataType::U16 => {
@@ -116,7 +96,7 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                             buffer.len() * std::mem::size_of::<u8>() / std::mem::size_of::<u16>(),
                         )
                         .to_vec();
-                        // dbg!(&b);
+
                         indices = Some(b.into_iter().map(u32::from).collect());
                     }
                     DataType::U32 => {
@@ -133,7 +113,6 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                 };
             });
         });
-
         let mesh = create_mesh(CreateMeshParam {
             positions,
             normals,
@@ -169,11 +148,11 @@ async fn run() {
     // let gltf = gltf::Gltf::open("Box.gltf").unwrap();
     let (document, buffers, images) = gltf::import("Box.gltf").unwrap();
     let mut camera = Entity::new("camera");
-    camera.set_position(2.0, 2.0, 2.0);
+    camera.set_local_position(2.0, 2.0, 2.0);
     camera.set_component(Component::Camera {
         fov: 45.0,
         aspect: app.size.width as f32 / app.size.height as f32,
-        near: 1.0,
+        near: 0.0,
         far: 10.0,
     });
     camera.lookat_vec(&Vector3::new(0.0, 0.0, 0.0));
@@ -185,7 +164,7 @@ async fn run() {
         }
         app.scene.root.add_child(entity);
     }
-    // app.start();
+    app.start();
 }
 fn main() -> Result<(), Box<dyn Error>> {
     async_std::task::block_on(run());
