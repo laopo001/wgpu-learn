@@ -119,6 +119,9 @@ impl Node {
             return &self.world_rotation;
         }
     }
+    pub fn get_local_rotation(&mut self) -> &Quat {
+        return &self.local_rotation;
+    }
     pub fn set_local_rotation(&mut self, rotation: &Quat) {
         unsafe {
             self.local_rotation.copy(rotation);
@@ -127,15 +130,11 @@ impl Node {
             }
         }
     }
-    fn get_local_rotation(&mut self) -> &Quat {
-        unsafe {
-            let world_transform_ptr = self.get_world_transform_ptr();
-            self.world_rotation.set_from_mat4(&*world_transform_ptr);
-            return &self.world_rotation;
+    pub fn set_local_position(&mut self, x: f32, y: f32, z: f32) {
+        self.local_position.set(x, y, z);
+        if !self._dirty_local {
+            self._dirtify(true);
         }
-    }
-    pub fn set_local_position(&mut self, x: f32, y: f32, z: f32) -> &Quat {
-        return &self.local_rotation;
     }
     pub fn get_local_position(&self) -> &Vec3 {
         &self.local_position
