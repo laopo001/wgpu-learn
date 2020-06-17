@@ -1,3 +1,4 @@
+use cgmath::Zero;
 use gltf::{
     accessor::DataType, buffer::Data as BufferData, camera::Projection, image::Data as ImageData,
     Node, Semantic,
@@ -18,10 +19,13 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
     let mat = Matrix4::from(data);
     let scale = mat.get_scale();
     let euler = mat.get_euler_angles();
+    // let mut q = wgpu_learn::Quat::zero();
+    // q.set_from_mat4(&mat);
     dbg!(&euler);
     let transform = mat.get_translate();
     entity.set_local_position(transform.x, transform.y, transform.z);
     entity.set_local_euler_angles(euler.x, euler.y, euler.z);
+    // entity.set_rotation(&q);
     entity.set_local_scale(scale.x, scale.y, scale.z);
 
     node.mesh().map(|gltf_mesh| {
@@ -152,7 +156,7 @@ async fn run() {
     camera.set_component(Component::Camera {
         fov: 45.0,
         aspect: app.size.width as f32 / app.size.height as f32,
-        near: 0.0,
+        near: 1.0,
         far: 10.0,
     });
     camera.lookat_vec(&Vector3::new(0.0, 0.0, 0.0));

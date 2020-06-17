@@ -68,7 +68,7 @@ impl Scene {
                 .get_world_transform()
                 .invert()
                 .unwrap();
-            // dbg!(&view);
+            dbg!(&camera.borrow_mut().entity().get_world_transform());
             let projection = camera.borrow_mut().camera.get_perspective().clone();
             let view_projection = (projection * view);
             // dbg!(&projection);
@@ -76,7 +76,7 @@ impl Scene {
                 let model = *(mesh_c.borrow_mut().entity().get_world_transform());
                 let model_view_projection_matrix = (model) * view_projection;
                 let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
-                dbg!(mx_ref);
+                dbg!(projection, view, model);
                 let uniform_buf = app.device.create_buffer_with_data(
                     mx_ref.as_bytes(),
                     wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,

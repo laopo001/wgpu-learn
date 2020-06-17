@@ -34,13 +34,14 @@ async fn run() {
     mesh.material.texture = Some(texture);
     face.set_component(Component::Mesh { mesh });
     face.set_position(0.0001, 0.0, 0.0);
+    // face.set_euler_angles(0.0, 90.0, 0.0);
 
     let mut camera = Entity::new("camera");
-    camera.set_position(2.0, 2.0, 2.0);
+    camera.set_position(0.0, 2.0, 0.0);
     camera.set_component(Component::Camera {
         fov: 45.0,
         aspect: app.size.width as f32 / app.size.height as f32,
-        near: 1.0,
+        near: 0.0,
         far: 10.0,
     });
     camera.lookat(&mut face);

@@ -289,8 +289,12 @@ pub trait QuatPlus {
     fn length(&self) -> f32;
     fn length_sq(&self) -> f32;
     fn invert(&mut self) -> &mut Self;
+    fn copy(&mut self, q: &Quat);
 }
 impl QuatPlus for Quat {
+    fn copy(&mut self, q: &Quat) {
+        self.set(q.v.x, q.v.y, q.v.z, q.s);
+    }
     fn set(&mut self, x: f32, y: f32, z: f32, w: f32) {
         self.v.set(x, y, z);
         self.s = w;
