@@ -1,3 +1,4 @@
+#![allow(unused)]
 use deno_cli::flags;
 use deno_cli::run_command;
 use deno_cli::tokio_util;

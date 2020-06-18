@@ -27,4 +27,9 @@ impl Camera {
     pub fn get_perspective(&self) -> &Matrix4 {
         return &self.projection_matrix;
     }
+    pub fn set_ortho(&mut self, left: f32, right: f32, bottom: f32, top: f32, near: f32, far: f32) {
+        self.near_clip = near;
+        self.far_clip = far;
+        self.projection_matrix = cgmath::ortho(left, right, bottom, top, near, far);
+    }
 }

@@ -401,7 +401,7 @@ layout(set = 0, binding = {}) uniform Locals{} {{
                     attributes: attributes.as_slice(),
                 });
             } else {
-                println!("not set_vertex_buffer");
+                panic!("not set_vertex_buffer");
             }
             let render_pipeline =
                 self.app()

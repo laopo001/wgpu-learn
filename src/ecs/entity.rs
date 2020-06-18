@@ -85,6 +85,7 @@ impl Entity {
             _ => panic!("Component"),
         }
     }
+
     pub(crate) fn set_scene(&mut self, scene: *mut Scene) {
         self.scene = scene;
     }

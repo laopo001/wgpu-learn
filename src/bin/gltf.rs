@@ -1,3 +1,4 @@
+#![allow(unused)]
 use cgmath::Zero;
 use gltf::{
     accessor::DataType, buffer::Data as BufferData, camera::Projection, image::Data as ImageData,
@@ -138,7 +139,28 @@ fn each_node(node: &Node, buffers: &Vec<BufferData>, images: &Vec<ImageData>) ->
                     far: p.zfar().unwrap_or(f32::MAX),
                 });
             }
-            Projection::Orthographic(o) => panic!("error"),
+            Projection::Orthographic(o) => {
+                entity.set_component(Component::Camera {
+                    fov: 45.0,
+                    aspect: 1.0,
+                    near: 0.0,
+                    far: 10.0,
+                });
+                entity
+                    .camera_component
+                    .as_mut()
+                    .unwrap()
+                    .borrow_mut()
+                    .camera
+                    .set_ortho(
+                        -o.xmag(),
+                        o.xmag(),
+                        -o.ymag(),
+                        o.ymag(),
+                        o.znear(),
+                        o.zfar(),
+                    );
+            }
         };
     });
     for node in node.children() {
@@ -155,7 +177,7 @@ async fn run() {
     camera.set_local_position(2.0, 2.0, 2.0);
     camera.set_component(Component::Camera {
         fov: 45.0,
-        aspect: 1.0,
+        aspect: app.size.width as f32 / app.size.height as f32,
         near: 1.0,
         far: 10.0,
     });
