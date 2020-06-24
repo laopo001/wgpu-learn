@@ -32,16 +32,6 @@ impl Vertex {
                 }
             });
         });
-        // res.extend_from_slice(&self.position);
-        // if let Some(data) = &self.color {
-        //     res.extend_from_slice(data);
-        // }
-        // if let Some(data) = &self.tex_coord {
-        //     res.extend_from_slice(data);
-        // }
-        // if let Some(data) = &self.normal {
-        //     res.extend_from_slice(data);
-        // }
         return res.into_boxed_slice();
     }
 }
