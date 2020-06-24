@@ -1,3 +1,4 @@
+pub mod event;
 pub mod index_buffer;
 pub mod shader;
 pub mod shader_var;

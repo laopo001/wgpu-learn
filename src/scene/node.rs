@@ -1,4 +1,4 @@
-use crate::trait_help::{Into, Matrix4Plus, QuatPlus, Vector3Plus, Vector4Plus};
+use crate::trait_help::*;
 use crate::Matrix4 as Mat4;
 use crate::Point3;
 use crate::Quat;
@@ -85,6 +85,21 @@ impl Node {
         // let mat4 = Mat4::look_at(eye, center, up);
         let mut mat4 = Mat4::zero();
         mat4.set_look_at(*eye, *center, up);
+        // let mat4 = Mat4::look_at_dir(eye, center - eye, up);
+        // dbg!(&mat4);
+        let mut quat = Quat::zero();
+        quat.set_from_mat4(&mat4);
+        self.set_rotation(&quat);
+        // dbg!(self.get_world_transform());
+    }
+    pub fn lookat2(&mut self, target: &Vec3, up: &Vec3) {
+        let target_location = target;
+        let eye = self.get_position();
+        let center = target_location;
+        // dbg!(&self.get_position(), target_location);
+        // let mat4 = Mat4::look_at(eye, center, up);
+        let mut mat4 = Mat4::zero();
+        mat4.set_look_at(*eye, *center, *up);
         // let mat4 = Mat4::look_at_dir(eye, center - eye, up);
         // dbg!(&mat4);
         let mut quat = Quat::zero();
@@ -349,7 +364,7 @@ fn test_child_set_get_local_angles() {
             .data()
             .into_iter()
             .map(|x| x.round())
-            .collect::<Box<[f32]>>(),
+            .collect::<Vec<_>>(),
         Vec3::new(1.0, 2.0, 3.0).data()
     );
 }
@@ -370,7 +385,7 @@ fn test_child_set_get_angles() {
             .data()
             .into_iter()
             .map(|x| x.round())
-            .collect::<Box<[f32]>>(),
+            .collect::<Vec<_>>(),
         Vec3::new(3.0, 0.0, 0.0).data()
     );
     grandson.set_euler_angles(0.0, 0.0, 0.0);
@@ -380,7 +395,7 @@ fn test_child_set_get_angles() {
             .data()
             .into_iter()
             .map(|x| x.round())
-            .collect::<Box<[f32]>>(),
+            .collect::<Vec<_>>(),
         Vec3::new(0.0, 0.0, 0.0).data()
     );
     assert_eq!(
@@ -389,7 +404,7 @@ fn test_child_set_get_angles() {
             .data()
             .into_iter()
             .map(|x| x.round())
-            .collect::<Box<[f32]>>(),
+            .collect::<Vec<_>>(),
         Vec3::new(-2.0, 0.0, 0.0).data()
     );
 }
@@ -403,7 +418,7 @@ fn test_child_set_get_local_scale() {
             .data()
             .into_iter()
             .map(|x| x.round())
-            .collect::<Box<[f32]>>(),
+            .collect::<Vec<_>>(),
         Vec3::new(1.0, 2.0, 3.0).data()
     );
 }

@@ -3,6 +3,7 @@ use std::f32::consts::PI;
 pub const DEG_TO_RAD: f32 = PI / 180.0;
 pub const RAD_TO_DEG: f32 = 180.0 / PI;
 
+use crate::Color;
 use crate::Matrix4 as Mat4;
 use crate::Point3;
 use crate::Quat;
@@ -461,7 +462,7 @@ pub trait Vector3Plus {
     fn length(&self) -> f32;
     fn length_sq(&self) -> f32;
     fn set(&mut self, x: f32, y: f32, z: f32);
-    fn data(&self) -> Box<[f32]>;
+    fn data(&self) -> &[f32; 3];
 }
 impl Vector3Plus for Vec3 {
     fn scale(&mut self, scalar: f32) {
@@ -480,8 +481,9 @@ impl Vector3Plus for Vec3 {
         self.y = y;
         self.z = z;
     }
-    fn data(&self) -> Box<[f32]> {
-        return Box::new([self.x, self.y, self.z]);
+    fn data(&self) -> &[f32; 3] {
+        let data : &[f32; 3] = self.as_ref();
+        return data;
     }
 }
 
@@ -494,6 +496,20 @@ impl Vector4Plus for Vec4 {
         self.y = y;
         self.z = z;
         self.w = w;
+    }
+}
+pub trait ColorPlus {
+    fn new(r: f32, g: f32, b: f32, a: f32) -> Self;
+}
+
+impl ColorPlus for Color {
+    fn new(r: f32, g: f32, b: f32, a: f32) -> Self {
+        return Color {
+            r: r as f64,
+            g: g as f64,
+            b: b as f64,
+            a: a as f64,
+        };
     }
 }
 

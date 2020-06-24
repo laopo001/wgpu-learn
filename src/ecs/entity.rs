@@ -74,7 +74,7 @@ impl Entity {
             } => {
                 let mut c = Rc::new(RefCell::new(CameraComponent::new(
                     self,
-                    Camera::new(fov, aspect, near, far),
+                    Camera::new_perspective(fov, aspect, near, far),
                 )));
                 if let Some(s) = self.scene() {
                     s.systems.add_camera_component(c.clone());

@@ -118,6 +118,7 @@ pub type Deg = cgmath::Deg<f32>;
 
 pub type Color3 = Vector3;
 pub type Color4 = Vector4;
+// pub type Color = crate::core::color::Color;
 pub type Color = wgpu::Color;
 pub type VertexFormat = wgpu::VertexFormat;
 // pub type ShaderStage = glsl_to_spirv::ShaderType;

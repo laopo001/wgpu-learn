@@ -1,4 +1,5 @@
 pub mod camera;
+pub mod light;
 pub mod node;
 use crate::app::App;
 use crate::config::Uniform;
@@ -70,7 +71,7 @@ impl Scene {
                 .invert()
                 .unwrap();
 
-            let projection = camera.borrow_mut().camera.get_perspective().clone();
+            let projection = camera.borrow_mut().camera.get_view_matrix().clone();
             let view_projection = (projection * view);
 
             for mesh_c in self.systems.mesh.components.iter_mut() {
