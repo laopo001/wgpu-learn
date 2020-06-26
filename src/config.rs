@@ -37,9 +37,9 @@ pub enum Attrib {
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq)]
 pub enum Uniform {
     ModelViewProjectionMatrix = 0,
-    Texture0 = 1,
-    Sampler0 = 2,
-    Color0 = 3,
+    DiffuseTexture = 1,
+    DiffuseSampler = 2,
+    DiffuseColor = 3,
 }
 #[allow(non_upper_case_globals)]
 #[cfg(target_arch = "wasm32")]
@@ -50,40 +50,40 @@ pub static TextureFormat: wgpu::TextureFormat = wgpu::TextureFormat::Bgra8UnormS
 lazy_static! {
     pub static ref UNIFORMNAMES: serde_json::Value = json!([{
         "name": "ModelViewProjectionMatrix",
-        "type": "mat4",
-        "is_base": true,
+        // "type": "mat4",
+        // "is_base": true,
         "visibility": "vert"
     },{
-        "name": "Texture0",
-        "type": "texture2D",
-        "is_base": false,
+        "name": "DiffuseTexture",
+        // "type": "texture2D",
+        // "is_base": false,
         "visibility": "frag"
     },{
-        "name": "Sampler0",
-        "type": "sampler",
-        "is_base": false,
+        "name": "DiffuseSampler",
+        // "type": "sampler",
+        // "is_base": false,
         "visibility": "frag"
     },{
-        "name": "Color0",
-        "type": "vec3",
-        "is_base": true,
+        "name": "DiffuseColor",
+        // "type": "vec3",
+        // "is_base": true,
         "visibility": "frag"
     }]);
     pub static ref ATTRIBNAMES: serde_json::Value = json!([{
         "name": "POSITION",
-        "type": "vec4",
+        // "type": "vec4",
         "vary": false,
     },{
         "name": "NORMAL",
-        "type": "vec3",
+        // "type": "vec3",
         "vary": false,
     },{
         "name": "COLOR",
-        "type": "vec3",
+        // "type": "vec3",
         "vary": false,
     },{
         "name": "TEXCOORD0",
-        "type": "vec2",
+        // "type": "vec2",
         "vary": true,
     }]);
 }

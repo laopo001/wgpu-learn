@@ -115,10 +115,18 @@ impl Shader {
         }
         for (i, item) in self.uniform_vars.vars.iter().enumerate() {
             if item.is_some() {
-                frag += &format!(
-                    "#define use_{};\n",
-                    UNIFORMNAMES[i]["name"].as_str().unwrap(),
-                );
+                if UNIFORMNAMES[i]["visibility"].as_str().unwrap() == "vert" {
+                    vert += &format!(
+                        "#define use_{};\n",
+                        UNIFORMNAMES[i]["name"].as_str().unwrap(),
+                    );
+                }
+                if UNIFORMNAMES[i]["visibility"].as_str().unwrap() == "frag" {
+                    frag += &format!(
+                        "#define use_{};\n",
+                        UNIFORMNAMES[i]["name"].as_str().unwrap(),
+                    );
+                }
             }
         }
         // let (vert_var, frag_var) = self.get_shader_head();

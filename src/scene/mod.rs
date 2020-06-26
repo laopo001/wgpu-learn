@@ -8,6 +8,8 @@ use crate::ecs::component::Component;
 use crate::ecs::components::camera::CameraComponent;
 use crate::ecs::entity::Entity;
 use crate::ecs::system::System;
+use crate::trait_help;
+use crate::Matrix4;
 use camera::Camera;
 use cgmath::prelude::*;
 use std::cell::RefCell;
@@ -76,13 +78,14 @@ impl Scene {
 
             for mesh_c in self.systems.mesh.components.iter_mut() {
                 let model = *(mesh_c.borrow_mut().entity().get_world_transform());
-                // let model_view_projection_matrix = view_projection * model;
-                // let mx_ref: &[f32; 16] = model_view_projection_matrix.as_ref();
+                let normal = model.invert().unwrap_or(Matrix4::identity()).transpose();
                 let view_projection_matrix_ref: &[f32; 16] = view_projection.as_ref();
                 let model_matrix_ref: &[f32; 16] = model.as_ref();
+                let normal_matrix_ref: &[f32; 16] = normal.as_ref();
                 let mut mx_ref: Vec<f32> = view_projection_matrix_ref.clone().to_vec();
                 mx_ref.extend_from_slice(model_matrix_ref);
-
+                // TODO
+                mx_ref.extend_from_slice(normal_matrix_ref);
                 let uniform_buf = app.device.create_buffer_with_data(
                     mx_ref.as_bytes(),
                     wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,

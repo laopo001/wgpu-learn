@@ -46,7 +46,7 @@ impl Material {
             if let Some(data) = t.img_data.as_ref() {
                 let texture_view = app.create_wgpu_texture(data, t.size.0, t.size.1);
                 self.shader.set_uniform_vars(
-                    Uniform::Texture0,
+                    Uniform::DiffuseTexture,
                     UniformVar {
                         visibility: wgpu::ShaderStage::FRAGMENT,
                         ty: wgpu::BindingType::SampledTexture {
@@ -70,7 +70,7 @@ impl Material {
                     label: None,
                 });
                 self.shader.set_uniform_vars(
-                    Uniform::Sampler0,
+                    Uniform::DiffuseSampler,
                     UniformVar {
                         visibility: wgpu::ShaderStage::FRAGMENT,
                         ty: wgpu::BindingType::Sampler { comparison: false },
@@ -80,7 +80,7 @@ impl Material {
             }
         }
         self.shader.set_uniform_vars(
-            Uniform::Color0,
+            Uniform::DiffuseColor,
             UniformVar {
                 visibility: wgpu::ShaderStage::FRAGMENT,
                 ty: wgpu::BindingType::UniformBuffer { dynamic: false },

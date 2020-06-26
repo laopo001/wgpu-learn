@@ -51,6 +51,7 @@ pub trait Matrix4Plus {
         n14: f32,
         n15: f32,
     );
+    fn identity() -> Self;
 }
 
 impl Matrix4Plus for Mat4 {
@@ -265,6 +266,11 @@ impl Matrix4Plus for Mat4 {
         self.w.y = n13;
         self.w.z = n14;
         self.w.w = n15;
+    }
+    fn identity() -> Self {
+        return Mat4::new(
+            1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+        );
     }
 }
 
@@ -482,7 +488,7 @@ impl Vector3Plus for Vec3 {
         self.z = z;
     }
     fn data(&self) -> &[f32; 3] {
-        let data : &[f32; 3] = self.as_ref();
+        let data: &[f32; 3] = self.as_ref();
         return data;
     }
 }
