@@ -7,8 +7,19 @@ use cgmath::prelude::SquareMatrix;
 use cgmath::prelude::Transform;
 use cgmath::Zero;
 use std::cell::UnsafeCell;
+pub trait FnBox {
+    fn call_box(&mut self);
+}
 
-#[derive(Debug)]
+impl<F: FnMut()> FnBox for F {
+    fn call_box(&mut self) {
+        (*self)()
+    }
+}
+
+pub type Task = Box<dyn FnBox>;
+
+#[derive(DebugStub)]
 pub struct Node {
     pub(crate) local_position: Vec3,
     pub(crate) local_rotation: Quat,
@@ -25,6 +36,8 @@ pub struct Node {
     _dirty_world: bool,
     pub enabled: bool,
     name: String,
+    #[debug_stub = "Shader"]
+    sync_cb: Option<Task>,
 }
 
 impl Node {
@@ -45,6 +58,7 @@ impl Node {
             _dirty_world: false,
             enabled: true,
             name: "".to_string(),
+            sync_cb: None,
         };
     }
     pub fn name(mut self, name: &str) -> Self {
@@ -291,7 +305,13 @@ impl Node {
                 }
                 self._dirty_world = false;
             }
+            self.sync_cb.as_mut().map(|cb| {
+                cb.call_box();
+            });
         }
+    }
+    pub fn set_sync_callback(&mut self, cb: Task) {
+        self.sync_cb = Some(cb);
     }
 }
 

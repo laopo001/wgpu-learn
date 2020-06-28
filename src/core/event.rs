@@ -33,4 +33,18 @@ impl EventListener {
             self.event.insert(e, vec![Box::new(task)]);
         }
     }
+    pub fn fire<F>(&mut self, e: Event, task: F, app: &mut App)
+    where
+        F: FnMut(&mut App) + 'static,
+    {
+        self.event.get_mut(&e).map(|x| {
+            x.iter_mut().for_each(|y| {
+                (*y).call_box(app);
+            });
+        });
+    }
 }
+
+// lazy_static! {
+//     pub static ref event: EventListener = EventListener::new("global");
+// }

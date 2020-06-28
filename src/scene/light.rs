@@ -65,6 +65,12 @@ impl PointLight {
             let node_pos = node.get_position();
             camera_node.set_position(node_pos.x, node_pos.y, node_pos.z);
             cameras.push(camera);
+            // TODO
+            // node.set_sync_callback(Box::new(|| unsafe {
+            //     let pos = node.get_position();
+            //     // camera_node.set_position(pos.x, pos.y, pos.z);
+            //     // camera_node.set_position(1.0, 1.0, 1.0);
+            // }));
             // event.on('sync', () => {
             //     camera.node.setPosition(node.getPosition());
             // });

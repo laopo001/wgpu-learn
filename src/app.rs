@@ -19,7 +19,7 @@ impl<F: FnMut(&mut App)> FnBox for F {
     }
 }
 
-type Task = Box<dyn FnBox + 'static>;
+pub type Task = Box<dyn FnBox + 'static>;
 
 // type BoxFnOnce = Box<dyn FnOnce() + 'static>;
 
@@ -141,9 +141,6 @@ impl App {
     pub fn set_clear_color(&mut self, color: Color) {
         self._clear_color = color;
     }
-    // pub fn set_shader(&self, shader: Shader) {
-
-    // }
     pub fn start(mut self) {
         unsafe {
             crate::console_log!("开始");
@@ -165,7 +162,7 @@ impl App {
             } = self;
             let mut event_listener = event;
             scene.initialize();
-            scene.draw(&mut *p_app as &mut App);
+
             event_listener
                 .get_mut(&Event::Start)
                 .get_or_insert(&mut vec![])
@@ -202,7 +199,9 @@ impl App {
                             .for_each(|e| unsafe {
                                 (e).call_box(std::mem::transmute::<*mut App, &mut App>(p_app));
                             });
-                        // scene.draw(&mut *p_app as &mut App); // TODO
+                        // TODO tick
+                        scene.root.sync_hierarchy();
+                        scene.draw(&mut *p_app as &mut App);
                     }
                     // 关闭
                     winit::event::Event::WindowEvent { event, .. } => match event {
