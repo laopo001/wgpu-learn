@@ -1,6 +1,7 @@
 use crate::Matrix4;
 use cgmath::prelude::Transform;
 use cgmath::Rad;
+#[derive(Debug)]
 pub struct Camera {
     pub far_clip: f32,
     pub near_clip: f32,

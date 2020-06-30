@@ -3,12 +3,12 @@ use crate::scene::node::Node;
 use crate::trait_help::*;
 use crate::{Color, Vector3};
 pub struct DirectionalLight {
-    cast_shadows: bool,
-    shadow_map_size: u32,
-    shadow_bias: f32,
-    color: Color,
-    direction: Vector3,
-    camera: Camera,
+    pub cast_shadows: bool,
+    pub shadow_map_size: u32,
+    pub shadow_bias: f32,
+    pub color: Color,
+    pub direction: Vector3,
+    pub camera: Camera,
 }
 
 impl DirectionalLight {
@@ -28,18 +28,19 @@ impl DirectionalLight {
     }
 }
 
+#[derive(Debug)]
 pub struct PointLight {
-    cast_shadows: bool,
-    shadow_map_size: u32,
-    shadow_bias: f32,
-    color: Color,
-    range: u32,
-    cameras: Vec<Camera>,
-    camera_nodes: Vec<Box<Node>>,
+    pub cast_shadows: bool,
+    pub shadow_map_size: u32,
+    pub shadow_bias: f32,
+    pub color: Color,
+    pub range: u32,
+    pub cameras: Vec<Camera>,
+    pub camera_nodes: Vec<Box<Node>>,
 }
 
 impl PointLight {
-    fn new(node: &mut Node) -> Self {
+    pub fn new(node: &mut Node) -> Self {
         let mut cameras = vec![];
         let mut camera_nodes = vec![];
         for i in 0..6 {
