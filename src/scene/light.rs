@@ -35,11 +35,13 @@ pub struct PointLight {
     color: Color,
     range: u32,
     cameras: Vec<Camera>,
+    camera_nodes: Vec<Box<Node>>,
 }
 
 impl PointLight {
     fn new(node: &mut Node) -> Self {
         let mut cameras = vec![];
+        let mut camera_nodes = vec![];
         for i in 0..6 {
             let mut v = Vector3::new(0.0, 0.0, 0.0);
             let a = i % 2;
@@ -60,21 +62,20 @@ impl PointLight {
             let near = 0.01;
             let far = 10.0;
             let camera = Camera::new_perspective(90.0, 1.0, near, far);
-            let mut camera_node = Node::new();
+            let mut camera_node = Box::new(Node::new());
             camera_node.lookat2(&v, &up);
             let node_pos = node.get_position();
             camera_node.set_position(node_pos.x, node_pos.y, node_pos.z);
             cameras.push(camera);
-            // TODO
-            // node.set_sync_callback(Box::new(|| unsafe {
-            //     let pos = node.get_position();
-            //     // camera_node.set_position(pos.x, pos.y, pos.z);
-            //     // camera_node.set_position(1.0, 1.0, 1.0);
-            // }));
-            // event.on('sync', () => {
-            //     camera.node.setPosition(node.getPosition());
-            // });
+            camera_nodes.push(camera_node);
+            // node.set_sync_node(&mut camera_node as *mut Node);
         }
+        node.set_sync_node(
+            camera_nodes
+                .iter_mut()
+                .map(|x| return (*x).as_mut() as *mut Node)
+                .collect(),
+        );
         return PointLight {
             cameras,
             cast_shadows: true,
@@ -82,6 +83,7 @@ impl PointLight {
             shadow_bias: 0.001,
             color: Color::new(1.0, 1.0, 1.0, 1.0),
             range: 10,
+            camera_nodes,
         };
     }
 }

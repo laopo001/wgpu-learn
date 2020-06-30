@@ -37,7 +37,7 @@ pub struct Node {
     pub enabled: bool,
     name: String,
     #[debug_stub = "Shader"]
-    sync_cb: Option<Task>,
+    sync_cb: Vec<*mut Node>,
 }
 
 impl Node {
@@ -58,7 +58,7 @@ impl Node {
             _dirty_world: false,
             enabled: true,
             name: "".to_string(),
-            sync_cb: None,
+            sync_cb: vec![],
         };
     }
     pub fn name(mut self, name: &str) -> Self {
@@ -305,13 +305,14 @@ impl Node {
                 }
                 self._dirty_world = false;
             }
-            self.sync_cb.as_mut().map(|cb| {
-                cb.call_box();
+            let pos = *self.get_position();
+            self.sync_cb.iter_mut().for_each(|n| unsafe {
+                (**n).set_position(pos.x, pos.y, pos.z);
             });
         }
     }
-    pub fn set_sync_callback(&mut self, cb: Task) {
-        self.sync_cb = Some(cb);
+    pub(crate) fn set_sync_node(&mut self, node: Vec<*mut Node>) {
+        self.sync_cb = node;
     }
 }
 
