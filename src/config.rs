@@ -40,6 +40,7 @@ pub enum Uniform {
     DiffuseTexture = 1,
     DiffuseSampler = 2,
     DiffuseColor = 3,
+    CameraPosition = 4,
 }
 #[allow(non_upper_case_globals)]
 #[cfg(target_arch = "wasm32")]
@@ -50,23 +51,18 @@ pub static TextureFormat: wgpu::TextureFormat = wgpu::TextureFormat::Bgra8UnormS
 lazy_static! {
     pub static ref UNIFORMNAMES: serde_json::Value = json!([{
         "name": "ModelViewProjectionMatrix",
-        // "type": "mat4",
-        // "is_base": true,
         "visibility": "vert"
     },{
         "name": "DiffuseTexture",
-        // "type": "texture2D",
-        // "is_base": false,
         "visibility": "frag"
     },{
         "name": "DiffuseSampler",
-        // "type": "sampler",
-        // "is_base": false,
         "visibility": "frag"
     },{
         "name": "DiffuseColor",
-        // "type": "vec3",
-        // "is_base": true,
+        "visibility": "frag"
+    },{
+        "name": "CameraPosition",
         "visibility": "frag"
     }]);
     pub static ref ATTRIBNAMES: serde_json::Value = json!([{

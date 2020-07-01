@@ -40,7 +40,7 @@ pub struct PointLight {
 }
 
 impl PointLight {
-    pub fn new(node: &mut Node) -> Self {
+    pub fn new() -> Self {
         let mut cameras = vec![];
         let mut camera_nodes = vec![];
         for i in 0..6 {
@@ -65,18 +65,17 @@ impl PointLight {
             let camera = Camera::new_perspective(90.0, 1.0, near, far);
             let mut camera_node = Box::new(Node::new());
             camera_node.lookat2(&v, &up);
-            let node_pos = node.get_position();
-            camera_node.set_position(node_pos.x, node_pos.y, node_pos.z);
+            // let node_pos = node.get_position();
+            // camera_node.set_position(node_pos.x, node_pos.y, node_pos.z);
             cameras.push(camera);
             camera_nodes.push(camera_node);
-            // node.set_sync_node(&mut camera_node as *mut Node);
         }
-        node.set_sync_node(
-            camera_nodes
-                .iter_mut()
-                .map(|x| return (*x).as_mut() as *mut Node)
-                .collect(),
-        );
+        // node.set_sync_node(
+        //     camera_nodes
+        //         .iter_mut()
+        //         .map(|x| return (*x).as_mut() as *mut Node)
+        //         .collect(),
+        // );
         return PointLight {
             cameras,
             cast_shadows: true,
@@ -85,6 +84,43 @@ impl PointLight {
             color: Color::new(1.0, 1.0, 1.0, 1.0),
             range: 10,
             camera_nodes,
+        };
+    }
+}
+
+struct SpotLight {
+    pub cast_shadows: bool,
+    pub shadow_map_size: u32,
+    pub shadow_bias: f32,
+    pub color: Color,
+    pub range: u32,
+    pub cameras: Vec<Camera>,
+    pub camera_nodes: Vec<Box<Node>>,
+    pub cone_angle: u32,
+}
+impl SpotLight {
+    pub fn new() -> Self {
+        let mut cameras = vec![];
+        let mut camera_nodes = vec![];
+        let cone_angle = 75;
+
+        let near = 0.01;
+        let far = 20.0;
+        let camera = Camera::new_perspective(90.0, 1.0, near, far);
+        let mut camera_node = Box::new(Node::new());
+
+        cameras.push(camera);
+        camera_nodes.push(camera_node);
+
+        return Self {
+            cameras,
+            cast_shadows: true,
+            shadow_map_size: 512,
+            shadow_bias: 0.001,
+            color: Color::new(1.0, 1.0, 1.0, 1.0),
+            range: 20,
+            camera_nodes,
+            cone_angle,
         };
     }
 }

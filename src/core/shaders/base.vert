@@ -1,3 +1,9 @@
+#version 450
+#define use_NORMAL 1;
+#define use_COLOR 1;
+#define use_TEXCOORD0 1;
+//split
+#pragma vscode_glsllint_stage : vert 
 layout(set = 0, binding = 0) uniform Locals0 {
     mat4 u_ViewProjectionMatrix;
     mat4 u_ModelMatrix;

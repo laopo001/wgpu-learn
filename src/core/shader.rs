@@ -132,8 +132,8 @@ impl Shader {
         // let (vert_var, frag_var) = self.get_shader_head();
         // vert += &vert_var;
         // frag += &frag_var;
-        vert += base_vert_str();
-        frag += base_frag_str();
+        vert += base_vert_str().split(&"//split").collect::<Vec<_>>()[1];
+        frag += base_frag_str().split(&"//split").collect::<Vec<_>>()[1];
         #[cfg(not(target_arch = "wasm32"))]
         {
             std::fs::write("test.vert", &vert).unwrap();
