@@ -30,6 +30,7 @@ impl Vertex {
                         res.extend_from_slice(data);
                     }
                 }
+                _ => panic!("error"),
             });
         });
         return res.into_boxed_slice();

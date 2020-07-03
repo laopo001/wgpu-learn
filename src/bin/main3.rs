@@ -121,7 +121,7 @@ async fn run() {
         label: None,
     });
     shader.set_uniform_vars(
-        Uniform::DiffuseTexture,
+        Uniform::pbrBaseColorTexture,
         UniformVar {
             visibility: wgpu::ShaderStage::FRAGMENT,
             ty: wgpu::BindingType::SampledTexture {
@@ -133,7 +133,7 @@ async fn run() {
         },
     );
     shader.set_uniform_vars(
-        Uniform::DiffuseSampler,
+        Uniform::Sampler,
         UniformVar {
             visibility: wgpu::ShaderStage::FRAGMENT,
             ty: wgpu::BindingType::Sampler { comparison: false },

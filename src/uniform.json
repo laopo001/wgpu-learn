@@ -1,0 +1,54 @@
+[
+    {
+        "name": "ModelViewProjectionMatrix",
+        "visibility": "vert"
+    },
+    {
+        "name": "Sampler",
+        "visibility": "frag"
+    },
+    {
+        "name": "Args",
+        "visibility": "frag"
+    },
+    {
+        "name": "pbrBaseColorTexture",
+        "visibility": "frag"
+    },
+    {
+        "name": "pbrMetallicRoughnessInfo",
+        "visibility": "frag"
+    },
+    {
+        "name": "pbrNormalTexture",
+        "visibility": "frag"
+    },
+    {
+        "name": "pbrNormalTextureInfo",
+        "visibility": "frag"
+    },
+    {
+        "name": "pbrOcclusionTexture",
+        "visibility": "frag"
+    },
+    {
+        "name": "pbrOcclusionTextureInfo",
+        "visibility": "frag"
+    },
+    {
+        "name": "pbrEmissiveTexture",
+        "visibility": "frag"
+    },
+    {
+        "name": "pbrEmissiveTextureInfo",
+        "visibility": "frag"
+    },
+    {
+        "name": "pbrOther",
+        "visibility": "frag"
+    },
+    {
+        "name": "MeshPart",
+        "visibility": "frag"
+    }
+]

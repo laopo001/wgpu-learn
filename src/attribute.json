@@ -1,0 +1,22 @@
+[
+    {
+        "name": "POSITION",
+        "vary": false
+    },
+    {
+        "name": "NORMAL",
+        "vary": false
+    },
+    {
+        "name": "COLOR",
+        "vary": false
+    },
+    {
+        "name": "TEXCOORD0",
+        "vary": true
+    },
+    {
+        "name": "TEXCOORD1",
+        "vary": true
+    }
+]

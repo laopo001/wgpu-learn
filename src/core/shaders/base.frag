@@ -21,8 +21,9 @@ struct SpotLight {
     float smoothness; // 平稳 平滑
     float intensity; // 光的强度
 };
-
-layout(std140, set = 0, binding = 0) uniform Args {
+layout(set = 0, binding = 1) uniform sampler u_Sampler;
+// pbrMetallicRoughness
+layout(std140, set = 0, binding = 2) uniform Args {
     layout(offset = 0) mat4 proj_view;
     layout(offset = 64) vec3 camera_pos;
     layout(offset = 76) int point_light_count;
@@ -30,21 +31,43 @@ layout(std140, set = 0, binding = 0) uniform Args {
     layout(offset = 1104) int spot_light_count;
     layout(offset = 1120) SpotLight spot_lights[32];
 };
-
-layout(set = 2, binding = 0) uniform MeshPart {
+layout(set = 0, binding = 3) uniform texture2D u_pbrBaseColorTexture;
+layout(set = 0, binding = 4) uniform pbrMetallicRoughnessInfo {
+    vec3 u_BaseColorFactor;
+    float u_MetallicFactor;
+    float u_RoughnessFactor;
+    uint u_BaseColorTextureTexCoord;
+};
+// normalTexture
+layout(set = 0, binding = 5) uniform texture2D u_pbrNormalTexture;
+layout(set = 0, binding = 6) uniform pbrNormalTextureInfo {
+    uint u_NormalTextureTexCoord;
+    float scale;
+};
+// occlusionTexture
+layout(set = 0, binding = 7) uniform texture2D u_pbrOcclusionTexture;
+layout(set = 0, binding = 8) uniform pbrOcclusionTextureInfo {
+    uint u_OcclusionTextureTexCoord;
+    float strength;
+};
+// emissiveTexture
+layout(set = 0, binding = 9) uniform texture2D u_pbrEmissiveTexture;
+layout(set = 0, binding = 10) uniform pbrEmissiveTextureInfo {
+    uint u_EmissiveTextureTexCoord;
+};
+// pbrOther
+layout(set = 0, binding = 11) uniform pbrOther {
+    vec3 u_EmissiveFactor;
+    uint alphaMode;
+    float alphaCutoff;
+    bool doubleSided;
+};
+layout(set = 2, binding = 12) uniform MeshPart {
     layout(offset = 0) vec4 in_diffuse;
     layout(offset = 16) float metal_factor;
     layout(offset = 32) float rough_factor;
     layout(offset = 48) vec3 emissive_factor;
     layout(offset = 64) vec3 extra_emissive;
-};
-layout(set = 0, binding = 1) uniform texture2D u_DiffuseTexture;
-layout(set = 0, binding = 2) uniform sampler u_DiffuseSampler;
-layout(set = 0, binding = 3) uniform Locals0 {
-    vec3 u_DiffuseColor;
-};
-layout(set = 0, binding = 4) uniform Locals1 {
-    vec3 u_CameraPosition;
 };
 
 
@@ -61,9 +84,9 @@ layout (location = 3) in vec2 v_TEXCOORD0;
 
 void main() {
     // outColor = vec4(0.5, 0.0, 0.0, 1.0); 
-    #if defined (use_DiffuseTexture) && defined (use_DiffuseSampler)  && defined (use_TEXCOORD0)
-    outColor =  texture(sampler2D(u_DiffuseTexture, u_DiffuseSampler), v_TEXCOORD0);
+    #if defined (use_BaseColorTexture) && defined (use_DiffuseSampler)  && defined (use_TEXCOORD0)
+    outColor =  texture(sampler2D(u_BaseColorTexture, u_Sampler), v_TEXCOORD0);
     #else
-    outColor = vec4(u_DiffuseColor, 1.0);
+    outColor = vec4(u_BaseColorFactor, 1.0);
     #endif
 }

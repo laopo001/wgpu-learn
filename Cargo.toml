@@ -1,135 +1,136 @@
 [package]
-name = "wgpu-learn"
-version = "0.1.0"
 authors = ["liaodonghuo"]
 edition = "2018"
+name = "wgpu-learn"
+version = "0.1.0"
+
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
 
 [dependencies]
+cfg-if = "0.1.10"
 cgmath = "0.17"
-log = "0.4"
-png = "0.16.3"
-zerocopy = "0.2"
-futures = "0.3"
-lazy_static = "1.4.0"
-winit = { version = "0.22.1", features = ["web-sys"] }
-rand = { version = "0.7.3", features = ["wasm-bindgen"] }
 console_error_panic_hook = "0.1.6"
 console_log = "0.1.2"
-handlebars = "3.0.1"
-serde_json = "1.0"
-env_logger = "0.7"
-cfg-if = "0.1.10"
-gltf = "0.15.2"
 debug_stub_derive = "0.3.0"
-
+env_logger = "0.7"
+futures = "0.3"
+gltf = "0.15.2"
+handlebars = "3.0.1"
+lazy_static = "1.4.0"
+log = "0.4"
+png = "0.16.3"
+rand = {version = "0.7.3", features = ["wasm-bindgen"]}
+serde_json = "1.0"
+winit = {version = "0.22.1", features = ["web-sys"]}
+zerocopy = "0.2"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 async-std = "1.5.0"
+deno_cli = {path = "./deno/cli", package = "deno"}
+deno_core = {path = "./deno/core"}
 glsl-to-spirv = "0.1.7"
-deno_cli = { path = "./deno/cli", package = "deno" }
-deno_core = { path = "./deno/core" }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
-wasm-bindgen = "0.2.62"
-web-sys = { version = "0.3.39", features = [
-    "Document",
-    "Navigator",
-    "Node",
-    "NodeList",
-    "Gpu",
-    "GpuAdapter",
-    "GpuAddressMode",
-    "GpuBindGroup",
-    "GpuBindGroupEntry",
-    "GpuBindGroupDescriptor",
-    "GpuBindGroupLayout",
-    "GpuBindGroupLayoutEntry",
-    "GpuBindGroupLayoutDescriptor",
-    "GpuBlendDescriptor",
-    "GpuBlendFactor",
-    "GpuBlendOperation",
-    "GpuBindingType",
-    "GpuBuffer",
-    "GpuBufferBinding",
-    "GpuBufferCopyView",
-    "GpuBufferDescriptor",
-    "GpuCanvasContext",
-    "GpuColorDict",
-    "GpuColorStateDescriptor",
-    "GpuCommandBuffer",
-    "GpuCommandBufferDescriptor",
-    "GpuCommandEncoder",
-    "GpuCommandEncoderDescriptor",
-    "GpuCompareFunction",
-    "GpuComputePassDescriptor",
-    "GpuComputePassEncoder",
-    "GpuComputePipeline",
-    "GpuComputePipelineDescriptor",
-    "GpuCullMode",
-    "GpuDepthStencilStateDescriptor",
-    "GpuDevice",
-    "GpuDeviceDescriptor",
-    "GpuExtent3dDict",
-    "GpuFilterMode",
-    "GpuFrontFace",
-    "GpuIndexFormat",
-    "GpuInputStepMode",
-    "GpuLimits",
-    "GpuLoadOp",
-    "GpuOrigin3dDict",
-    "GpuPipelineLayout",
-    "GpuPipelineLayoutDescriptor",
-    "GpuPowerPreference",
-    "GpuPrimitiveTopology",
-    "GpuProgrammableStageDescriptor",
-    "GpuQueue",
-    "GpuRasterizationStateDescriptor",
-    "GpuRenderPassColorAttachmentDescriptor",
-    "GpuRenderPassDepthStencilAttachmentDescriptor",
-    "GpuRenderPassDescriptor",
-    "GpuRenderPassEncoder",
-    "GpuRenderPipeline",
-    "GpuRenderPipelineDescriptor",
-    "GpuRequestAdapterOptions",
-    "GpuSampler",
-    "GpuSamplerDescriptor",
-    "GpuShaderModule",
-    "GpuShaderModuleDescriptor",
-    "GpuStencilOperation",
-    "GpuStencilStateFaceDescriptor",
-    "GpuStoreOp",
-    "GpuSwapChain",
-    "GpuSwapChainDescriptor",
-    "GpuTexture",
-    "GpuTextureAspect",
-    "GpuTextureComponentType",
-    "GpuTextureCopyView",
-    "GpuTextureDescriptor",
-    "GpuTextureDimension",
-    "GpuTextureFormat",
-    "GpuTextureViewDescriptor",
-    "GpuTextureViewDimension",
-    "GpuTextureView",
-    "GpuVertexAttributeDescriptor",
-    "GpuVertexBufferLayoutDescriptor",
-    "GpuVertexFormat",
-    "GpuVertexStateDescriptor",
-    "GpuVertexAttributeDescriptor",
-    "HtmlCanvasElement",
-    "Window",
-]}
 js-sys = "0.3.39"
+wasm-bindgen = "0.2.62"
 wasm-bindgen-futures = "0.4.12"
+web-sys = {version = "0.3.39", features = [
+  "Document",
+  "Navigator",
+  "Node",
+  "NodeList",
+  "Gpu",
+  "GpuAdapter",
+  "GpuAddressMode",
+  "GpuBindGroup",
+  "GpuBindGroupEntry",
+  "GpuBindGroupDescriptor",
+  "GpuBindGroupLayout",
+  "GpuBindGroupLayoutEntry",
+  "GpuBindGroupLayoutDescriptor",
+  "GpuBlendDescriptor",
+  "GpuBlendFactor",
+  "GpuBlendOperation",
+  "GpuBindingType",
+  "GpuBuffer",
+  "GpuBufferBinding",
+  "GpuBufferCopyView",
+  "GpuBufferDescriptor",
+  "GpuCanvasContext",
+  "GpuColorDict",
+  "GpuColorStateDescriptor",
+  "GpuCommandBuffer",
+  "GpuCommandBufferDescriptor",
+  "GpuCommandEncoder",
+  "GpuCommandEncoderDescriptor",
+  "GpuCompareFunction",
+  "GpuComputePassDescriptor",
+  "GpuComputePassEncoder",
+  "GpuComputePipeline",
+  "GpuComputePipelineDescriptor",
+  "GpuCullMode",
+  "GpuDepthStencilStateDescriptor",
+  "GpuDevice",
+  "GpuDeviceDescriptor",
+  "GpuExtent3dDict",
+  "GpuFilterMode",
+  "GpuFrontFace",
+  "GpuIndexFormat",
+  "GpuInputStepMode",
+  "GpuLimits",
+  "GpuLoadOp",
+  "GpuOrigin3dDict",
+  "GpuPipelineLayout",
+  "GpuPipelineLayoutDescriptor",
+  "GpuPowerPreference",
+  "GpuPrimitiveTopology",
+  "GpuProgrammableStageDescriptor",
+  "GpuQueue",
+  "GpuRasterizationStateDescriptor",
+  "GpuRenderPassColorAttachmentDescriptor",
+  "GpuRenderPassDepthStencilAttachmentDescriptor",
+  "GpuRenderPassDescriptor",
+  "GpuRenderPassEncoder",
+  "GpuRenderPipeline",
+  "GpuRenderPipelineDescriptor",
+  "GpuRequestAdapterOptions",
+  "GpuSampler",
+  "GpuSamplerDescriptor",
+  "GpuShaderModule",
+  "GpuShaderModuleDescriptor",
+  "GpuStencilOperation",
+  "GpuStencilStateFaceDescriptor",
+  "GpuStoreOp",
+  "GpuSwapChain",
+  "GpuSwapChainDescriptor",
+  "GpuTexture",
+  "GpuTextureAspect",
+  "GpuTextureComponentType",
+  "GpuTextureCopyView",
+  "GpuTextureDescriptor",
+  "GpuTextureDimension",
+  "GpuTextureFormat",
+  "GpuTextureViewDescriptor",
+  "GpuTextureViewDimension",
+  "GpuTextureView",
+  "GpuVertexAttributeDescriptor",
+  "GpuVertexBufferLayoutDescriptor",
+  "GpuVertexFormat",
+  "GpuVertexStateDescriptor",
+  "GpuVertexAttributeDescriptor",
+  "HtmlCanvasElement",
+  "Window",
+]}
 
 [dependencies.wgpu]
-package = "wgpu"
 git = "https://github.com/gfx-rs/wgpu-rs.git"
+package = "wgpu"
 rev = "c830faa06b4ddf6fe7c747159e949d6c363e0460"
 
 [package.metadata.commands]
-start = "RUST_LOG=info cargo run --bin main4"
 dbg = "RUST_LOG=info && cargo run --bin main6"
+start = "RUST_LOG=info cargo run --bin main4"
 wasm = "RUST_LOG=info RUSTFLAGS=--cfg=web_sys_unstable_apis cargo build --target wasm32-unknown-unknown --bin main6 && mv target/wasm32-unknown-unknown/debug/main6.wasm target/wasm32-unknown-unknown/debug/main.wasm && wasm-bindgen --out-dir web/build/generated --web target/wasm32-unknown-unknown/debug/main.wasm"
