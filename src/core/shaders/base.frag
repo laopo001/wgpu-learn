@@ -33,34 +33,34 @@ layout(std140, set = 0, binding = 2) uniform Args {
 };
 layout(set = 0, binding = 3) uniform texture2D u_pbrBaseColorTexture;
 layout(set = 0, binding = 4) uniform pbrMetallicRoughnessInfo {
-    vec3 u_BaseColorFactor;
-    float u_MetallicFactor;
-    float u_RoughnessFactor;
-    uint u_BaseColorTextureTexCoord;
+    vec4 u_pbrBaseColorFactor;
+    float u_pbrMetallicFactor;
+    float u_pbrRoughnessFactor;
+    uint u_pbrBaseColorTextureTexCoord;
 };
 // normalTexture
 layout(set = 0, binding = 5) uniform texture2D u_pbrNormalTexture;
 layout(set = 0, binding = 6) uniform pbrNormalTextureInfo {
-    uint u_NormalTextureTexCoord;
-    float scale;
+    uint u_pbrNormalTextureTexCoord;
+    float u_pbrNormalTextureScale;
 };
 // occlusionTexture
 layout(set = 0, binding = 7) uniform texture2D u_pbrOcclusionTexture;
 layout(set = 0, binding = 8) uniform pbrOcclusionTextureInfo {
-    uint u_OcclusionTextureTexCoord;
-    float strength;
+    uint u_pbrOcclusionTextureTexCoord;
+    float u_pbrOcclusionTextureStrength;
 };
 // emissiveTexture
 layout(set = 0, binding = 9) uniform texture2D u_pbrEmissiveTexture;
 layout(set = 0, binding = 10) uniform pbrEmissiveTextureInfo {
-    uint u_EmissiveTextureTexCoord;
+    uint u_pbrEmissiveTextureTexCoord;
 };
 // pbrOther
 layout(set = 0, binding = 11) uniform pbrOther {
-    vec3 u_EmissiveFactor;
-    uint alphaMode;
-    float alphaCutoff;
-    bool doubleSided;
+    vec3 u_pbrEmissiveFactor;
+    uint u_pbrAlphaMode;
+    float u_pbrAlphaCutoff;
+    bool u_pbrDoubleSided;
 };
 layout(set = 2, binding = 12) uniform MeshPart {
     layout(offset = 0) vec4 in_diffuse;
@@ -82,11 +82,22 @@ layout (location = 2) in vec4 a_COLOR;
 layout (location = 3) in vec2 v_TEXCOORD0; 
 #endif
 
+vec4 getBaseColor() {
+    vec4 baseColor = vec4(1.0, 1.0, 1.0, 1.0);
+    #if defined(use_COLOR)
+        baseColor = a_COLOR;
+    #endif
+    #if defined(use_pbrMetallicRoughnessInfo)
+        baseColor = u_pbrBaseColorFactor;
+    #endif
+    return baseColor;
+}
+
 void main() {
     // outColor = vec4(0.5, 0.0, 0.0, 1.0); 
-    #if defined (use_BaseColorTexture) && defined (use_DiffuseSampler)  && defined (use_TEXCOORD0)
-    outColor =  texture(sampler2D(u_BaseColorTexture, u_Sampler), v_TEXCOORD0);
+    #if defined(use_pbrBaseColorTexture) && defined(use_Sampler)  && defined(use_TEXCOORD0)
+    outColor =  texture(sampler2D(u_pbrBaseColorTexture, u_Sampler), v_TEXCOORD0);
     #else
-    outColor = vec4(u_BaseColorFactor, 1.0);
+    outColor = u_pbrBaseColorFactor;
     #endif
 }

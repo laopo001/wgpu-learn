@@ -48,82 +48,10 @@ pub static TextureFormat: wgpu::TextureFormat = wgpu::TextureFormat::Bgra8Unorm;
 #[cfg(not(target_arch = "wasm32"))]
 pub static TextureFormat: wgpu::TextureFormat = wgpu::TextureFormat::Bgra8UnormSrgb;
 lazy_static! {
-    pub static ref UNIFORMNAMES: serde_json::Value = json!([
-        {
-            "name": "POSITION",
-            "vary": false
-        },
-        {
-            "name": "NORMAL",
-            "vary": false
-        },
-        {
-            "name": "COLOR",
-            "vary": false
-        },
-        {
-            "name": "TEXCOORD0",
-            "vary": true
-        },
-        {
-            "name": "TEXCOORD1",
-            "vary": true
-        }
-    ]);
-    pub static ref ATTRIBNAMES: serde_json::Value = json!([
-        {
-            "name": "ModelViewProjectionMatrix",
-            "visibility": "vert"
-        },
-        {
-            "name": "Sampler",
-            "visibility": "frag"
-        },
-        {
-            "name": "Args",
-            "visibility": "frag"
-        },
-        {
-            "name": "pbrBaseColorTexture",
-            "visibility": "frag"
-        },
-        {
-            "name": "pbrMetallicRoughnessInfo",
-            "visibility": "frag"
-        },
-        {
-            "name": "pbrNormalTexture",
-            "visibility": "frag"
-        },
-        {
-            "name": "pbrNormalTextureInfo",
-            "visibility": "frag"
-        },
-        {
-            "name": "pbrOcclusionTexture",
-            "visibility": "frag"
-        },
-        {
-            "name": "pbrOcclusionTextureInfo",
-            "visibility": "frag"
-        },
-        {
-            "name": "pbrEmissiveTexture",
-            "visibility": "frag"
-        },
-        {
-            "name": "pbrEmissiveTextureInfo",
-            "visibility": "frag"
-        },
-        {
-            "name": "pbrOther",
-            "visibility": "frag"
-        },
-        {
-            "name": "MeshPart",
-            "visibility": "frag"
-        }
-    ]);
+    pub static ref UNIFORMNAMES: serde_json::Value =
+        serde_json::from_str(include_str!("./uniform.json")).unwrap();
+    pub static ref ATTRIBNAMES: serde_json::Value =
+        serde_json::from_str(include_str!("./attribute.json")).unwrap();
 }
 
 include!("./other.rs");

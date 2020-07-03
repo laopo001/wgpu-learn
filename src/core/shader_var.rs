@@ -20,9 +20,9 @@ pub struct UniformVars {
 }
 impl UniformVars {
     pub fn new() -> Self {
-        let LEN = 4;
+        let LEN = 13;
         let mut vars = vec![];
-        for i in 0..4 {
+        for i in 0..LEN {
             vars.push(None);
         }
         UniformVars { vars }
@@ -44,9 +44,9 @@ pub struct VertexVars {
 }
 impl VertexVars {
     pub fn new() -> Self {
-        let LEN = 4;
+        let LEN = 5;
         let mut vars = vec![];
-        for i in 0..4 {
+        for i in 0..LEN {
             vars.push(None);
         }
         VertexVars { vars }
