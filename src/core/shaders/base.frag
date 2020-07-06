@@ -70,17 +70,33 @@ layout(set = 2, binding = 12) uniform MeshPart {
     layout(offset = 64) vec3 extra_emissive;
 };
 
-
-layout(location = 0) out vec4 outColor;
+layout (location = 0) in vec3 v_POSITION;
 #if defined (use_NORMAL)
 layout (location = 1) in vec3 a_NORMAL;
 #endif
 #if defined (use_COLOR)
 layout (location = 2) in vec4 a_COLOR;
 #endif
-#if defined (use_TEXCOORD0)
+#if defined(use_TEXCOORD0)
 layout (location = 3) in vec2 v_TEXCOORD0; 
 #endif
+#if defined(use_TEXCOORD1)
+layout (location = 4) in vec2 v_TEXCOORD1; 
+#endif
+layout(location = 5) out vec4 outColor;
+
+vec2 getCurrTEXCOORD(uint index) {
+    #if defined(use_TEXCOORD0)
+        if(index==0) {
+            return v_TEXCOORD0;
+        }
+    #endif
+    #if defined(use_TEXCOORD1)
+        if(index==1) {
+            return v_TEXCOORD1;
+        }
+    #endif
+}
 
 vec4 getBaseColor() {
     vec4 baseColor = vec4(1.0, 1.0, 1.0, 1.0);
@@ -90,14 +106,23 @@ vec4 getBaseColor() {
     #if defined(use_pbrMetallicRoughnessInfo)
         baseColor = u_pbrBaseColorFactor;
     #endif
+    #if defined(use_pbrBaseColorTexture) && defined(use_Sampler)  && defined(use_TEXCOORD0)
+        outColor =  texture(sampler2D(u_pbrBaseColorTexture, u_Sampler), v_TEXCOORD0);
+    #endif
     return baseColor;
 }
 
+
 void main() {
-    // outColor = vec4(0.5, 0.0, 0.0, 1.0); 
-    #if defined(use_pbrBaseColorTexture) && defined(use_Sampler)  && defined(use_TEXCOORD0)
-    outColor =  texture(sampler2D(u_pbrBaseColorTexture, u_Sampler), v_TEXCOORD0);
+    vec4 baseColor = getBaseColor(); 
+    vec3 camera_v = camera_pos - v_POSITION;
+    // vec3 light_v = camera_pos - v_POSITION;
+    if (baseColor.a == 0.0) discard;
+    #if defined(has_pbrNormalTexture)
+        vec3 normal = texture(sampler2D(u_pbrNormalTexture, u_Sampler), getCurrTEXCOORD(u_pbrNormalTextureTexCoord)).rgb;
+        normal = normalize((normal * 2 - 1) * vec3(u_pbrNormalTextureScale, u_pbrNormalTextureScale, 1.0)); // Convert [0, 1] to [-1, 1] and scale
     #else
-    outColor = u_pbrBaseColorFactor;
+        vec3 normal = a_NORMAL;
     #endif
+    outColor = baseColor;
 }
