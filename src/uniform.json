@@ -16,7 +16,7 @@
         "visibility": "frag"
     },
     {
-        "name": "pbrMetallicRoughnessInfo",
+        "name": "pbrMetallicRoughnessTexture",
         "visibility": "frag"
     },
     {
@@ -24,15 +24,7 @@
         "visibility": "frag"
     },
     {
-        "name": "pbrNormalTextureInfo",
-        "visibility": "frag"
-    },
-    {
         "name": "pbrOcclusionTexture",
-        "visibility": "frag"
-    },
-    {
-        "name": "pbrOcclusionTextureInfo",
         "visibility": "frag"
     },
     {
@@ -40,15 +32,11 @@
         "visibility": "frag"
     },
     {
-        "name": "pbrEmissiveTextureInfo",
+        "name": "pbrInfo",
         "visibility": "frag"
     },
     {
-        "name": "pbrOther",
-        "visibility": "frag"
-    },
-    {
-        "name": "MeshPart",
+        "name": "pbrAlbedoTexture",
         "visibility": "frag"
     }
 ]

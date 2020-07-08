@@ -22,7 +22,7 @@ struct SpotLight {
     float intensity; // 光的强度
 };
 layout(set = 0, binding = 1) uniform sampler u_Sampler;
-// pbrMetallicRoughness
+
 layout(std140, set = 0, binding = 2) uniform Args {
     layout(offset = 0) mat4 proj_view;
     layout(offset = 64) vec3 camera_pos;
@@ -33,36 +33,31 @@ layout(std140, set = 0, binding = 2) uniform Args {
 };
 layout(set = 0, binding = 3) uniform texture2D u_pbrBaseColorTexture;
 
+layout(set = 0, binding = 4) uniform texture2D u_pbrMetallicRoughnessTexture;
+
 layout(set = 0, binding = 5) uniform texture2D u_pbrNormalTexture;
 
-layout(set = 0, binding = 7) uniform texture2D u_pbrOcclusionTexture;
+layout(set = 0, binding = 6) uniform texture2D u_pbrOcclusionTexture;
 
-layout(set = 0, binding = 9) uniform texture2D u_pbrEmissiveTexture;
+layout(set = 0, binding = 7) uniform texture2D u_pbrEmissiveTexture;
 
 // pbr
-layout(set = 0, binding = 11) uniform pbrInfo {
+layout(set = 0, binding = 8) uniform pbrInfo {
     // BaseColorTexture
     vec4 u_pbrBaseColorFactor;
     float u_pbrMetallicFactor;
     float u_pbrRoughnessFactor;
-    uint u_pbrBaseColorTextureTexCoord;
     // normalTexture
-    uint u_pbrNormalTextureTexCoord;
     float u_pbrNormalTextureScale;
     // OcclusionTexture
-    uint u_pbrOcclusionTextureTexCoord;
     float u_pbrOcclusionTextureStrength;
-    // EmissiveTexture
-    uint u_pbrEmissiveTextureTexCoord;
-    // AlbedoTexture
-    uint u_pbrAlbedoTextureTexCoord;
     //
     vec3 u_pbrEmissiveFactor;
     uint u_pbrAlphaMode;
     float u_pbrAlphaCutoff;
     bool u_pbrDoubleSided;
 };
-layout(set = 0, binding = 13) uniform texture2D u_pbrAlbedoTexture;
+layout(set = 0, binding = 9) uniform texture2D u_pbrAlbedoTexture;
 
 layout (location = 0) in vec3 v_POSITION;
 #if defined (use_NORMAL)
@@ -80,16 +75,17 @@ layout (location = 4) in vec2 v_TEXCOORD1;
 layout(location = 5) out vec4 outColor;
 
 vec2 getCurrTEXCOORD(uint index) {
-    #if defined(use_TEXCOORD0)
-        if(index==0) {
-            return v_TEXCOORD0;
-        }
-    #endif
     #if defined(use_TEXCOORD1)
         if(index==1) {
             return v_TEXCOORD1;
         }
     #endif
+    #if defined(use_TEXCOORD0)
+        if(index==0) {
+            return v_TEXCOORD0;
+        }
+    #endif
+    return v_TEXCOORD0;
 }
 
 vec4 getBaseColor() {
@@ -100,7 +96,7 @@ vec4 getBaseColor() {
     #if defined(use_pbrMetallicRoughnessInfo)
         baseColor = u_pbrBaseColorFactor;
     #endif
-    #if defined(use_pbrBaseColorTexture) && defined(use_Sampler)  && defined(use_TEXCOORD0)
+    #if defined(use_pbrBaseColorTexture) && defined(use_Sampler)  && defined(use_TEXCOORD0) && defined(use_pbrMetallicRoughnessInfo)
         outColor =  texture(sampler2D(u_pbrBaseColorTexture, u_Sampler), v_TEXCOORD0) * u_pbrBaseColorFactor;
     #endif
     return baseColor;
@@ -163,24 +159,33 @@ vec3 compute_light(vec3 attenuation,
 }
 
 void main() {
-    vec4 baseColor = getBaseColor(); 
-    vec3 view_direction = camera_pos - v_POSITION;
-    vec3 albedo = texture(sampler2D(u_pbrAlbedoTexture, u_Sampler), getCurrTEXCOORD(u_pbrAlbedoTextureTexCoord)).rgb;
-    float roughness = u_pbrRoughnessFactor;
-    float roughness2 = roughness * roughness;
-    float metallic = u_pbrMetallicFactor;
-    vec3 fresnel_base = mix(vec3(0.04), albedo, metallic);
+    vec4 baseColor = getBaseColor();
     if (baseColor.a == 0.0) discard;
+    vec3 view_direction = camera_pos - v_POSITION;
+    vec3 albedo = texture(sampler2D(u_pbrAlbedoTexture, u_Sampler), v_TEXCOORD0).rgb;
+    vec2 metallic_roughness = texture(sampler2D(u_pbrMetallicRoughnessTexture, u_Sampler), v_TEXCOORD0).bg;
+    float roughness = metallic_roughness.r * u_pbrRoughnessFactor;
+    float metallic = metallic_roughness.g * u_pbrMetallicFactor;
+    float roughness2 = roughness * roughness;
+    vec3 fresnel_base = mix(vec3(0.04), albedo, metallic);
+    vec3 emission = vec3(0.0);
+    #if defined(has_pbrEmissiveTexture)
+        emission = texture(sampler2D(u_pbrEmissiveTexture, u_Sampler), v_TEXCOORD0).rgb * u_pbrEmissiveFactor;
+    #endif
+
     #if defined(has_pbrNormalTexture)
-        vec3 normal = texture(sampler2D(u_pbrNormalTexture, u_Sampler), getCurrTEXCOORD(u_pbrNormalTextureTexCoord)).rgb;
+        vec3 normal = texture(sampler2D(u_pbrNormalTexture, u_Sampler), v_TEXCOORD0).rgb;
         normal = normalize((normal * 2 - 1) * vec3(u_pbrNormalTextureScale, u_pbrNormalTextureScale, 1.0)); // Convert [0, 1] to [-1, 1] and scale
+        #define use_NORMAL 1;
     #else
-        vec3 normal = a_NORMAL;
+        #if defined(use_NORMAL)
+            vec3 normal = a_NORMAL;
+        #endif
     #endif
     vec3 lighted = vec3(0.0);
     for (int i = 0; i < point_light_count; i++) {
         vec3 light_direction = point_lights[i].position - v_POSITION.xyz;
-        float light_direction_distance = length(light_direction);
+        // float light_direction_distance = length(light_direction);
         // float attenuation = point_lights[i].intensity / (light_direction_distance * light_direction_distance);
         float attenuation = point_lights[i].intensity / dot(light_direction, light_direction);
 
@@ -196,5 +201,61 @@ void main() {
 
         lighted += light;
     }
-    outColor = baseColor;
+
+    for (int i = 0; i < spot_light_count; i++) {
+        vec3 light_vec = spot_lights[i].position - v_POSITION.xyz;
+        vec3 normalized_light_vec = normalize(light_vec);
+
+        // The distance between the current fragment and the "core" of the light
+        float light_length = length(light_vec);
+
+        // The allowed "length", everything after this won't be lit.
+        // Later on we are dividing by this range, so it can't be 0
+        float range = max(spot_lights[i].range, 0.00001);
+
+        // get normalized range, so everything 0..1 could be lit, everything else can't.
+        float normalized_range = light_length / max(0.00001, range);
+
+        // The attenuation for the "range". If we would only consider this, we'd have a
+        // point light instead, so we need to also check for the spot angle and direction.
+        float range_attenuation = max(0.0, 1.0 - normalized_range);
+
+        // this is actually the cosine of the angle, so it can be compared with the
+        // "dotted" frag_angle below a lot cheaper.
+        float spot_angle = max(spot_lights[i].angle, 0.00001);
+        vec3 spot_direction = normalize(spot_lights[i].direction);
+        float smoothness = 1.0 - spot_lights[i].smoothness;
+
+        // Here we check if the current fragment is within the "ring" of the spotlight.
+        float frag_angle = dot(spot_direction, -normalized_light_vec);
+
+        // so that the ring_attenuation won't be > 1
+        frag_angle = max(frag_angle, spot_angle);
+
+        // How much is this outside of the ring? (let's call it "rim")
+        // Also smooth this out.
+        float rim_attenuation = pow(max((1.0 - frag_angle) / (1.0 - spot_angle), 0.00001), smoothness);
+
+        // How much is this inside the "ring"?
+        float ring_attenuation = 1.0 - rim_attenuation;
+
+        // combine the attenuations and intensity
+        float attenuation = range_attenuation * ring_attenuation * spot_lights[i].intensity;
+
+        vec3 light = compute_light(vec3(attenuation),
+                                   spot_lights[i].color,
+                                   view_direction,
+                                   normalized_light_vec,
+                                   albedo,
+                                   normal,
+                                   roughness2,
+                                   metallic,
+                                   fresnel_base);
+        lighted += light;
+    }
+    // outColor = baseColor;
+    vec3 ambient_color = vec3(0.01, 0.01, 0.01);
+    float ambient_occlusion = 1.0;
+    vec3 ambient = ambient_color * albedo * ambient_occlusion;
+    outColor = vec4(ambient + baseColor.xyz + lighted + emission, baseColor.a);
 }
