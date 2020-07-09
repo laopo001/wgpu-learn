@@ -6,6 +6,7 @@ use gltf::{
 };
 use std::error::Error;
 use wgpu_learn::config::Config;
+use wgpu_learn::core::color::Color;
 use wgpu_learn::ecs::entity::{Component, Entity};
 use wgpu_learn::model::create_mesh::{create_mesh, CreateMeshParam};
 use wgpu_learn::model::mesh::Mesh;
@@ -182,6 +183,11 @@ async fn run() {
         far: 10.0,
     });
     camera.lookat_vec(&Vector3::new(0.0, 0.0, 0.0));
+    let mut light = Entity::new("light");
+    light.set_component(Component::PointLight {
+        range: 10.0,
+        color: Color::new(1.0, 1.0, 1.0, 1.0),
+    });
     app.scene.root.add_child(camera);
     for scene in document.default_scene() {
         let mut entity = Entity::new("gltf_root");

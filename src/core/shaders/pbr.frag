@@ -11,7 +11,7 @@ layout(location = 3) flat in float f_tbn_handedness;
 layout(location = 4) in vec2 f_uv;
 layout(location = 5) in mat3 f_tbn;
 
-struct Light {
+struct PointLight {
     vec3 position;
     float intensity;
     vec3 color;
@@ -31,7 +31,7 @@ layout(std140, set = 0, binding = 0) uniform Args {
     layout(offset = 0) mat4 proj_view;
     layout(offset = 64) vec3 camera_pos;
     layout(offset = 76) int point_light_count;
-    layout(offset = 80) Light point_lights[32];
+    layout(offset = 80) PointLight point_lights[32];
     layout(offset = 1104) int spot_light_count;
     layout(offset = 1120) SpotLight spot_lights[32];
 };

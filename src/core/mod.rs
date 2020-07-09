@@ -1,3 +1,4 @@
+pub mod color;
 pub mod event;
 pub mod index_buffer;
 pub mod shader;

@@ -1,7 +1,10 @@
+use crate::core::color::Color;
 use crate::ecs::components::camera::CameraComponent;
+use crate::ecs::components::light::{Light, LightComponent};
 use crate::ecs::components::mesh::MeshComponent;
 use crate::model::mesh::Mesh;
 use crate::scene::camera::Camera;
+use crate::scene::light::PointLight;
 use crate::scene::node::Node;
 use crate::scene::Scene;
 use std::cell::RefCell;
@@ -15,6 +18,7 @@ pub struct Entity {
     pub children: Vec<Box<Entity>>,
     pub mesh_component: Option<Rc<RefCell<MeshComponent>>>,
     pub camera_component: Option<Rc<RefCell<CameraComponent>>>,
+    pub light_component: Option<Rc<RefCell<LightComponent>>>,
     pub initialized: bool,
 }
 use core::ops::{Deref, DerefMut};
@@ -40,6 +44,10 @@ pub enum Component {
         near: f32,
         far: f32,
     },
+    PointLight {
+        color: Color,
+        range: f32,
+    },
 }
 
 impl Entity {
@@ -52,6 +60,7 @@ impl Entity {
             children: vec![],
             mesh_component: None,
             camera_component: None,
+            light_component: None,
             scene: std::ptr::null_mut(),
             initialized: false,
         });
@@ -81,6 +90,17 @@ impl Entity {
                 }
 
                 self.camera_component = Some(c);
+            }
+            Component::PointLight { color, range } => {
+                let mut c = Rc::new(RefCell::new(LightComponent::new(
+                    self,
+                    Light::PointLight(PointLight::new(range, color)),
+                )));
+                if let Some(s) = self.scene() {
+                    s.systems.add_light_component(c.clone());
+                }
+
+                self.light_component = Some(c);
             }
             _ => panic!("Component"),
         }

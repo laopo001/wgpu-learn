@@ -80,7 +80,7 @@ impl Material {
             }
         }
         self.shader.set_uniform_vars(
-            Uniform::pbrMetallicRoughnessInfo,
+            Uniform::pbrInfo,
             UniformVar {
                 visibility: wgpu::ShaderStage::FRAGMENT,
                 ty: wgpu::BindingType::UniformBuffer { dynamic: false },
