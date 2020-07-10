@@ -84,7 +84,6 @@ impl Scene {
                 let normal_matrix_ref: &[f32; 16] = normal.as_ref();
                 let mut mx_ref: Vec<f32> = view_projection_matrix_ref.clone().to_vec();
                 mx_ref.extend_from_slice(model_matrix_ref);
-                // TODO
                 mx_ref.extend_from_slice(normal_matrix_ref);
                 let uniform_buf = app.device.create_buffer_with_data(
                     mx_ref.as_bytes(),

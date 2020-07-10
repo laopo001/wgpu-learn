@@ -189,6 +189,7 @@ async fn run() {
         color: Color::new(1.0, 1.0, 1.0, 1.0),
     });
     app.scene.root.add_child(camera);
+    app.scene.root.add_child(light);
     for scene in document.default_scene() {
         let mut entity = Entity::new("gltf_root");
         for node in scene.nodes() {

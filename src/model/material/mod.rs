@@ -18,7 +18,7 @@ pub struct Material {
 impl Material {
     fn app(&self) -> &App {
         if self.app.is_null() {
-            panic!("app get not")
+            panic!("app get not");
         }
         unsafe {
             return &*self.app;
