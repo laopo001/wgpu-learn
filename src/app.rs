@@ -315,7 +315,7 @@ impl App {
         // mesh.material
         //     .shader
         //     .set_vertex_buffer(mesh.vertex_buffer.clone().expect("").clone());
-        mesh.material.shader.get_bind();
+        // mesh.material.shader.get_bind();
         let frame = self
             .swap_chain
             .get_next_texture()

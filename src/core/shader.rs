@@ -44,6 +44,7 @@ pub struct Shader {
     pub app: *const App,
     pub vs_module: Option<wgpu::ShaderModule>,
     pub fs_module: Option<wgpu::ShaderModule>,
+    pub initialized: bool,
 }
 impl Shader {
     pub fn new() -> Self {
@@ -59,6 +60,7 @@ impl Shader {
             app: std::ptr::null() as *const App,
             vs_module: None,
             fs_module: None,
+            initialized: false,
         }
     }
     pub fn set_app(&mut self, app: &App) {
@@ -140,6 +142,7 @@ impl Shader {
             std::fs::write("test.frag", &frag).unwrap();
         }
         self.set_shader_module(&vert, &frag);
+        self.initialized = true;
     }
     pub fn new_by_code(app: &App, vs_code: &str, fs_code: &str) -> Self {
         let vs_bytes = load_glsl(vs_code, ShaderStage::VERTEX);
@@ -158,6 +161,7 @@ impl Shader {
             app: app as *const App,
             vs_module: Some(vs_module),
             fs_module: Some(fs_module),
+            initialized: false,
         }
     }
     pub fn set_uniform_vars(&mut self, t: Uniform, var: UniformVar) {

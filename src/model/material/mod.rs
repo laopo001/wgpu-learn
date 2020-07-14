@@ -90,6 +90,10 @@ impl Material {
                 },
             },
         );
-        self.shader.get_base_material();
+        if !self.shader.initialized {
+            self.shader.get_base_material();
+        }
+
+        self.shader.get_bind();
     }
 }
