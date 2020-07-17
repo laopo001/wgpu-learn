@@ -94,7 +94,7 @@ impl Scene {
                     UniformVar {
                         resource: UniformBindingResource::Buffer {
                             buffer: uniform_buf,
-                            range: 0..64,
+                            range: 0..((mx_ref.len() * std::mem::size_of::<f32>()) as u64),
                         },
                         ty: wgpu::BindingType::UniformBuffer { dynamic: false },
                         visibility: wgpu::ShaderStage::VERTEX,
