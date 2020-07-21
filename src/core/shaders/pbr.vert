@@ -26,8 +26,8 @@ layout (location = 3) in vec2 a_TEXCOORD0;
 layout (location = 3) out vec2 v_TEXCOORD0;
 #endif
 #if defined (use_TEXCOORD1)
-layout (location = 3) in vec2 a_TEXCOORD1;
-layout (location = 3) out vec2 v_TEXCOORD1;
+layout (location = 4) in vec2 a_TEXCOORD1;
+layout (location = 4) out vec2 v_TEXCOORD1;
 #endif
 void main() {
     vec4 posW = u_ModelMatrix * a_POSITION;

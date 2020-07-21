@@ -97,7 +97,7 @@ vec4 getBaseColor() {
         baseColor = vec4(u_pbrBaseColorFactor, 1.0);
     #endif
     #if defined(use_pbrBaseColorTexture) && defined(use_Sampler)  && defined(use_TEXCOORD0) && defined(use_pbrMetallicRoughnessInfo)
-        outColor =  texture(sampler2D(u_pbrBaseColorTexture, u_Sampler), v_TEXCOORD0) * vec4(u_pbrBaseColorFactor, 1.0);
+        baseColor =  texture(sampler2D(u_pbrBaseColorTexture, u_Sampler), v_TEXCOORD0) * vec4(u_pbrBaseColorFactor, 1.0);
     #endif
     return baseColor;
 }

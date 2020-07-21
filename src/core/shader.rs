@@ -45,6 +45,7 @@ pub struct Shader {
     pub vs_module: Option<wgpu::ShaderModule>,
     pub fs_module: Option<wgpu::ShaderModule>,
     pub initialized: bool,
+    pub binded: bool,
 }
 impl Shader {
     pub fn new() -> Self {
@@ -61,6 +62,7 @@ impl Shader {
             vs_module: None,
             fs_module: None,
             initialized: false,
+            binded: false,
         }
     }
     pub fn set_app(&mut self, app: &App) {
@@ -162,6 +164,7 @@ impl Shader {
             vs_module: Some(vs_module),
             fs_module: Some(fs_module),
             initialized: false,
+            binded: false,
         }
     }
     pub fn set_uniform_vars(&mut self, t: Uniform, var: UniformVar) {
@@ -460,6 +463,7 @@ layout(set = 0, binding = {}) uniform Locals{} {{
             self.bind_group = Some(bind_group);
             self.render_pipeline = Some(render_pipeline);
             self.pipeline_layout = Some(pipeline_layout);
+            self.binded = true;
         }
     }
 }

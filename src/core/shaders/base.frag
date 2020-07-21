@@ -13,13 +13,17 @@ layout(set = 0, binding = 3) uniform texture2D u_pbrBaseColorTexture;
 layout(set = 0, binding = 8) uniform pbrInfo {
     vec3 u_pbrBaseColorFactor;
 };
-
-#if defined (use_TEXCOORD0)
-layout (location = 3) in vec2 a_TEXCOORD0;
-layout (location = 3) out vec2 v_TEXCOORD0;
+layout (location = 0) in vec3 v_POSITION;
+#if defined (use_NORMAL)
+layout (location = 1) in vec3 a_NORMAL;
 #endif
-
-layout(location = 5) out vec4 outColor;
+#if defined (use_COLOR)
+layout (location = 2) in vec4 a_COLOR;
+#endif
+#if defined(use_TEXCOORD0)
+layout (location = 3) in vec2 v_TEXCOORD0; 
+#endif
+layout(location = 4) out vec4 outColor;
 
 void main() {
     // outColor = vec4(0.5, 0.0, 0.0, 1.0); 

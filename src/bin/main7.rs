@@ -41,7 +41,7 @@ async fn run() {
     camera.set_component(Component::Camera {
         fov: 45.0,
         aspect: app.size.width as f32 / app.size.height as f32,
-        near: 0.0,
+        near: 0.001,
         far: 10.0,
     });
     camera.lookat(&mut face);

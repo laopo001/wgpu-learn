@@ -36,6 +36,9 @@ impl BaseMaterial {
         self.shader.set_uniform_vars(t, var);
     }
     pub fn update_shader(&mut self, app: &App) {
+        if self.shader.binded {
+            return;
+        }
         self.shader.set_app(app);
         let vec: Vec<f32> = vec![self.color.x, self.color.y, self.color.z];
         let uniform_buf = app.device.create_buffer_with_data(
